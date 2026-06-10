@@ -39,7 +39,7 @@ export default function HeroSection() {
       </AnimatePresence>
       {/* Hero title row */}
       <motion.div
-        className="px-8 py-10 flex flex-col gap-1"
+        className="relative z-10 px-8 py-10 flex flex-col gap-1"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
@@ -47,7 +47,7 @@ export default function HeroSection() {
         <h1 className="font-mono text-[clamp(2.2rem,6vw,5rem)] leading-none tracking-tighter text-white uppercase">
           Sebastian Calle
         </h1>
-        <p className="font-mono text-[clamp(0.75rem,1.2vw,1rem)] text-[#444] tracking-[0.2em] uppercase mt-1">
+        <p className="font-mono text-[clamp(0.75rem,1.2vw,1rem)] text-[#666] tracking-[0.2em] uppercase mt-1">
           Capturing stories through light.
         </p>
       </motion.div>
