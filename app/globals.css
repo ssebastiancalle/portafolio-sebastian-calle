@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Theme variables ─────────────────────────────────────── */
+:root {
+  --font-space-mono: 'Space Mono', monospace;
+  --font-ibm-plex-mono: 'IBM Plex Mono', monospace;
+
+  /* dark (default) */
+  --bg:          #000000;
+  --bg-surface:  #0d0d0d;
+  --text:        #ffffff;
+  --text-2:      #aaaaaa;
+  --text-3:      #888888;
+  --text-4:      #555555;
+  --text-5:      #333333;
+  --border:      #111111;
+  --border-2:    #1a1a1a;
+  --header-bg:   0, 0, 0;        /* RGB for rgba() */
+  --header-border: 255,255,255;
+  --scrollbar:   #333;
+}
+
+[data-theme="light"] {
+  --bg:          #F0EBE3;
+  --bg-surface:  #E8E2DA;
+  --text:        #0d0d0d;
+  --text-2:      #3a3a3a;
+  --text-3:      #555555;
+  --text-4:      #999999;
+  --text-5:      #bbbbbb;
+  --border:      #d8d0c8;
+  --border-2:    #cac2b8;
+  --header-bg:   240, 235, 227;
+  --header-border: 0,0,0;
+  --scrollbar:   #bbb;
+}
+
+/* ── Base ────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  background: var(--bg);
+  color: var(--text);
+  cursor: none;
+  transition: background 0.05s, color 0.05s;
+}
+
+body {
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+/* ── Grain overlay ───────────────────────────────────────── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 1px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar); }
+
+/* ── Custom cursor ───────────────────────────────────────── */
+.cursor {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(var(--header-border), 0.8);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s, height 0.2s, opacity 0.2s;
+  mix-blend-mode: difference;
+}
+
+.cursor-follower {
+  position: fixed;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(var(--header-border), 0.15);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: all 0.08s ease-out;
+  mix-blend-mode: difference;
+}
+
+/* ── Theme-aware overrides (avoids touching every component) */
+[data-theme="light"] .bg-black           { background-color: var(--bg) !important; }
+[data-theme="light"] main                { background-color: var(--bg); }
+[data-theme="light"] .text-white         { color: var(--text) !important; }
+[data-theme="light"] .text-\[\#aaa\]    { color: var(--text-2) !important; }
+[data-theme="light"] .text-\[\#888\]    { color: var(--text-3) !important; }
+[data-theme="light"] .text-\[\#555\]    { color: var(--text-4) !important; }
+[data-theme="light"] .text-\[\#444\]    { color: var(--text-4) !important; }
+[data-theme="light"] .text-\[\#333\]    { color: var(--text-5) !important; }
+[data-theme="light"] .text-\[\#2a2a2a\] { color: var(--text-5) !important; }
+[data-theme="light"] .border-\[\#111\]  { border-color: var(--border) !important; }
+[data-theme="light"] .bg-\[\#111\]      { background-color: var(--bg-surface) !important; }
+[data-theme="light"] .bg-black\/20      { background-color: rgba(0,0,0,0.05) !important; }
+[data-theme="light"] .bg-black\/10      { background-color: rgba(0,0,0,0.03) !important; }
+[data-theme="light"] .bg-black\/50      { background-color: rgba(0,0,0,0.15) !important; }
+[data-theme="light"] .bg-black\/60      { background-color: rgba(240,235,227,0.75) !important; }
+[data-theme="light"] .border-white\/\[0\.04\] { border-color: rgba(0,0,0,0.06) !important; }
+[data-theme="light"] .border-white\/30  { border-color: rgba(0,0,0,0.2) !important; }
+[data-theme="light"] .mix-blend-difference { mix-blend-mode: difference; }
+
+@layer utilities {
+  .text-dim { color: #555; }
+  .text-mid { color: #888; }
+  .text-soft { color: #aaa; }
+}
