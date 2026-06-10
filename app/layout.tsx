@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Mono, IBM_Plex_Mono } from "next/font/google";
 import { ThemeProvider } from "@/context/theme";
+import CustomCursor from "@/components/CustomCursor";
 import "./globals.css";
 
 const spaceMono = Space_Mono({
@@ -31,6 +32,7 @@ export default function RootLayout({
     <html lang="en" className={`${spaceMono.variable} ${ibmPlexMono.variable}`}>
       <body className="bg-black text-white font-mono antialiased">
         <ThemeProvider>
+          <CustomCursor />
           {children}
         </ThemeProvider>
       </body>
