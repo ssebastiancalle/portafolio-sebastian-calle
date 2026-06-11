@@ -89,35 +89,37 @@ export default function HomeCarousel() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Controls: ← counter → */}
+        {/* Controls: arrows + counter below */}
         <div
-          className="flex items-center justify-between px-6"
-          style={{ background: "var(--bg)", minHeight: 64 }}
+          className="flex flex-col px-6 pb-4 pt-2"
+          style={{ background: "var(--bg)" }}
         >
-          <button
-            onClick={() => go(-1)}
-            disabled={!canPrev}
-            aria-label="Previous"
-            className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation"
-            style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center" }}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => go(-1)}
+              disabled={!canPrev}
+              aria-label="Previous"
+              className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation"
+              style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center" }}
+            >
+              ←
+            </button>
+            <button
+              onClick={() => go(1)}
+              disabled={!canNext}
+              aria-label="Next"
+              className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation"
+              style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "flex-end" }}
+            >
+              →
+            </button>
+          </div>
+          <span
+            className="font-mono text-[10px] tracking-[0.3em] uppercase select-none text-center"
+            style={{ color: "rgba(var(--header-border), 0.3)" }}
           >
-            ←
-          </button>
-
-          <span className="font-mono text-[10px] tracking-[0.3em] uppercase select-none"
-                style={{ color: "rgba(var(--header-border), 0.3)" }}>
             {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
           </span>
-
-          <button
-            onClick={() => go(1)}
-            disabled={!canNext}
-            aria-label="Next"
-            className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation"
-            style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "flex-end" }}
-          >
-            →
-          </button>
         </div>
       </div>
     );
