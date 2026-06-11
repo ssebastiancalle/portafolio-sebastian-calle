@@ -73,28 +73,26 @@ body::before {
 /* ── Custom cursor ───────────────────────────────────────── */
 .cursor {
   position: fixed;
-  width: 12px;
-  height: 12px;
-  border: 1px solid rgba(var(--header-border), 0.8);
+  width: 10px;
+  height: 10px;
+  background: rgba(var(--header-border), 0.9);
   border-radius: 50%;
   pointer-events: none;
   z-index: 10000;
   transform: translate(-50%, -50%);
-  transition: width 0.2s, height 0.2s, opacity 0.2s;
-  mix-blend-mode: difference;
+  transition: width 0.2s, height 0.2s, opacity 0.2s, background 0.3s;
 }
 
 .cursor-follower {
   position: fixed;
-  width: 36px;
-  height: 36px;
-  border: 1px solid rgba(var(--header-border), 0.15);
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(var(--header-border), 0.3);
   border-radius: 50%;
   pointer-events: none;
   z-index: 9998;
   transform: translate(-50%, -50%);
-  transition: all 0.08s ease-out;
-  mix-blend-mode: difference;
+  transition: border-color 0.3s;
 }
 
 /* ── Theme-aware overrides (avoids touching every component) */
