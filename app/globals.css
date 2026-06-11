@@ -119,7 +119,7 @@ body::before {
   .text-dim { color: #555; }
   .text-mid { color: #888; }
   .text-soft { color: #aaa; }
-  .font-handwriting { font-family: var(--font-handwriting), cursive; }
+
 }
 
 /* ── Dark-mode gray text correction ─────────────────────── */

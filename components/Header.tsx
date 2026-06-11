@@ -28,7 +28,18 @@ export default function Header() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
-        {pathname !== "/" && (
+        {pathname === "/" ? (
+          <div className="flex flex-col gap-1">
+            <span className="font-mono font-bold tracking-widest uppercase text-white"
+                  style={{ fontSize: "clamp(1rem, 3vw, 1.75rem)" }}>
+              Sebastian Calle
+            </span>
+            <span className="font-mono uppercase tracking-[0.2em]"
+                  style={{ fontSize: "clamp(0.5rem, 1vw, 0.6rem)", color: "rgba(var(--header-border), 0.4)" }}>
+              Photographer &amp; Retoucher
+            </span>
+          </div>
+        ) : (
           <Link
             href="/"
             className="font-mono text-xs md:text-sm tracking-widest text-white uppercase hover:text-white/70 transition-colors whitespace-nowrap"
@@ -36,7 +47,6 @@ export default function Header() {
             SEBASTIAN CALLE
           </Link>
         )}
-        {pathname === "/" && <span />}
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-10">
