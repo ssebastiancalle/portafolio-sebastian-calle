@@ -40,7 +40,7 @@ export default function HomeCarousel() {
   /* ── Mobile: peek track carousel ── */
   if (isMobile) {
     return (
-      <div className="relative w-full flex flex-col bg-black" style={{ height: "100svh" }}>
+      <div className="relative w-full flex flex-col bg-black" style={{ height: "100svh", paddingTop: "64px" }}>
 
         {/* Track — all slides in a row, spring-animated */}
         <div className="relative flex-1 overflow-hidden">
@@ -109,14 +109,14 @@ export default function HomeCarousel() {
         </div>
 
         {/* Controls: arrows + counter */}
-        <div className="flex flex-col px-6 pb-4 pt-2" style={{ background: "var(--bg)" }}>
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col items-center pb-4 pt-2 gap-1" style={{ background: "var(--bg)" }}>
+          <div className="flex items-center gap-10">
             <button
               onClick={() => go(-1)}
               disabled={!canPrev}
               aria-label="Previous"
               className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation"
-              style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center" }}
+              style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
             >
               ←
             </button>
@@ -125,13 +125,13 @@ export default function HomeCarousel() {
               disabled={!canNext}
               aria-label="Next"
               className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation"
-              style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "flex-end" }}
+              style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
             >
               →
             </button>
           </div>
           <span
-            className="font-mono text-[10px] tracking-[0.3em] uppercase select-none text-center"
+            className="font-mono text-[10px] tracking-[0.3em] uppercase select-none"
             style={{ color: "rgba(var(--header-border), 0.3)" }}
           >
             {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
@@ -180,31 +180,34 @@ export default function HomeCarousel() {
         </AnimatePresence>
       </div>
 
-      <button
-        onClick={() => go(-1)}
-        disabled={!canPrev}
-        aria-label="Previous"
-        className="carousel-arrow absolute left-4 top-1/2 -translate-y-1/2 font-mono text-xs tracking-widest cursor-pointer z-10"
-        style={{ minHeight: 44, minWidth: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
-      >
-        ←
-      </button>
-
-      <button
-        onClick={() => go(1)}
-        disabled={!canNext}
-        aria-label="Next"
-        className="carousel-arrow absolute right-4 top-1/2 -translate-y-1/2 font-mono text-xs tracking-widest cursor-pointer z-10"
-        style={{ minHeight: 44, minWidth: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
-      >
-        →
-      </button>
-
-      <div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-[0.3em] uppercase select-none"
-        style={{ color: "rgba(var(--header-border), 0.3)" }}
-      >
-        {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
+      {/* Arrows + counter — centered bottom group */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+        <div className="flex items-center gap-8">
+          <button
+            onClick={() => go(-1)}
+            disabled={!canPrev}
+            aria-label="Previous"
+            className="carousel-arrow font-mono text-xs tracking-widest cursor-pointer"
+            style={{ minHeight: 44, minWidth: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            ←
+          </button>
+          <button
+            onClick={() => go(1)}
+            disabled={!canNext}
+            aria-label="Next"
+            className="carousel-arrow font-mono text-xs tracking-widest cursor-pointer"
+            style={{ minHeight: 44, minWidth: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            →
+          </button>
+        </div>
+        <span
+          className="font-mono text-[10px] tracking-[0.3em] uppercase select-none"
+          style={{ color: "rgba(var(--header-border), 0.3)" }}
+        >
+          {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
+        </span>
       </div>
     </div>
   );
