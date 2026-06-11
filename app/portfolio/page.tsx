@@ -52,10 +52,10 @@ function AlbumCard({ cat, index, tall }: { cat: typeof categories[0]; index: num
         {/* Gradient overlay — always visible at bottom */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-5">
-          <p className="font-mono text-[11px] tracking-[0.3em] text-white/40 uppercase mb-1">
+          <p className="font-mono text-[11px] tracking-[0.3em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>
             {String(cat.photos.length).padStart(2, "0")} IMAGES
           </p>
-          <p className="font-mono text-sm md:text-base tracking-widest text-white uppercase font-bold">
+          <p className="font-mono text-sm md:text-base tracking-widest uppercase font-bold" style={{ color: "#ffffff" }}>
             {cat.label}
           </p>
         </div>
