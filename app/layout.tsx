@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Mono, IBM_Plex_Mono } from "next/font/google";
+import { Space_Mono, IBM_Plex_Mono, Permanent_Marker } from "next/font/google";
 import { ThemeProvider } from "@/context/theme";
 import CustomCursor from "@/components/CustomCursor";
 import "./globals.css";
@@ -18,6 +18,13 @@ const ibmPlexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const permanentMarker = Permanent_Marker({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-handwriting",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Sebastian Calle — Photography",
   description: "Capturing stories through light. Professional photography portfolio.",
@@ -29,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${spaceMono.variable} ${ibmPlexMono.variable}`}>
+    <html lang="en" className={`${spaceMono.variable} ${ibmPlexMono.variable} ${permanentMarker.variable}`}>
       <body className="bg-black text-white font-mono antialiased">
         <ThemeProvider>
           <CustomCursor />

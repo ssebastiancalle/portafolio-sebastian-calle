@@ -28,12 +28,15 @@ export default function Header() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
-        <Link
-          href="/"
-          className="font-mono text-xs md:text-sm tracking-widest text-white uppercase hover:text-white/70 transition-colors whitespace-nowrap"
-        >
-          SEBASTIAN CALLE
-        </Link>
+        {pathname !== "/" && (
+          <Link
+            href="/"
+            className="font-mono text-xs md:text-sm tracking-widest text-white uppercase hover:text-white/70 transition-colors whitespace-nowrap"
+          >
+            SEBASTIAN CALLE
+          </Link>
+        )}
+        {pathname === "/" && <span />}
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-10">
