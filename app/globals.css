@@ -120,3 +120,37 @@ body::before {
   .text-mid { color: #888; }
   .text-soft { color: #aaa; }
 }
+
+/* ── Dark-mode gray text correction ─────────────────────── */
+/* #333 = 1.7:1 contrast on black, #444 = 2.3:1 — too low   */
+.text-\[\#333\]    { color: #585858; }
+.text-\[\#444\]    { color: #686868; }
+.text-\[\#2a2a2a\] { color: #585858; }
+
+/* ── Theme-aware album bottom nav links ──────────────────── */
+.nav-link-dim {
+  color: rgba(var(--header-border), 0.32);
+  transition: color 0.2s;
+}
+.nav-link-dim:hover {
+  color: rgba(var(--header-border), 0.85);
+}
+
+/* ── Touch / coarse-pointer devices ─────────────────────── */
+@media (pointer: coarse) {
+  html { cursor: auto; }
+  .cursor, .cursor-follower { display: none; }
+}
+
+/* ── Carousel arrows (theme-aware) ──────────────────────── */
+.carousel-arrow {
+  color: rgba(var(--header-border), 0.3);
+  transition: color 0.2s, opacity 0.2s;
+}
+.carousel-arrow:hover {
+  color: rgba(var(--header-border), 0.9);
+}
+.carousel-arrow:disabled {
+  opacity: 0 !important;
+  pointer-events: none;
+}

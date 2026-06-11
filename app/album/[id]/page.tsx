@@ -107,11 +107,17 @@ export default function AlbumPage() {
         </div>
 
         {/* Bottom nav — Back / Next */}
-        <div className="fixed bottom-0 left-0 right-0 flex items-center justify-between px-6 md:px-10 py-5 bg-black/80 backdrop-blur-md border-t border-white/[0.04]">
+        <div
+          className="fixed bottom-0 left-0 right-0 flex items-center justify-between px-6 md:px-10 py-5 backdrop-blur-md border-t"
+          style={{
+            background: "rgba(var(--header-bg), 0.92)",
+            borderColor: "rgba(var(--header-border), 0.06)",
+          }}
+        >
           {prev ? (
             <Link
               href={`/album/${prev.id}`}
-              className="font-mono text-[11px] tracking-[0.3em] text-[#444] uppercase hover:text-white transition-colors duration-200 flex items-center gap-3"
+              className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center gap-3 touch-manipulation"
               style={{ minHeight: 44 }}
             >
               ← {prev.label}
@@ -119,8 +125,8 @@ export default function AlbumPage() {
           ) : (
             <Link
               href="/portfolio"
-              className="font-mono text-[11px] tracking-[0.3em] text-[#444] uppercase hover:text-white transition-colors duration-200"
-              style={{ minHeight: 44, display: "flex", alignItems: "center" }}
+              className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center touch-manipulation"
+              style={{ minHeight: 44 }}
             >
               ← PORTFOLIO
             </Link>
@@ -129,7 +135,7 @@ export default function AlbumPage() {
           {next ? (
             <Link
               href={`/album/${next.id}`}
-              className="font-mono text-[11px] tracking-[0.3em] text-[#444] uppercase hover:text-white transition-colors duration-200 flex items-center gap-3"
+              className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center gap-3 touch-manipulation"
               style={{ minHeight: 44 }}
             >
               {next.label} →
@@ -137,8 +143,8 @@ export default function AlbumPage() {
           ) : (
             <Link
               href="/portfolio"
-              className="font-mono text-[11px] tracking-[0.3em] text-[#444] uppercase hover:text-white transition-colors duration-200"
-              style={{ minHeight: 44, display: "flex", alignItems: "center" }}
+              className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center touch-manipulation"
+              style={{ minHeight: 44 }}
             >
               PORTFOLIO →
             </Link>
