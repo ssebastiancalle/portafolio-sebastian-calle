@@ -9,9 +9,15 @@ import { categories } from "@/data/categories";
 const HEIGHTS = [420, 340, 520, 360, 440, 300, 480, 390];
 const SWIPE_THRESHOLD = 50;
 
+// Mobile: vw constants for peek layout
+const SLIDE_VW = 80; // current slide width
+const PEEK_VW  = 8;  // adjacent slide visible on each side
+const GAP_VW   = 4;  // gap between slides
+const STEP_VW  = SLIDE_VW + GAP_VW; // 84 — offset per slide step
+
 export default function HomeCarousel() {
-  const [index, setIndex] = useState(0);
-  const [dir, setDir] = useState(1);
+  const [index, setIndex]     = useState(0);
+  const [dir, setDir]         = useState(1);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -21,79 +27,89 @@ export default function HomeCarousel() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const total = categories.length;
+  const total        = categories.length;
   const visibleCount = isMobile ? 1 : 4;
-  const canPrev = index > 0;
-  const canNext = index + visibleCount < total;
+  const canPrev      = index > 0;
+  const canNext      = index + visibleCount < total;
 
   const go = (d: number) => {
     setDir(d);
     setIndex((i) => Math.max(0, Math.min(i + d, total - visibleCount)));
   };
 
-  const visible = categories.slice(index, index + visibleCount);
-
-  /* ── Mobile layout ── */
+  /* ── Mobile: peek track carousel ── */
   if (isMobile) {
-    const cat = visible[0];
-    const cover = cat.photos[0];
     return (
       <div className="relative w-full flex flex-col bg-black" style={{ height: "100svh" }}>
-        {/* Swipeable photo */}
-        <motion.div
-          className="relative flex-1 overflow-hidden"
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.08}
-          style={{ touchAction: "pan-y" }}
-          onDragEnd={(_, info) => {
-            if (info.offset.x < -SWIPE_THRESHOLD && canNext) go(1);
-            else if (info.offset.x > SWIPE_THRESHOLD && canPrev) go(-1);
-          }}
-        >
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div
-              key={cat.id}
-              className="absolute inset-0"
-              initial={{ opacity: 0, x: dir > 0 ? 200 : -200 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: dir > 0 ? -200 : 200 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <Link href={`/album/${cat.id}`} className="block w-full h-full">
-                <Image
-                  src={cover.url}
-                  alt={cat.label}
-                  fill
-                  sizes="100vw"
-                  className="object-cover"
-                  priority
-                  draggable={false}
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/75 to-transparent">
-                  <p
-                    className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1"
-                    style={{ color: "rgba(255,255,255,0.4)" }}
-                  >
-                    {String(cat.photos.length).padStart(2, "0")} IMAGES
-                  </p>
-                  <p
-                    className="font-mono text-base tracking-widest uppercase font-bold"
-                    style={{ color: "#ffffff" }}
-                  >
-                    {cat.label}
-                  </p>
-                </div>
-              </Link>
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
 
-        {/* Controls: arrows + counter below */}
-        <div
-          className="flex flex-col px-6 pb-4 pt-2"
-          style={{ background: "var(--bg)" }}
-        >
+        {/* Track — all slides in a row, spring-animated */}
+        <div className="relative flex-1 overflow-hidden">
+          <motion.div
+            className="absolute top-0 left-0 flex h-full"
+            animate={{ x: `${PEEK_VW - index * STEP_VW}vw` }}
+            transition={{ type: "spring", stiffness: 360, damping: 36, mass: 0.85 }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.06}
+            style={{ touchAction: "pan-y", gap: `${GAP_VW}vw` }}
+            onDragEnd={(_, info) => {
+              if (info.offset.x < -SWIPE_THRESHOLD && canNext) go(1);
+              else if (info.offset.x > SWIPE_THRESHOLD && canPrev) go(-1);
+            }}
+          >
+            {categories.map((cat, i) => {
+              const cover     = cat.photos[0];
+              const isCurrent = i === index;
+              return (
+                <motion.div
+                  key={cat.id}
+                  className="relative flex-shrink-0 h-full overflow-hidden"
+                  style={{ width: `${SLIDE_VW}vw` }}
+                  animate={{
+                    opacity: isCurrent ? 1 : 0.4,
+                    scale:   isCurrent ? 1 : 0.94,
+                  }}
+                  transition={{ duration: 0.3 }}
+                  onClick={() => !isCurrent && go(i > index ? 1 : -1)}
+                >
+                  <Image
+                    src={cover.url}
+                    alt={cat.label}
+                    fill
+                    sizes="80vw"
+                    className="object-cover"
+                    draggable={false}
+                    priority={isCurrent}
+                  />
+
+                  {/* Current slide: link + name overlay */}
+                  {isCurrent && (
+                    <>
+                      <Link
+                        href={`/album/${cat.id}`}
+                        className="absolute inset-0 z-10"
+                        aria-label={cat.label}
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/75 to-transparent z-20 pointer-events-none">
+                        <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1"
+                           style={{ color: "rgba(255,255,255,0.4)" }}>
+                          {String(cat.photos.length).padStart(2, "0")} IMAGES
+                        </p>
+                        <p className="font-mono text-base tracking-widest uppercase font-bold"
+                           style={{ color: "#ffffff" }}>
+                          {cat.label}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+
+        {/* Controls: arrows + counter */}
+        <div className="flex flex-col px-6 pb-4 pt-2" style={{ background: "var(--bg)" }}>
           <div className="flex items-center justify-between">
             <button
               onClick={() => go(-1)}
@@ -125,13 +141,15 @@ export default function HomeCarousel() {
     );
   }
 
-  /* ── Desktop layout ── */
+  /* ── Desktop: original staggered height carousel ── */
+  const visible = categories.slice(index, index + 4);
+
   return (
     <div className="relative w-full h-screen flex items-center overflow-hidden">
       <div className="flex items-end gap-3 px-16 w-full">
         <AnimatePresence mode="popLayout" initial={false}>
           {visible.map((cat, i) => {
-            const h = HEIGHTS[(index + i) % HEIGHTS.length];
+            const h     = HEIGHTS[(index + i) % HEIGHTS.length];
             const cover = cat.photos[0];
             return (
               <motion.div
@@ -182,8 +200,10 @@ export default function HomeCarousel() {
         →
       </button>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-[0.3em] uppercase select-none"
-           style={{ color: "rgba(var(--header-border), 0.3)" }}>
+      <div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-[0.3em] uppercase select-none"
+        style={{ color: "rgba(var(--header-border), 0.3)" }}
+      >
         {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
       </div>
     </div>
