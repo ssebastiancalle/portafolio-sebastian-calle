@@ -1,29 +1,54 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import ThemeToggle from "./ThemeToggle";
 
+const NAV = [
+  { label: "PORTFOLIO", href: "/portfolio" },
+  { label: "ABOUT",     href: "/about"     },
+  { label: "CONTACT",   href: "/contact"   },
+];
+
 export default function Header() {
+  const pathname = usePathname();
+
   return (
     <motion.header
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-8 py-4 md:py-5 backdrop-blur-md bg-black/60 border-b border-white/[0.04]"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-5 backdrop-blur-md bg-black/70 border-b border-white/[0.04]"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
-      <span className="text-[10px] md:text-xs tracking-widest text-white font-mono uppercase whitespace-nowrap">
-        [ S. CALLE ]
-      </span>
+      <Link href="/" className="font-mono text-xs md:text-sm tracking-widest text-white uppercase hover:text-white/70 transition-colors whitespace-nowrap">
+        SEBASTIAN CALLE
+      </Link>
 
-      <div className="flex items-center gap-3 md:gap-5">
-        <span className="hidden md:inline text-xs tracking-widest text-[#555] font-mono uppercase whitespace-nowrap">
-          [ 2026 PORTFOLIO ]
-        </span>
-        <span className="md:hidden text-[10px] tracking-widest text-[#555] font-mono uppercase">
-          2026
-        </span>
+      <nav className="flex items-center gap-6 md:gap-10">
+        {NAV.map((item) => {
+          const active = pathname === item.href || pathname.startsWith(item.href + "/");
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`font-mono text-[11px] md:text-xs tracking-widest uppercase transition-colors duration-200 relative ${
+                active ? "text-white" : "text-[#555] hover:text-[#999]"
+              }`}
+            >
+              {item.label}
+              {active && (
+                <motion.span
+                  layoutId="nav-underline"
+                  className="absolute -bottom-[2px] left-0 right-0 h-px bg-white"
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                />
+              )}
+            </Link>
+          );
+        })}
         <ThemeToggle />
-      </div>
+      </nav>
     </motion.header>
   );
 }
