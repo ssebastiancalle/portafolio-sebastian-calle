@@ -123,10 +123,13 @@ body::before {
 }
 
 /* ── Dark-mode gray text correction ─────────────────────── */
-/* #333 = 1.7:1 contrast on black, #444 = 2.3:1 — too low   */
-.text-\[\#333\]    { color: #585858; }
-.text-\[\#444\]    { color: #686868; }
-.text-\[\#2a2a2a\] { color: #585858; }
+/* All hardcoded grays lifted so contrast ≥ 4.5:1 on #000   */
+.text-\[\#2a2a2a\] { color: #787878; }
+.text-\[\#333\]    { color: #787878; }
+.text-\[\#444\]    { color: #888888; }
+.text-\[\#555\]    { color: #999999; }
+.text-\[\#666\]    { color: #aaaaaa; }
+[data-theme="light"] .text-\[\#666\] { color: var(--text-3) !important; }
 
 /* ── Theme-aware album bottom nav links ──────────────────── */
 .nav-link-dim {
