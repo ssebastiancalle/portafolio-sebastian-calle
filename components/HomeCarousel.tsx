@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { categories } from "@/data/categories";
+import type { AlbumSlim } from "@/lib/types";
 
 const HEIGHTS = [420, 340, 520, 360, 440, 300, 480, 390];
 const SWIPE_THRESHOLD = 50;
@@ -15,9 +16,13 @@ const PEEK_VW  = 8;  // adjacent slide visible on each side
 const GAP_VW   = 4;  // gap between slides
 const STEP_VW  = SLIDE_VW + GAP_VW; // 84 — offset per slide step
 
-export default function HomeCarousel() {
-  const [index, setIndex]     = useState(0);
-  const [dir, setDir]         = useState(1);
+interface Props {
+  albums?: AlbumSlim[];
+}
+
+export default function HomeCarousel({ albums }: Props) {
+  const [index, setIndex]       = useState(0);
+  const [dir, setDir]           = useState(1);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -27,7 +32,17 @@ export default function HomeCarousel() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const total        = categories.length;
+  // Normalise: prefer Supabase albums, fall back to hardcoded categories
+  const items: AlbumSlim[] = albums && albums.length > 0
+    ? albums
+    : categories.map((c) => ({
+        id: c.id,
+        label: c.label,
+        coverUrl: c.photos[0].url,
+        photoCount: c.photos.length,
+      }));
+
+  const total        = items.length;
   const visibleCount = isMobile ? 1 : 4;
   const canPrev      = index > 0;
   const canNext      = index + visibleCount < total;
@@ -57,12 +72,11 @@ export default function HomeCarousel() {
               else if (info.offset.x > SWIPE_THRESHOLD && canPrev) go(-1);
             }}
           >
-            {categories.map((cat, i) => {
-              const cover     = cat.photos[0];
+            {items.map((item, i) => {
               const isCurrent = i === index;
               return (
                 <motion.div
-                  key={cat.id}
+                  key={item.id}
                   className="relative flex-shrink-0 h-full overflow-hidden"
                   style={{ width: `${SLIDE_VW}vw` }}
                   animate={{
@@ -73,8 +87,8 @@ export default function HomeCarousel() {
                   onClick={() => !isCurrent && go(i > index ? 1 : -1)}
                 >
                   <Image
-                    src={cover.url}
-                    alt={cat.label}
+                    src={item.coverUrl}
+                    alt={item.label}
                     fill
                     sizes="80vw"
                     className="object-cover"
@@ -86,18 +100,18 @@ export default function HomeCarousel() {
                   {isCurrent && (
                     <>
                       <Link
-                        href={`/album/${cat.id}`}
+                        href={`/album/${item.id}`}
                         className="absolute inset-0 z-10"
-                        aria-label={cat.label}
+                        aria-label={item.label}
                       />
                       <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/75 to-transparent z-20 pointer-events-none">
                         <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1"
                            style={{ color: "rgba(255,255,255,0.4)" }}>
-                          {String(cat.photos.length).padStart(2, "0")} IMAGES
+                          {String(item.photoCount).padStart(2, "0")} IMAGES
                         </p>
                         <p className="font-mono text-base tracking-widest uppercase font-bold"
                            style={{ color: "#ffffff" }}>
-                          {cat.label}
+                          {item.label}
                         </p>
                       </div>
                     </>
@@ -142,18 +156,17 @@ export default function HomeCarousel() {
   }
 
   /* ── Desktop: original staggered height carousel ── */
-  const visible = categories.slice(index, index + 4);
+  const visible = items.slice(index, index + 4);
 
   return (
     <div className="relative w-full h-screen flex items-center overflow-hidden">
       <div className="flex items-end gap-3 px-16 w-full">
         <AnimatePresence mode="popLayout" initial={false}>
-          {visible.map((cat, i) => {
-            const h     = HEIGHTS[(index + i) % HEIGHTS.length];
-            const cover = cat.photos[0];
+          {visible.map((item, i) => {
+            const h = HEIGHTS[(index + i) % HEIGHTS.length];
             return (
               <motion.div
-                key={cat.id}
+                key={item.id}
                 className="relative flex-1 group cursor-pointer overflow-hidden"
                 style={{ height: h }}
                 initial={{ opacity: 0, x: dir > 0 ? 80 : -80 }}
@@ -161,17 +174,17 @@ export default function HomeCarousel() {
                 exit={{ opacity: 0, x: dir > 0 ? -80 : 80 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: i * 0.06 }}
               >
-                <Link href={`/album/${cat.id}`} className="block w-full h-full">
+                <Link href={`/album/${item.id}`} className="block w-full h-full">
                   <Image
-                    src={cover.url}
-                    alt={cat.label}
+                    src={item.coverUrl}
+                    alt={item.label}
                     fill
                     sizes="25vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <span className="absolute bottom-3 left-3 font-mono text-[10px] tracking-[0.25em] text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {cat.label}
+                    {item.label}
                   </span>
                 </Link>
               </motion.div>

@@ -3,10 +3,10 @@
 import { useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import Image from "next/image";
-import type { Photo } from "@/data/categories";
+import type { LightboxPhoto } from "@/lib/types";
 
 interface LightboxProps {
-  photos: Photo[];
+  photos: LightboxPhoto[];
   index: number;
   onClose: () => void;
   onChange: (i: number) => void;
@@ -119,16 +119,20 @@ export default function Lightbox({ photos, index, onClose, onChange }: LightboxP
         )}
       </div>
 
-      {/* Bottom — editorial info */}
+      {/* Bottom — editorial info (only when meta is available) */}
       <div className="flex-shrink-0 px-6 py-5">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="font-mono text-[11px] font-bold tracking-widest text-white uppercase mb-1">
-              {photo.meta.title}
-            </p>
-            <p className="font-mono text-[10px] tracking-[0.15em] text-[#444] uppercase">
-              {photo.meta.publication}
-            </p>
+            {photo.meta && (
+              <>
+                <p className="font-mono text-[11px] font-bold tracking-widest text-white uppercase mb-1">
+                  {photo.meta.title}
+                </p>
+                <p className="font-mono text-[10px] tracking-[0.15em] text-[#444] uppercase">
+                  {photo.meta.publication}
+                </p>
+              </>
+            )}
           </div>
           {/* Dot nav */}
           <div className="flex gap-2 items-center pb-[2px]">
