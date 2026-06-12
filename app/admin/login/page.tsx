@@ -17,15 +17,19 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const supabase = createClient();
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      console.log("AUTH RESULT:", { data, error: authError });
       if (authError) {
-        setError(authError.message);
+        setError(authError.message || JSON.stringify(authError));
+      } else if (!data.session) {
+        setError("No se creó sesión — revisá las variables de entorno");
       } else {
         router.push("/admin");
         router.refresh();
       }
-    } catch {
-      setError("Error de conexión");
+    } catch (e) {
+      console.error("LOGIN CATCH:", e);
+      setError("Error de conexión: " + String(e));
     } finally {
       setLoading(false);
     }
