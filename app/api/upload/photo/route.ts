@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     .upload(fileName, buffer, { contentType: "image/webp", upsert: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message, details: JSON.stringify(error) }, { status: 500 });
   }
 
   const { data: { publicUrl } } = supabaseAdmin.storage
