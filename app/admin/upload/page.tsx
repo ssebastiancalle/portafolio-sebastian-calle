@@ -32,6 +32,7 @@ export default function UploadPage() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [albumName, setAlbumName] = useState("");
+  const [albumDescription, setAlbumDescription] = useState("");
   const [files, setFiles] = useState<PreviewFile[]>([]);
   const [phase, setPhase] = useState<"idle" | "processing" | "done" | "error">("idle");
   const [globalError, setGlobalError] = useState("");
@@ -140,7 +141,7 @@ export default function UploadPage() {
       const res = await fetch("/api/albums", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: albumName.trim(), photos: uploaded }),
+        body: JSON.stringify({ name: albumName.trim(), description: albumDescription.trim() || undefined, photos: uploaded }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -229,6 +230,26 @@ export default function UploadPage() {
               color: "var(--text)",
             }}
             placeholder="ej: Retratos · Buenos Aires"
+          />
+        </div>
+
+        {/* Description */}
+        <div className="flex flex-col gap-2">
+          <label className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: "var(--text-3)" }}>
+            Descripción <span style={{ color: "var(--text-4)" }}>(opcional)</span>
+          </label>
+          <textarea
+            value={albumDescription}
+            onChange={(e) => setAlbumDescription(e.target.value)}
+            disabled={isProcessing}
+            rows={3}
+            className="w-full px-4 py-3 font-mono text-sm outline-none resize-none disabled:opacity-40"
+            style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border-2)",
+              color: "var(--text)",
+            }}
+            placeholder="Pie de álbum..."
           />
         </div>
 
