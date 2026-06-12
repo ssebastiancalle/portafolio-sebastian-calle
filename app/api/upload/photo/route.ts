@@ -31,5 +31,5 @@ export async function POST(req: Request) {
     .from("photos")
     .getPublicUrl(data.path);
 
-  return NextResponse.json({ url: publicUrl });
+  return NextResponse.json({ url: publicUrl, storagePath: data.path, filename: fileName });
 }

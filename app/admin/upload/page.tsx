@@ -5,6 +5,19 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import imageCompression from "browser-image-compression";
+import exifr from "exifr";
+
+type ExifData = {
+  taken_at?: string;
+  lat?: number;
+  lng?: number;
+  altitude?: number;
+  camera_make?: string;
+  camera_model?: string;
+  width?: number;
+  height?: number;
+  exif_raw?: Record<string, unknown>;
+};
 
 type PreviewFile = {
   id: string;
@@ -12,6 +25,7 @@ type PreviewFile = {
   preview: string;
   status: "pending" | "compressing" | "uploading" | "done" | "error";
   url?: string;
+  exif?: ExifData;
 };
 
 export default function UploadPage() {
@@ -55,17 +69,42 @@ export default function UploadPage() {
     setPhase("processing");
     setGlobalError("");
 
-    const photoUrls: string[] = [];
+    type UploadedPhoto = { url: string; storagePath: string; filename: string; exif?: ExifData };
+    const uploaded: UploadedPhoto[] = [];
 
     for (const f of files) {
-      // 1. Compress to WebP
+      // 1. Extract EXIF from original before any conversion
+      let exif: ExifData | undefined;
+      try {
+        const raw = await exifr.parse(f.file, {
+          tiff: true, exif: true, gps: true, icc: false, iptc: false, xmp: false,
+        });
+        if (raw) {
+          exif = {
+            taken_at: raw.DateTimeOriginal?.toISOString?.() ?? raw.CreateDate?.toISOString?.(),
+            lat: raw.latitude,
+            lng: raw.longitude,
+            altitude: raw.GPSAltitude,
+            camera_make: raw.Make,
+            camera_model: raw.Model,
+            width: raw.ImageWidth ?? raw.ExifImageWidth,
+            height: raw.ImageHeight ?? raw.ExifImageHeight,
+            exif_raw: raw,
+          };
+        }
+      } catch {
+        // EXIF extraction is best-effort — continue without it
+      }
+
+      // 2. Compress to WebP
       setFileStatus(f.id, { status: "compressing" });
       let compressed: File;
       try {
         compressed = await imageCompression(f.file, {
-          maxSizeMB: 0.8,
-          maxWidthOrHeight: 1920,
+          maxSizeMB: 3,
+          maxWidthOrHeight: 2400,
           fileType: "image/webp",
+          initialQuality: 0.9,
           useWebWorker: true,
         });
       } catch {
@@ -75,7 +114,7 @@ export default function UploadPage() {
         return;
       }
 
-      // 2. Upload
+      // 3. Upload
       setFileStatus(f.id, { status: "uploading" });
       const form = new FormData();
       form.append("photo", compressed, compressed.name);
@@ -85,9 +124,9 @@ export default function UploadPage() {
           const data = await res.json();
           throw new Error(data.error ?? "Upload failed");
         }
-        const { url } = await res.json();
-        setFileStatus(f.id, { status: "done", url });
-        photoUrls.push(url);
+        const { url, storagePath, filename } = await res.json();
+        setFileStatus(f.id, { status: "done", url, exif });
+        uploaded.push({ url, storagePath, filename, exif });
       } catch (err: unknown) {
         setFileStatus(f.id, { status: "error" });
         setGlobalError(err instanceof Error ? err.message : "Error al subir foto");
@@ -96,12 +135,12 @@ export default function UploadPage() {
       }
     }
 
-    // 3. Create album
+    // 4. Create album
     try {
       const res = await fetch("/api/albums", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: albumName.trim(), photoUrls }),
+        body: JSON.stringify({ name: albumName.trim(), photos: uploaded }),
       });
       if (!res.ok) {
         const data = await res.json();

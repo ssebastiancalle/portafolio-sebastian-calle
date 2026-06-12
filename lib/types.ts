@@ -4,12 +4,22 @@ export type Photo = {
   url: string
   alt: string
   order: number
+  taken_at?: string
+  lat?: number
+  lng?: number
+  altitude?: number
+  camera_make?: string
+  camera_model?: string
+  width?: number
+  height?: number
+  exif_raw?: Record<string, unknown>
 }
 
 export type Album = {
   id: string
   name: string
   slug: string
+  description?: string
   cover_url: string
   created_at: string
   order: number

@@ -10,9 +10,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const { name, photoUrls } = await req.json() as { name: string; photoUrls: string[] };
+  type PhotoPayload = {
+    url: string;
+    exif?: {
+      taken_at?: string;
+      lat?: number;
+      lng?: number;
+      altitude?: number;
+      camera_make?: string;
+      camera_model?: string;
+      width?: number;
+      height?: number;
+      exif_raw?: Record<string, unknown>;
+    };
+  };
 
-  if (!name || !photoUrls?.length) {
+  const { name, description, photos: photoPayloads } = await req.json() as { name: string; description?: string; photos: PhotoPayload[] };
+
+  if (!name || !photoPayloads?.length) {
     return NextResponse.json({ error: "Datos incompletos" }, { status: 400 });
   }
 
@@ -20,7 +35,7 @@ export async function POST(req: Request) {
 
   const { data: album, error: albumError } = await supabaseAdmin
     .from("albums")
-    .insert({ name, slug, cover_url: photoUrls[0] })
+    .insert({ title: name, name, slug, description, cover_url: photoPayloads[0].url })
     .select()
     .single();
 
@@ -28,11 +43,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: albumError.message }, { status: 500 });
   }
 
-  const photos = photoUrls.map((url, i) => ({
+  const photos = photoPayloads.map(({ url, exif }, i) => ({
     album_id: album.id,
     url,
     alt: `${name} ${i + 1}`,
     order: i,
+    ...(exif?.taken_at && { taken_at: exif.taken_at }),
+    ...(exif?.lat != null && { lat: exif.lat }),
+    ...(exif?.lng != null && { lng: exif.lng }),
+    ...(exif?.altitude != null && { altitude: exif.altitude }),
+    ...(exif?.camera_make && { camera_make: exif.camera_make }),
+    ...(exif?.camera_model && { camera_model: exif.camera_model }),
+    ...(exif?.width && { width: exif.width }),
+    ...(exif?.height && { height: exif.height }),
+    ...(exif?.exif_raw && { exif_raw: exif.exif_raw }),
   }));
 
   const { error: photosError } = await supabaseAdmin.from("photos").insert(photos);
