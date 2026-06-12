@@ -9,8 +9,11 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        mono: ["var(--font-space-mono)", "var(--font-ibm-plex-mono)", "monospace"],
-        ibm: ["var(--font-ibm-plex-mono)", "monospace"],
+        sans:    ["var(--font-playfair)", "serif"],
+        serif:   ["var(--font-playfair)", "serif"],
+        playfair:["var(--font-playfair)", "serif"],
+        mono:    ["var(--font-space-mono)", "var(--font-ibm-plex-mono)", "monospace"],
+        ibm:     ["var(--font-ibm-plex-mono)", "monospace"],
       },
       colors: {
         black: "#000000",
