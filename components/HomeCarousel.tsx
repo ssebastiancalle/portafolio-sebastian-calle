@@ -7,7 +7,6 @@ import Link from "next/link";
 import { categories } from "@/data/categories";
 import type { AlbumSlim } from "@/lib/types";
 
-const HEIGHTS = [420, 340, 520, 360, 440, 300, 480, 390];
 const SWIPE_THRESHOLD = 50;
 
 // Mobile: vw constants for peek layout
@@ -42,14 +41,13 @@ export default function HomeCarousel({ albums }: Props) {
         photoCount: c.photos.length,
       }));
 
-  const total        = items.length;
-  const visibleCount = isMobile ? 1 : 4;
-  const canPrev      = index > 0;
-  const canNext      = index + visibleCount < total;
+  const total   = items.length;
+  const canPrev = index > 0;
+  const canNext = index < total - 1;
 
   const go = (d: number) => {
     setDir(d);
-    setIndex((i) => Math.max(0, Math.min(i + d, total - visibleCount)));
+    setIndex((i) => Math.max(0, Math.min(i + d, total - 1)));
   };
 
   /* ── Mobile: peek track carousel ── */
@@ -155,42 +153,104 @@ export default function HomeCarousel({ albums }: Props) {
     );
   }
 
-  /* ── Desktop: original staggered height carousel ── */
-  const visible = items.slice(index, index + 4);
+  /* ── Desktop: center-focus carousel (left · CENTER · right) ── */
+  const leftItem  = index > 0          ? items[index - 1] : null;
+  const mainItem  = items[index];
+  const rightItem = index < total - 1  ? items[index + 1] : null;
 
   return (
     <div className="relative w-full h-screen flex items-center overflow-hidden">
-      <div className="flex items-end gap-3 px-16 w-full">
-        <AnimatePresence mode="popLayout" initial={false}>
-          {visible.map((item, i) => {
-            const h = HEIGHTS[(index + i) % HEIGHTS.length];
-            return (
+      <div className="grid px-12 w-full items-center gap-4" style={{ gridTemplateColumns: "1fr 2.4fr 1fr" }}>
+
+        {/* Left — previous album */}
+        <div className="flex justify-end">
+          <AnimatePresence mode="wait" initial={false}>
+            {leftItem ? (
               <motion.div
-                key={item.id}
-                className="relative flex-1 group cursor-pointer overflow-hidden"
-                style={{ height: h }}
-                initial={{ opacity: 0, x: dir > 0 ? 80 : -80 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: dir > 0 ? -80 : 80 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: i * 0.06 }}
+                key={leftItem.id}
+                className="relative w-full group cursor-pointer overflow-hidden"
+                style={{ height: "48vh" }}
+                initial={{ opacity: 0, x: dir > 0 ? 40 : -40 }}
+                animate={{ opacity: 0.45, x: 0 }}
+                exit={{ opacity: 0, x: dir > 0 ? -40 : 40 }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                onClick={() => go(-1)}
               >
-                <Link href={`/album/${item.id}`} className="block w-full h-full">
-                  <Image
-                    src={item.coverUrl}
-                    alt={item.label}
-                    fill
-                    sizes="25vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <span className="absolute bottom-3 left-3 font-mono text-[10px] tracking-[0.25em] text-white uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {item.label}
-                  </span>
-                </Link>
+                <Image
+                  src={leftItem.coverUrl}
+                  alt={leftItem.label}
+                  fill
+                  sizes="22vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
               </motion.div>
-            );
-          })}
+            ) : (
+              <motion.div key="left-empty" style={{ height: "48vh" }} />
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Center — active album */}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={mainItem.id}
+            className="relative w-full group cursor-pointer overflow-hidden"
+            style={{ height: "76vh" }}
+            initial={{ opacity: 0, scale: 0.97, x: dir > 0 ? 60 : -60 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.97, x: dir > 0 ? -60 : 60 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Link href={`/album/${mainItem.id}`} className="block w-full h-full">
+              <Image
+                src={mainItem.coverUrl}
+                alt={mainItem.label}
+                fill
+                sizes="50vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1"
+                   style={{ color: "rgba(255,255,255,0.4)" }}>
+                  {String(mainItem.photoCount).padStart(2, "0")} IMAGES
+                </p>
+                <p className="font-mono text-xl tracking-widest uppercase font-bold text-white">
+                  {mainItem.label}
+                </p>
+              </div>
+            </Link>
+          </motion.div>
         </AnimatePresence>
+
+        {/* Right — next album */}
+        <div className="flex justify-start">
+          <AnimatePresence mode="wait" initial={false}>
+            {rightItem ? (
+              <motion.div
+                key={rightItem.id}
+                className="relative w-full group cursor-pointer overflow-hidden"
+                style={{ height: "48vh" }}
+                initial={{ opacity: 0, x: dir > 0 ? 40 : -40 }}
+                animate={{ opacity: 0.45, x: 0 }}
+                exit={{ opacity: 0, x: dir > 0 ? -40 : 40 }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                onClick={() => go(1)}
+              >
+                <Image
+                  src={rightItem.coverUrl}
+                  alt={rightItem.label}
+                  fill
+                  sizes="22vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </motion.div>
+            ) : (
+              <motion.div key="right-empty" style={{ height: "48vh" }} />
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Arrows + counter — centered bottom group */}
