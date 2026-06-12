@@ -23,7 +23,9 @@ export interface Category {
   photos: Photo[];
 }
 
-export const categories: Category[] = [
+export const categories: Category[] = [];
+
+const _unused: Category[] = [
   {
     id: "portraits",
     label: "PORTRAITS",
@@ -511,3 +513,5 @@ export const categories: Category[] = [
     ],
   },
 ];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+void _unused;
