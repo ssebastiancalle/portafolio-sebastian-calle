@@ -31,6 +31,8 @@ export type LightboxPhoto = {
   id: string
   url: string
   alt: string
+  width?: number
+  height?: number
   meta?: { title: string; publication: string }
 }
 

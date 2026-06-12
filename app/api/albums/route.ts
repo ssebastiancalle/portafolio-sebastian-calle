@@ -10,6 +10,8 @@ export async function POST(req: Request) {
 
   type PhotoPayload = {
     url: string;
+    storagePath: string;
+    filename: string;
     exif?: {
       taken_at?: string;
       lat?: number;
@@ -41,9 +43,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: albumError.message }, { status: 500 });
   }
 
-  const photos = photoPayloads.map(({ url, exif }, i) => ({
+  const photos = photoPayloads.map(({ url, storagePath, filename, exif }, i) => ({
     album_id: album.id,
     url,
+    storage_path: storagePath,
+    filename,
+    mime_type: "image/webp",
     alt: `${name} ${i + 1}`,
     order: i,
     ...(exif?.taken_at && { taken_at: exif.taken_at }),
