@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import { createClient } from "@/lib/supabase-browser";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -10,8 +11,10 @@ export default function AdminPage() {
 
   async function handleLogout() {
     setLoggingOut(true);
-    await fetch("/api/auth/logout", { method: "POST" });
+    const supabase = createClient();
+    await supabase.auth.signOut();
     router.push("/admin/login");
+    router.refresh();
   }
 
   return (

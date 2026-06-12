@@ -47,19 +47,22 @@ export default function AboutPage() {
 
             <div className="flex flex-col gap-4">
               <p className="font-mono text-[11px] leading-relaxed text-[#666]">
-                Based in Buenos Aires, Argentina. Specializing in fashion, editorial, and portrait photography with a focus on light, texture, and the quiet power of a single frame.
+                I'm Sebastian Calle, a fashion, portrait, and editorial photographer. Born in Buenos Aires and currently based in Barcelona, I view photography as a medium to build unique visual universes.
               </p>
               <p className="font-mono text-[11px] leading-relaxed text-[#666]">
-                My work has appeared in publications such as Selin Magazine, Vogue ES, Harper's Bazaar, Dazed, and Numéro. I collaborate with agencies, brands, and individuals to create images that are honest, precise, and lasting.
+                My work navigates between nostalgia and vanguard aesthetics. I am passionate about bold contrasts, deep shadows, and vibrant colors that demand attention. For me, every shoot is a perfect opportunity to blend my own visual identity with the inner world of the subject, resulting in images with cinematic strength and a sharp editorial edge.
               </p>
               <p className="font-mono text-[11px] leading-relaxed text-[#666]">
-                Available for commissioned work worldwide.
+                Throughout my career, I've had the opportunity to cover runway shows, showcase my work in exhibitions, and see my photography published in various fashion magazines.
+              </p>
+              <p className="font-mono text-[11px] leading-relaxed text-[#666]">
+                When I'm not behind the lens, you'll likely find me traveling or exploring new places to inspire my next project. I am available for both local and international assignments.
               </p>
             </div>
 
             <div className="flex flex-col gap-2 pt-2 border-t border-[#111]">
               {[
-                ["Based in",   "Buenos Aires, AR"],
+                ["Based in",   "Barcelona, ES"],
                 ["Available",  "Worldwide"],
                 ["Contact",    "sebastiancalle@gmail.com"],
               ].map(([label, value]) => (

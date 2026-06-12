@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase-browser";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,16 +16,13 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
-      if (res.ok) {
-        router.push("/admin");
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError) {
+        setError("Credenciales incorrectas");
       } else {
-        const data = await res.json();
-        setError(data.error ?? "Error al iniciar sesión");
+        router.push("/admin");
+        router.refresh();
       }
     } catch {
       setError("Error de conexión");
@@ -42,13 +41,31 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <label className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: "var(--text-3)" }}>
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoFocus
+              className="w-full px-4 py-3 font-mono text-sm outline-none"
+              style={{
+                background: "var(--bg)",
+                border: "1px solid var(--border-2)",
+                color: "var(--text)",
+              }}
+              placeholder="admin@ejemplo.com"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: "var(--text-3)" }}>
               Contraseña
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              autoFocus
               className="w-full px-4 py-3 font-mono text-sm outline-none"
               style={{
                 background: "var(--bg)",
@@ -67,7 +84,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading || !password}
+            disabled={loading || !email || !password}
             className="w-full py-3 font-mono text-[11px] tracking-[0.3em] uppercase transition-opacity disabled:opacity-40"
             style={{ background: "var(--text)", color: "var(--bg)" }}
           >

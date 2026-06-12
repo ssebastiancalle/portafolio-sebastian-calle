@@ -8,12 +8,10 @@ import { categories } from "@/data/categories";
 import type { AlbumSlim } from "@/lib/types";
 
 const SWIPE_THRESHOLD = 50;
-
-// Mobile: vw constants for peek layout
-const SLIDE_VW = 80; // current slide width
-const PEEK_VW  = 8;  // adjacent slide visible on each side
-const GAP_VW   = 4;  // gap between slides
-const STEP_VW  = SLIDE_VW + GAP_VW; // 84 — offset per slide step
+const SLIDE_VW = 80;
+const PEEK_VW  = 8;
+const GAP_VW   = 4;
+const STEP_VW  = SLIDE_VW + GAP_VW;
 
 interface Props {
   albums?: AlbumSlim[];
@@ -31,7 +29,6 @@ export default function HomeCarousel({ albums }: Props) {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Normalise: prefer Supabase albums, fall back to hardcoded categories
   const items: AlbumSlim[] = albums && albums.length > 0
     ? albums
     : categories.map((c) => ({
@@ -41,21 +38,17 @@ export default function HomeCarousel({ albums }: Props) {
         photoCount: c.photos.length,
       }));
 
-  const total   = items.length;
-  const canPrev = index > 0;
-  const canNext = index < total - 1;
+  const total = items.length;
 
   const go = (d: number) => {
     setDir(d);
-    setIndex((i) => Math.max(0, Math.min(i + d, total - 1)));
+    setIndex((i) => (i + d + total) % total);
   };
 
-  /* ── Mobile: peek track carousel ── */
+  /* ── Mobile ── */
   if (isMobile) {
     return (
       <div className="relative w-full flex flex-col bg-black" style={{ height: "100svh", paddingTop: "64px" }}>
-
-        {/* Track — all slides in a row, spring-animated */}
         <div className="relative flex-1 overflow-hidden">
           <motion.div
             className="absolute top-0 left-0 flex h-full"
@@ -66,8 +59,8 @@ export default function HomeCarousel({ albums }: Props) {
             dragElastic={0.06}
             style={{ touchAction: "pan-y", gap: `${GAP_VW}vw` }}
             onDragEnd={(_, info) => {
-              if (info.offset.x < -SWIPE_THRESHOLD && canNext) go(1);
-              else if (info.offset.x > SWIPE_THRESHOLD && canPrev) go(-1);
+              if (info.offset.x < -SWIPE_THRESHOLD) go(1);
+              else if (info.offset.x > SWIPE_THRESHOLD) go(-1);
             }}
           >
             {items.map((item, i) => {
@@ -77,38 +70,19 @@ export default function HomeCarousel({ albums }: Props) {
                   key={item.id}
                   className="relative flex-shrink-0 h-full overflow-hidden"
                   style={{ width: `${SLIDE_VW}vw` }}
-                  animate={{
-                    opacity: isCurrent ? 1 : 0.4,
-                    scale:   isCurrent ? 1 : 0.94,
-                  }}
+                  animate={{ opacity: isCurrent ? 1 : 0.4, scale: isCurrent ? 1 : 0.94 }}
                   transition={{ duration: 0.3 }}
                   onClick={() => !isCurrent && go(i > index ? 1 : -1)}
                 >
-                  <Image
-                    src={item.coverUrl}
-                    alt={item.label}
-                    fill
-                    sizes="80vw"
-                    className="object-cover"
-                    draggable={false}
-                    priority={isCurrent}
-                  />
-
-                  {/* Current slide: link + name overlay */}
+                  <Image src={item.coverUrl} alt={item.label} fill sizes="80vw" className="object-cover" draggable={false} priority={isCurrent} />
                   {isCurrent && (
                     <>
-                      <Link
-                        href={`/album/${item.id}`}
-                        className="absolute inset-0 z-10"
-                        aria-label={item.label}
-                      />
+                      <Link href={`/album/${item.id}`} className="absolute inset-0 z-10" aria-label={item.label} />
                       <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/75 to-transparent z-20 pointer-events-none">
-                        <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1"
-                           style={{ color: "rgba(255,255,255,0.4)" }}>
+                        <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>
                           {String(item.photoCount).padStart(2, "0")} IMAGES
                         </p>
-                        <p className="font-mono text-base tracking-widest uppercase font-bold"
-                           style={{ color: "#ffffff" }}>
+                        <p className="font-mono text-base tracking-widest uppercase font-bold" style={{ color: "#ffffff" }}>
                           {item.label}
                         </p>
                       </div>
@@ -120,32 +94,12 @@ export default function HomeCarousel({ albums }: Props) {
           </motion.div>
         </div>
 
-        {/* Controls: arrows + counter */}
         <div className="flex flex-col items-center pb-4 pt-2 gap-1" style={{ background: "var(--bg)" }}>
           <div className="flex items-center gap-10">
-            <button
-              onClick={() => go(-1)}
-              disabled={!canPrev}
-              aria-label="Previous"
-              className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation"
-              style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
-            >
-              ←
-            </button>
-            <button
-              onClick={() => go(1)}
-              disabled={!canNext}
-              aria-label="Next"
-              className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation"
-              style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
-            >
-              →
-            </button>
+            <button onClick={() => go(-1)} aria-label="Previous" className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation" style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>←</button>
+            <button onClick={() => go(1)} aria-label="Next" className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation" style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
           </div>
-          <span
-            className="font-mono text-[10px] tracking-[0.3em] uppercase select-none"
-            style={{ color: "rgba(var(--header-border), 0.3)" }}
-          >
+          <span className="font-mono text-[10px] tracking-[0.3em] uppercase select-none" style={{ color: "rgba(var(--header-border), 0.3)" }}>
             {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
           </span>
         </div>
@@ -153,10 +107,10 @@ export default function HomeCarousel({ albums }: Props) {
     );
   }
 
-  /* ── Desktop: center-focus carousel (left · CENTER · right) ── */
-  const leftItem  = index > 0          ? items[index - 1] : null;
+  /* ── Desktop ── */
+  const leftItem  = items[(index - 1 + total) % total];
   const mainItem  = items[index];
-  const rightItem = index < total - 1  ? items[index + 1] : null;
+  const rightItem = items[(index + 1) % total];
 
   return (
     <div className="relative w-full h-screen flex items-center overflow-hidden">
@@ -165,28 +119,18 @@ export default function HomeCarousel({ albums }: Props) {
         {/* Left — previous album */}
         <div className="flex justify-end">
           <AnimatePresence mode="wait" initial={false}>
-            {leftItem ? (
-              <motion.div
-                key={leftItem.id}
-                className="relative w-full group cursor-pointer overflow-hidden"
-                style={{ height: "48vh" }}
-                initial={{ opacity: 0, x: dir > 0 ? 40 : -40 }}
-                animate={{ opacity: 0.45, x: 0 }}
-                exit={{ opacity: 0, x: dir > 0 ? -40 : 40 }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                onClick={() => go(-1)}
-              >
-                <Image
-                  src={leftItem.coverUrl}
-                  alt={leftItem.label}
-                  fill
-                  sizes="22vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              </motion.div>
-            ) : (
-              <motion.div key="left-empty" style={{ height: "48vh" }} />
-            )}
+            <motion.div
+              key={leftItem.id + "-left"}
+              className="relative w-full group cursor-pointer overflow-hidden"
+              style={{ height: "48vh" }}
+              initial={{ opacity: 0, x: dir > 0 ? 40 : -40 }}
+              animate={{ opacity: 0.45, x: 0 }}
+              exit={{ opacity: 0, x: dir > 0 ? -40 : 40 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              onClick={() => go(-1)}
+            >
+              <Image src={leftItem.coverUrl} alt={leftItem.label} fill sizes="22vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+            </motion.div>
           </AnimatePresence>
         </div>
 
@@ -202,18 +146,10 @@ export default function HomeCarousel({ albums }: Props) {
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
             <Link href={`/album/${mainItem.id}`} className="block w-full h-full">
-              <Image
-                src={mainItem.coverUrl}
-                alt={mainItem.label}
-                fill
-                sizes="50vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                priority
-              />
+              <Image src={mainItem.coverUrl} alt={mainItem.label} fill sizes="50vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.03]" priority />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1"
-                   style={{ color: "rgba(255,255,255,0.4)" }}>
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>
                   {String(mainItem.photoCount).padStart(2, "0")} IMAGES
                 </p>
                 <p className="font-mono text-xl tracking-widest uppercase font-bold text-white">
@@ -227,58 +163,55 @@ export default function HomeCarousel({ albums }: Props) {
         {/* Right — next album */}
         <div className="flex justify-start">
           <AnimatePresence mode="wait" initial={false}>
-            {rightItem ? (
-              <motion.div
-                key={rightItem.id}
-                className="relative w-full group cursor-pointer overflow-hidden"
-                style={{ height: "48vh" }}
-                initial={{ opacity: 0, x: dir > 0 ? 40 : -40 }}
-                animate={{ opacity: 0.45, x: 0 }}
-                exit={{ opacity: 0, x: dir > 0 ? -40 : 40 }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                onClick={() => go(1)}
-              >
-                <Image
-                  src={rightItem.coverUrl}
-                  alt={rightItem.label}
-                  fill
-                  sizes="22vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              </motion.div>
-            ) : (
-              <motion.div key="right-empty" style={{ height: "48vh" }} />
-            )}
+            <motion.div
+              key={rightItem.id + "-right"}
+              className="relative w-full group cursor-pointer overflow-hidden"
+              style={{ height: "48vh" }}
+              initial={{ opacity: 0, x: dir > 0 ? 40 : -40 }}
+              animate={{ opacity: 0.45, x: 0 }}
+              exit={{ opacity: 0, x: dir > 0 ? -40 : 40 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              onClick={() => go(1)}
+            >
+              <Image src={rightItem.coverUrl} alt={rightItem.label} fill sizes="22vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+            </motion.div>
           </AnimatePresence>
         </div>
       </div>
 
-      {/* Arrows + counter — centered bottom group */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-        <div className="flex items-center gap-8">
-          <button
-            onClick={() => go(-1)}
-            disabled={!canPrev}
-            aria-label="Previous"
-            className="carousel-arrow font-mono text-xs tracking-widest cursor-pointer"
-            style={{ minHeight: 44, minWidth: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            ←
-          </button>
-          <button
-            onClick={() => go(1)}
-            disabled={!canNext}
-            aria-label="Next"
-            className="carousel-arrow font-mono text-xs tracking-widest cursor-pointer"
-            style={{ minHeight: 44, minWidth: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            →
-          </button>
-        </div>
-        <span
-          className="font-mono text-[10px] tracking-[0.3em] uppercase select-none"
-          style={{ color: "rgba(var(--header-border), 0.3)" }}
+      {/* Left arrow — gradient panel */}
+      <div
+        className="absolute left-0 top-0 h-full flex items-center pl-4 z-20 pointer-events-none"
+        style={{ width: 90, background: "linear-gradient(to right, var(--bg) 30%, transparent)" }}
+      >
+        <button
+          onClick={() => go(-1)}
+          aria-label="Previous"
+          className="carousel-arrow font-mono text-sm tracking-widest pointer-events-auto"
+          style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
         >
+          ←
+        </button>
+      </div>
+
+      {/* Right arrow — gradient panel */}
+      <div
+        className="absolute right-0 top-0 h-full flex items-center justify-end pr-4 z-20 pointer-events-none"
+        style={{ width: 90, background: "linear-gradient(to left, var(--bg) 30%, transparent)" }}
+      >
+        <button
+          onClick={() => go(1)}
+          aria-label="Next"
+          className="carousel-arrow font-mono text-sm tracking-widest pointer-events-auto"
+          style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
+          →
+        </button>
+      </div>
+
+      {/* Counter — bottom center */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+        <span className="font-mono text-[10px] tracking-[0.3em] uppercase select-none" style={{ color: "rgba(var(--header-border), 0.3)" }}>
           {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
         </span>
       </div>
