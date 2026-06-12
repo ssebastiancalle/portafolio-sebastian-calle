@@ -12,7 +12,7 @@ const config: Config = {
         sans:    ["var(--font-playfair)", "serif"],
         serif:   ["var(--font-playfair)", "serif"],
         playfair:["var(--font-playfair)", "serif"],
-        mono:    ["var(--font-space-mono)", "var(--font-ibm-plex-mono)", "monospace"],
+        mono:    ["var(--font-playfair)", "serif"],
         ibm:     ["var(--font-ibm-plex-mono)", "monospace"],
       },
       colors: {
