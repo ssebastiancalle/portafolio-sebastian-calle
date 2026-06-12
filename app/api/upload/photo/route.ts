@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   const fileName = `${Date.now()}-${crypto.randomUUID()}.webp`;
 
   const { data, error } = await supabaseAdmin.storage
-    .from("photos")
+    .from("albums")
     .upload(fileName, buffer, { contentType: "image/webp", upsert: false });
 
   if (error) {
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   }
 
   const { data: { publicUrl } } = supabaseAdmin.storage
-    .from("photos")
+    .from("albums")
     .getPublicUrl(data.path);
 
   return NextResponse.json({ url: publicUrl, storagePath: data.path, filename: fileName });
