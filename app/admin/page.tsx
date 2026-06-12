@@ -21,9 +21,13 @@ export default function AdminPage() {
         className="flex items-center justify-between px-6 md:px-10 h-14 border-b"
         style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}
       >
-        <p className="font-mono text-[10px] tracking-[0.4em] uppercase" style={{ color: "var(--text-3)" }}>
-          Admin · Sebastian Calle
-        </p>
+        <Link
+          href="/"
+          className="font-mono text-[10px] tracking-[0.3em] uppercase transition-opacity hover:opacity-60 flex items-center gap-2"
+          style={{ color: "var(--text-3)" }}
+        >
+          ← Sitio
+        </Link>
         <button
           onClick={handleLogout}
           disabled={loggingOut}

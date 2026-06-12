@@ -50,6 +50,13 @@ export default function AlbumView({ label, albumIndex, totalAlbums, photos, prev
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
+          <Link
+            href="/portfolio"
+            className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] uppercase mb-4 transition-opacity hover:opacity-60"
+            style={{ color: "rgba(255,255,255,0.35)" }}
+          >
+            ← PORTFOLIO
+          </Link>
           <p className="font-mono text-[10px] tracking-[0.35em] text-[#444] uppercase mb-1">
             {String(albumIndex + 1).padStart(2, "0")} / {String(totalAlbums).padStart(2, "0")}
           </p>
