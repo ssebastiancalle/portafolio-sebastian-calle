@@ -10,11 +10,12 @@ interface LightboxProps {
   index: number;
   onClose: () => void;
   onChange: (i: number) => void;
+  description?: string;
 }
 
 const SWIPE_THRESHOLD = 60;
 
-export default function Lightbox({ photos, index, onClose, onChange }: LightboxProps) {
+export default function Lightbox({ photos, index, onClose, onChange, description }: LightboxProps) {
   const photo = photos[index];
   const x = useMotionValue(0);
   const opacity = useTransform(x, [-200, 0, 200], [0.4, 1, 0.4]);
@@ -119,22 +120,10 @@ export default function Lightbox({ photos, index, onClose, onChange }: LightboxP
         )}
       </div>
 
-      {/* Bottom — editorial info (only when meta is available) */}
+      {/* Bottom bar */}
       <div className="flex-shrink-0 px-6 py-5">
         <div className="flex items-end justify-between gap-4">
-          <div>
-            {photo.meta && (
-              <>
-                <p className="font-mono text-[11px] font-bold tracking-widest text-white uppercase mb-1">
-                  {photo.meta.title}
-                </p>
-                <p className="font-mono text-[10px] tracking-[0.15em] text-[#444] uppercase">
-                  {photo.meta.publication}
-                </p>
-              </>
-            )}
-          </div>
-          {/* Dot nav */}
+          {/* Left: dot nav */}
           <div className="flex gap-2 items-center pb-[2px]">
             {photos.map((_, i) => (
               <button
@@ -149,6 +138,13 @@ export default function Lightbox({ photos, index, onClose, onChange }: LightboxP
               />
             ))}
           </div>
+
+          {/* Right: album description */}
+          {description && (
+            <p className="font-mono text-[10px] tracking-[0.15em] text-right max-w-xs leading-relaxed" style={{ color: "#555" }}>
+              {description}
+            </p>
+          )}
         </div>
       </div>
     </motion.div>

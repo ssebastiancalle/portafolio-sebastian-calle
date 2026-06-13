@@ -38,6 +38,7 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
             index={lightboxIndex}
             onClose={() => setLightboxIndex(null)}
             onChange={setLightboxIndex}
+            description={description}
           />
         )}
       </AnimatePresence>
@@ -92,33 +93,39 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
           </motion.div>
 
-          {/* Remaining photos grid */}
+          {/* Remaining photos — masonry via CSS columns, aspect ratio from EXIF */}
           <motion.div
-            className="grid grid-cols-2 gap-2 md:gap-3 md:pl-3 pt-3 md:pt-0 content-start"
+            className="md:pl-3 pt-3 md:pt-0"
+            style={{ columns: 2, columnGap: "8px" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            {rest.map((photo, i) => (
-              <motion.div
-                key={photo.id}
-                className="relative overflow-hidden cursor-pointer group"
-                style={{ height: "clamp(160px, 22vh, 240px)" }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.25 + i * 0.06 }}
-                onClick={() => setLightboxIndex(i + 1)}
-              >
-                <Image
-                  src={photo.url}
-                  alt={photo.alt}
-                  fill
-                  sizes="25vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-              </motion.div>
-            ))}
+            {rest.map((photo, i) => {
+              const ratio = photo.width && photo.height
+                ? photo.width / photo.height
+                : 3 / 2;
+              return (
+                <motion.div
+                  key={photo.id}
+                  className="relative overflow-hidden cursor-pointer group break-inside-avoid mb-2"
+                  style={{ aspectRatio: ratio }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.25 + i * 0.06 }}
+                  onClick={() => setLightboxIndex(i + 1)}
+                >
+                  <Image
+                    src={photo.url}
+                    alt={photo.alt}
+                    fill
+                    sizes="25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
 
