@@ -107,20 +107,20 @@ function CornerHandle({ corner, cx, cy, cw, ch, scale, onUpdate, onDragEnd }: {
 
 // ─── Canvas photo card ────────────────────────────────────────────────────────
 
-function PhotoCard({ photo, scale, onUpdate, onRemove, onToggleVisibility, onDragEnd }: {
-  photo: AdminPhoto; scale: number;
+function PhotoCard({ photo, scale, isLocked, onUpdate, onRemove, onToggleLock, onDragEnd }: {
+  photo: AdminPhoto; scale: number; isLocked: boolean;
   onUpdate: (id: string, patch: Partial<AdminPhoto>) => void;
   onRemove: (id: string) => void;
-  onToggleVisibility: (id: string) => void;
+  onToggleLock: (id: string) => void;
   onDragEnd: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const moveRef = useRef<DragState | null>(null);
   const cx = photo.canvas_x!; const cy = photo.canvas_y!;
   const cw = photo.canvas_w ?? 200; const ch = photo.canvas_h ?? 150;
-  const isPublic = photo.visibility !== "private";
 
   function onPointerDown(e: React.PointerEvent) {
+    if (isLocked) return;
     e.stopPropagation();
     moveRef.current = { startX: e.clientX, startY: e.clientY, cx, cy, cw, ch };
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -144,13 +144,29 @@ function PhotoCard({ photo, scale, onUpdate, onRemove, onToggleVisibility, onDra
     <div
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
-      style={{ position: "absolute", left: cx, top: cy, width: cw, height: ch, cursor: "move", outline: hovered ? "2px solid rgba(255,255,255,0.55)" : "none", outlineOffset: 1, opacity: isPublic ? 1 : 0.45, overflow: "visible", touchAction: "none", userSelect: "none" }}
+      style={{
+        position: "absolute", left: cx, top: cy, width: cw, height: ch,
+        cursor: isLocked ? "default" : "move",
+        outline: hovered ? `2px solid ${isLocked ? "rgba(251,191,36,0.5)" : "rgba(255,255,255,0.55)"}` : "none",
+        outlineOffset: 1, overflow: "visible", touchAction: "none", userSelect: "none",
+      }}
     >
       <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
         {photo.url && <Image src={photo.url} alt={photo.alt ?? ""} fill sizes="500px" className="object-cover" style={{ pointerEvents: "none" }} draggable={false} />}
       </div>
 
-      {hovered && (["tl", "tr", "bl", "br"] as const).map(corner => (
+      {/* Lock indicator — always visible when locked */}
+      {isLocked && (
+        <div style={{ position: "absolute", top: 6, right: 6, zIndex: 25, pointerEvents: "none" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(251,191,36,0.9)" stroke="rgba(0,0,0,0.4)" strokeWidth="1">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        </div>
+      )}
+
+      {/* Corner resize handles — only when not locked */}
+      {hovered && !isLocked && (["tl", "tr", "bl", "br"] as const).map(corner => (
         <CornerHandle key={corner} corner={corner} cx={cx} cy={cy} cw={cw} ch={ch} scale={scale}
           onUpdate={p => onUpdate(photo.id, p)} onDragEnd={onDragEnd} />
       ))}
@@ -160,11 +176,21 @@ function PhotoCard({ photo, scale, onUpdate, onRemove, onToggleVisibility, onDra
           onPointerDown={e => e.stopPropagation()}>
           <span className="font-mono select-none" style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>{Math.round(cw)}×{Math.round(ch)}</span>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <button onClick={() => onToggleVisibility(photo.id)} className="font-mono uppercase transition-opacity hover:opacity-70"
-              style={{ fontSize: 8, letterSpacing: "0.1em", border: isPublic ? "1px solid #4ade80" : "1px solid #555", color: isPublic ? "#4ade80" : "#555", padding: "1px 5px" }}>
-              {isPublic ? "✓" : "○"}
+            {/* Lock / unlock */}
+            <button onClick={() => onToggleLock(photo.id)} className="transition-opacity hover:opacity-70" title={isLocked ? "Desbloquear" : "Bloquear posición"}>
+              {isLocked ? (
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              ) : (
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+                </svg>
+              )}
             </button>
-            {/* Remove from canvas (back to sidebar) */}
+            {/* Remove from canvas */}
             <button onClick={() => onRemove(photo.id)} className="transition-opacity hover:opacity-70" title="Quitar del canvas">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round">
                 <polyline points="15 18 9 12 15 6" />
@@ -219,6 +245,7 @@ export default function AdminAlbumPage() {
   const [scale, setScale] = useState(1);
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [snapGuides, setSnapGuides] = useState<Guide[]>([]);
+  const [lockedPhotos, setLockedPhotos] = useState<Set<string>>(new Set());
   // Sidebar drag state
   const [ghost, setGhost] = useState<{ url: string; x: number; y: number; w: number; h: number } | null>(null);
   const placingRef = useRef<{ id: string } | null>(null);
@@ -445,8 +472,14 @@ export default function AdminAlbumPage() {
 
               {placedPhotos.map(photo => (
                 <PhotoCard key={photo.id} photo={photo} scale={scale}
+                  isLocked={lockedPhotos.has(photo.id)}
                   onUpdate={handleUpdate} onRemove={removeFromCanvas}
-                  onToggleVisibility={toggleVisibility} onDragEnd={() => setSnapGuides([])} />
+                  onToggleLock={(pid) => setLockedPhotos(prev => {
+                    const next = new Set(prev);
+                    next.has(pid) ? next.delete(pid) : next.add(pid);
+                    return next;
+                  })}
+                  onDragEnd={() => setSnapGuides([])} />
               ))}
             </div>
             <div style={{ height: CANVAS_H * scale }} />
