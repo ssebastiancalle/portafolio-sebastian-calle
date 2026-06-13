@@ -385,6 +385,83 @@ function SidebarPhoto({ photo, isCover, onDragStart, onSetCover }: {
   );
 }
 
+// ─── Preview modal ───────────────────────────────────────────────────────────
+
+function PreviewModal({ photos, label, description, onClose }: {
+  photos: AdminPhoto[];
+  label: string;
+  description: string;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  const placedPhotos = photos.filter(p => p.canvas_x != null);
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 8500, background: "#000", display: "flex", flexDirection: "column", overflowY: "auto" }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "20px 32px", flexShrink: 0 }}>
+        <div>
+          <p className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: "0.35em", color: "#444", marginBottom: 4 }}>Vista previa</p>
+          <h1 className="font-mono uppercase font-bold" style={{ fontSize: "clamp(20px, 3vw, 36px)", color: "white", letterSpacing: "-0.02em" }}>{label}</h1>
+          {description && (
+            <div
+              className="font-mono"
+              style={{ fontSize: 11, lineHeight: 1.7, color: "rgba(255,255,255,0.4)", marginTop: 6, maxWidth: 520, wordBreak: "break-word" }}
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
+          )}
+        </div>
+        <button
+          onClick={onClose}
+          className="font-mono uppercase transition-colors hover:text-white"
+          style={{ fontSize: 11, letterSpacing: "0.3em", color: "#555", background: "none", border: "none", cursor: "pointer", minHeight: 44, flexShrink: 0, marginTop: 4 }}
+        >
+          [ ESC ]
+        </button>
+      </div>
+
+      {/* Canvas — same percentage layout as AlbumView */}
+      <div style={{ padding: "0 32px 40px", flex: 1 }}>
+        {placedPhotos.length === 0 ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
+            <p className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: "0.3em", color: "#333" }}>Sin fotos en el canvas</p>
+          </div>
+        ) : (
+          <div style={{ position: "relative", width: "100%", paddingBottom: `${(CANVAS_H / CANVAS_W) * 100}%` }}>
+            {placedPhotos.map(photo => {
+              const cx = photo.canvas_x ?? 0;
+              const cy = photo.canvas_y ?? 0;
+              const cw = photo.canvas_w ?? 200;
+              const ch = photo.canvas_h ?? 150;
+              return (
+                <div
+                  key={photo.id}
+                  style={{
+                    position: "absolute",
+                    left: `${(cx / CANVAS_W) * 100}%`,
+                    top: `${(cy / CANVAS_H) * 100}%`,
+                    width: `${(cw / CANVAS_W) * 100}%`,
+                    height: `${(ch / CANVAS_H) * 100}%`,
+                    overflow: "hidden",
+                  }}
+                >
+                  <Image src={photo.url} alt={photo.alt ?? ""} fill sizes="(max-width: 768px) 50vw, 30vw" className="object-cover" />
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AdminAlbumPage() {
@@ -401,6 +478,7 @@ export default function AdminAlbumPage() {
   const [lockedPhotos, setLockedPhotos] = useState<Set<string>>(new Set());
   const [modal, setModal] = useState<{ title: string; message: string; confirmLabel: string; danger: boolean; onConfirm: () => void } | null>(null);
   const [showInfo, setShowInfo] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [localName, setLocalName] = useState("");
   const [descriptionHtml, setDescriptionHtml] = useState("");
   const [savingInfo, setSavingInfo] = useState(false);
@@ -452,6 +530,24 @@ export default function AdminAlbumPage() {
   }, [id]);
 
   useEffect(() => { fetchAlbum(); }, [fetchAlbum]);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty]);
+
+  function handleBack() {
+    if (!dirty) { router.push("/admin"); return; }
+    setModal({
+      title: "Cambios sin guardar",
+      message: "Tenés cambios en el canvas que no guardaste. ¿Salir de todas formas?",
+      confirmLabel: "Salir sin guardar",
+      danger: true,
+      onConfirm: () => { setModal(null); router.push("/admin"); },
+    });
+  }
 
   // ── Sidebar drag handlers ──────────────────────────────────────────────────
 
@@ -664,9 +760,17 @@ export default function AdminAlbumPage() {
           onCancel={() => setModal(null)}
         />
       )}
+      {showPreview && (
+        <PreviewModal
+          photos={photos}
+          label={localName || label}
+          description={descriptionHtml}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 md:px-10 h-14 border-b flex-shrink-0" style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}>
-        <Link href="/admin" className="font-mono text-[10px] tracking-[0.3em] uppercase transition-opacity hover:opacity-60" style={{ color: "var(--text-3)" }}>← Admin</Link>
+        <button onClick={handleBack} className="font-mono text-[10px] tracking-[0.3em] uppercase transition-opacity hover:opacity-60" style={{ color: "var(--text-3)", background: "none", border: "none", cursor: "pointer", minHeight: 44 }}>← Admin</button>
         <p className="font-mono text-[10px] tracking-[0.4em] uppercase truncate max-w-[200px]" style={{ color: "var(--text-3)" }}>{label}</p>
         <div className="w-16" />
       </div>
@@ -688,6 +792,10 @@ export default function AdminAlbumPage() {
         <button onClick={() => setShowInfo(v => !v)} className="font-mono text-[10px] tracking-[0.3em] uppercase px-4 py-2 transition-opacity hover:opacity-70"
           style={{ border: showInfo ? "1px solid var(--text-3)" : "1px solid var(--border-2)", color: showInfo ? "var(--text-2)" : "var(--text-4)" }}>
           ✎ info
+        </button>
+        <button onClick={() => setShowPreview(true)} className="font-mono text-[10px] tracking-[0.3em] uppercase px-4 py-2 transition-opacity hover:opacity-70"
+          style={{ border: "1px solid var(--border-2)", color: "var(--text-4)" }}>
+          ◻ preview
         </button>
         {dirty && (
           <button onClick={saveChanges} disabled={saving} className="font-mono text-[10px] tracking-[0.3em] uppercase px-6 py-2 transition-opacity hover:opacity-70 disabled:opacity-40 ml-auto"
