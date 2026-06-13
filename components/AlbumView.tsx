@@ -23,11 +23,11 @@ interface Props {
   next: AlbumNavItem | null;
 }
 
-const ROW_HEIGHT = 320;
-const GAP = 4;
-
 export default function AlbumView({ label, description, albumIndex, totalAlbums, photos, prev, next }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const cover = photos[0];
+  const rest  = photos.slice(1);
 
   return (
     <>
@@ -47,7 +47,7 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
 
       <main className="min-h-screen bg-black pt-20">
         <motion.div
-          className="px-6 md:px-10 pt-6 pb-6"
+          className="px-6 md:px-10 pt-6 pb-4"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -72,41 +72,55 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
           )}
         </motion.div>
 
-        {/* Justified gallery */}
-        <div className="px-6 md:px-10 pb-28">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: GAP }}>
-            {photos.map((photo, i) => {
-              const ratio = photo.width && photo.height ? photo.width / photo.height : 3 / 2;
-              const scale = photo.scale ?? 1;
-              return (
-                <motion.div
-                  key={photo.id}
-                  className="relative overflow-hidden cursor-pointer group"
-                  style={{
-                    flex: `${ratio * scale} 1 ${ROW_HEIGHT * ratio * scale}px`,
-                    height: ROW_HEIGHT,
-                    minWidth: 120,
-                  }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.4, delay: i * 0.04 }}
-                  onClick={() => setLightboxIndex(i)}
-                >
-                  <Image
-                    src={photo.url}
-                    alt={photo.alt}
-                    fill
-                    sizes="(max-width: 768px) 90vw, 40vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    priority={i === 0}
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                </motion.div>
-              );
-            })}
-            {/* Prevents last-row stretch */}
-            <div style={{ flex: "9999 1 0px", height: ROW_HEIGHT, maxHeight: ROW_HEIGHT }} />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-0 px-6 md:px-10 pb-24">
+          {/* Cover photo */}
+          <motion.div
+            className="relative cursor-pointer overflow-hidden group"
+            style={{ height: "clamp(400px, 70vh, 700px)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            onClick={() => setLightboxIndex(0)}
+          >
+            <Image
+              src={cover.url}
+              alt={cover.alt}
+              fill
+              sizes="(max-width: 768px) 100vw, 40vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+              priority
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+          </motion.div>
+
+          {/* Remaining photos grid */}
+          <motion.div
+            className="grid grid-cols-2 gap-2 md:gap-3 md:pl-3 pt-3 md:pt-0 content-start"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {rest.map((photo, i) => (
+              <motion.div
+                key={photo.id}
+                className="relative overflow-hidden cursor-pointer group"
+                style={{ height: "clamp(160px, 22vh, 240px)" }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.25 + i * 0.06 }}
+                onClick={() => setLightboxIndex(i + 1)}
+              >
+                <Image
+                  src={photo.url}
+                  alt={photo.alt}
+                  fill
+                  sizes="25vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
 
         {/* Bottom nav */}
