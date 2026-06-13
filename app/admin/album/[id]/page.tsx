@@ -520,6 +520,7 @@ export default function AdminAlbumPage() {
     const photo = photosRef.current.find(p => p.id === photoId);
     if (!photo) return;
 
+    const isNewPlacement = photo.canvas_x == null && patch.canvas_x != null;
     let finalPatch = { ...patch };
 
     if (snapEnabled && patch.canvas_x !== null && patch.canvas_x !== undefined) {
@@ -535,7 +536,15 @@ export default function AdminAlbumPage() {
       }
     }
 
-    setPhotos(prev => prev.map(p => p.id === photoId ? { ...p, ...finalPatch } : p));
+    setPhotos(prev => {
+      const updated = prev.map(p => p.id === photoId ? { ...p, ...finalPatch } : p);
+      if (isNewPlacement) {
+        // Bring newly placed photo to front (last in array = rendered on top)
+        const moved = updated.find(p => p.id === photoId)!;
+        return [...updated.filter(p => p.id !== photoId), moved];
+      }
+      return updated;
+    });
     setDirty(true);
   }
 
