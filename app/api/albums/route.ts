@@ -28,6 +28,21 @@ export async function GET() {
   return NextResponse.json({ albums: data });
 }
 
+export async function PATCH(req: Request) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
+  const { albumOrder } = await req.json() as { albumOrder: string[] };
+  if (!Array.isArray(albumOrder)) return NextResponse.json({ error: "Invalid" }, { status: 400 });
+
+  await Promise.all(
+    albumOrder.map((id, i) => supabaseAdmin.from("albums").update({ order: i }).eq("id", id))
+  );
+
+  return NextResponse.json({ ok: true });
+}
+
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

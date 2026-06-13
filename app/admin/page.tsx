@@ -25,6 +25,9 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [savingOrder, setSavingOrder] = useState(false);
 
   const fetchAlbums = useCallback(async () => {
     setLoading(true);
@@ -58,6 +61,46 @@ export default function AdminPage() {
       fetchAlbums();
     } else {
       showToast.error("No se pudo eliminar el álbum", { duration: 5000, sound: true, position: "bottom-right" });
+    }
+  }
+
+  function handleDragStart(e: React.DragEvent, id: string) {
+    setDraggingId(id);
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleDragOver(e: React.DragEvent, id: string) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (id !== draggingId) setDragOverId(id);
+  }
+
+  function handleDrop(e: React.DragEvent, targetId: string) {
+    e.preventDefault();
+    if (!draggingId || draggingId === targetId) return;
+    const from = albums.findIndex(a => a.id === draggingId);
+    const to   = albums.findIndex(a => a.id === targetId);
+    if (from === -1 || to === -1) return;
+    const next = [...albums];
+    next.splice(to, 0, next.splice(from, 1)[0]);
+    setAlbums(next);
+    setDraggingId(null);
+    setDragOverId(null);
+    saveOrder(next);
+  }
+
+  async function saveOrder(ordered: AdminAlbum[]) {
+    setSavingOrder(true);
+    const res = await fetch("/api/albums", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ albumOrder: ordered.map(a => a.id) }),
+    });
+    setSavingOrder(false);
+    if (res.ok) {
+      showToast.success("Orden guardado", { duration: 2000, sound: true, position: "bottom-right" });
+    } else {
+      showToast.error("Error al guardar orden", { duration: 3000, sound: true, position: "bottom-right" });
     }
   }
 
@@ -106,9 +149,16 @@ export default function AdminPage() {
 
         {/* Albums list */}
         <div className="flex flex-col gap-1">
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-3" style={{ color: "var(--text-3)" }}>
-            Álbumes {!loading && `(${albums.length})`}
-          </p>
+          <div className="flex items-center gap-3 mb-3">
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: "var(--text-3)" }}>
+              Álbumes {!loading && `(${albums.length})`}
+            </p>
+            {savingOrder && (
+              <span className="font-mono text-[9px] tracking-[0.2em] uppercase" style={{ color: "var(--text-4)" }}>
+                guardando orden...
+              </span>
+            )}
+          </div>
 
           {loading && (
             <p className="font-mono text-[10px] tracking-[0.2em] uppercase" style={{ color: "var(--text-4)" }}>Cargando...</p>
@@ -121,12 +171,35 @@ export default function AdminPage() {
           {albums.map((album) => {
             const label = album.name || album.title;
             const isPublic = album.visibility === "public";
+            const isDragging = draggingId === album.id;
+            const isOver = dragOverId === album.id;
             return (
               <div
                 key={album.id}
+                draggable
+                onDragStart={e => handleDragStart(e, album.id)}
+                onDragOver={e => handleDragOver(e, album.id)}
+                onDrop={e => handleDrop(e, album.id)}
+                onDragEnd={() => { setDraggingId(null); setDragOverId(null); }}
                 className="flex items-center gap-4 py-3 border-b"
-                style={{ borderColor: "var(--border)" }}
+                style={{
+                  borderColor: "var(--border)",
+                  opacity: isDragging ? 0.35 : 1,
+                  background: isOver ? "rgba(255,255,255,0.03)" : "transparent",
+                  boxShadow: isOver ? "inset 2px 0 0 var(--text)" : "none",
+                  transition: "opacity 0.15s, background 0.15s, box-shadow 0.15s",
+                  cursor: "grab",
+                }}
               >
+                {/* Drag handle */}
+                <div className="flex-shrink-0" style={{ color: "var(--text-4)", paddingLeft: 2 }}>
+                  <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
+                    <circle cx="3" cy="3"  r="1.5" /><circle cx="7" cy="3"  r="1.5" />
+                    <circle cx="3" cy="8"  r="1.5" /><circle cx="7" cy="8"  r="1.5" />
+                    <circle cx="3" cy="13" r="1.5" /><circle cx="7" cy="13" r="1.5" />
+                  </svg>
+                </div>
+
                 {/* Cover thumb */}
                 <div className="relative w-12 h-12 flex-shrink-0 overflow-hidden" style={{ background: "var(--bg-surface)" }}>
                   {album.cover_url && (
