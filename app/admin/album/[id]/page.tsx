@@ -45,6 +45,85 @@ function ConfirmModal({ title, message, confirmLabel = "Confirmar", danger = fal
   );
 }
 
+// ─── Rich text editor ─────────────────────────────────────────────────────────
+
+function RichTextEditor({ defaultValue, onChange, placeholder }: {
+  defaultValue: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current) ref.current.innerHTML = defaultValue;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const exec = (cmd: string) => {
+    ref.current?.focus();
+    document.execCommand(cmd, false, undefined);
+    if (ref.current) onChange(ref.current.innerHTML);
+  };
+
+  return (
+    <div style={{ border: "1px solid var(--border)", background: "var(--bg)" }}>
+      <div style={{ display: "flex", gap: 0, padding: "3px 6px", borderBottom: "1px solid var(--border)", flexWrap: "wrap", alignItems: "center" }}>
+        {[
+          { label: "B", cmd: "bold",            style: { fontWeight: "bold" },          title: "Negrita" },
+          { label: "I", cmd: "italic",           style: { fontStyle: "italic" },         title: "Cursiva" },
+          { label: "U", cmd: "underline",        style: { textDecoration: "underline" }, title: "Subrayado" },
+          { label: "S", cmd: "strikeThrough",    style: { textDecoration: "line-through" }, title: "Tachado" },
+        ].map(({ label, cmd, style, title }) => (
+          <button key={cmd}
+            onMouseDown={e => { e.preventDefault(); exec(cmd); }}
+            className="font-mono text-[11px] px-2 py-1 transition-opacity hover:opacity-70"
+            style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", ...style }}
+            title={title}
+          >{label}</button>
+        ))}
+        <span style={{ width: 1, height: 14, background: "var(--border)", margin: "0 4px", display: "inline-block" }} />
+        {[
+          { label: "≡", cmd: "justifyLeft",   title: "Alinear izquierda" },
+          { label: "≡", cmd: "justifyCenter", title: "Centrar" },
+          { label: "≡", cmd: "justifyRight",  title: "Alinear derecha" },
+        ].map(({ label, cmd, title }, i) => (
+          <button key={cmd}
+            onMouseDown={e => { e.preventDefault(); exec(cmd); }}
+            className="font-mono text-[13px] px-2 py-1 transition-opacity hover:opacity-70"
+            style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", letterSpacing: i === 1 ? "0.15em" : i === 2 ? "0.3em" : "0" }}
+            title={title}
+          >{label}</button>
+        ))}
+        <span style={{ width: 1, height: 14, background: "var(--border)", margin: "0 4px", display: "inline-block" }} />
+        <button
+          onMouseDown={e => { e.preventDefault(); exec("removeFormat"); }}
+          className="font-mono text-[10px] px-2 py-1 transition-opacity hover:opacity-70"
+          style={{ color: "var(--text-4)", background: "none", border: "none", cursor: "pointer" }}
+          title="Limpiar formato"
+        >Tx</button>
+      </div>
+      <div
+        ref={ref}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={() => { if (ref.current) onChange(ref.current.innerHTML); }}
+        onKeyDown={e => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            document.execCommand("insertLineBreak");
+          }
+        }}
+        data-placeholder={placeholder}
+        style={{
+          minHeight: 130, padding: "8px 10px",
+          fontFamily: "monospace", fontSize: 11, lineHeight: 1.7,
+          color: "var(--text-2)", outline: "none", whiteSpace: "pre-wrap", wordBreak: "break-word",
+        }}
+      />
+    </div>
+  );
+}
+
 const CANVAS_W = 1200;
 const CANVAS_H = 800;
 const MIN_SIZE = 60;
@@ -70,6 +149,7 @@ type AdminAlbum = {
   name: string | null;
   title: string;
   slug: string;
+  description: string | null;
   cover_url: string | null;
   visibility: string;
   photos: AdminPhoto[];
@@ -320,6 +400,10 @@ export default function AdminAlbumPage() {
   const [snapGuides, setSnapGuides] = useState<Guide[]>([]);
   const [lockedPhotos, setLockedPhotos] = useState<Set<string>>(new Set());
   const [modal, setModal] = useState<{ title: string; message: string; confirmLabel: string; danger: boolean; onConfirm: () => void } | null>(null);
+  const [showInfo, setShowInfo] = useState(false);
+  const [localName, setLocalName] = useState("");
+  const [descriptionHtml, setDescriptionHtml] = useState("");
+  const [savingInfo, setSavingInfo] = useState(false);
   // Sidebar drag state
   const [ghost, setGhost] = useState<{ url: string; x: number; y: number; w: number; h: number } | null>(null);
   const placingRef = useRef<{ id: string } | null>(null);
@@ -348,7 +432,12 @@ export default function AdminAlbumPage() {
       const data = await res.json();
       const found = (data.albums as AdminAlbum[]).find((a) => a.id === id) ?? null;
       setAlbum(found);
-      if (found) { setPhotos(found.photos); setDirty(false); }
+      if (found) {
+        setPhotos(found.photos);
+        setDirty(false);
+        setLocalName(found.name || found.title || "");
+        setDescriptionHtml(found.description || "");
+      }
     }
     setLoading(false);
   }, [id]);
@@ -428,6 +517,22 @@ export default function AdminAlbumPage() {
   function toggleVisibility(photoId: string) {
     setPhotos(prev => prev.map(p => p.id === photoId ? { ...p, visibility: p.visibility === "public" ? "private" : "public" } : p));
     setDirty(true);
+  }
+
+  async function saveInfo() {
+    if (!album) return;
+    setSavingInfo(true);
+    const res = await fetch(`/api/albums/${album.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: localName, description: descriptionHtml }),
+    });
+    setSavingInfo(false);
+    if (res.ok) {
+      setAlbum(prev => prev ? { ...prev, name: localName, description: descriptionHtml } : prev);
+      showToast.success("Info guardada", { duration: 3000, sound: true, position: "bottom-right" });
+    } else {
+      showToast.error("Error al guardar info", { duration: 4000, sound: true, position: "bottom-right" });
+    }
   }
 
   async function setCover(photoId: string) {
@@ -541,6 +646,10 @@ export default function AdminAlbumPage() {
           style={{ border: snapEnabled ? "1px solid #60a5fa" : "1px solid var(--border-2)", color: snapEnabled ? "#60a5fa" : "var(--text-4)" }}>
           {snapEnabled ? "⊡ snap on" : "⊡ snap off"}
         </button>
+        <button onClick={() => setShowInfo(v => !v)} className="font-mono text-[10px] tracking-[0.3em] uppercase px-4 py-2 transition-opacity hover:opacity-70"
+          style={{ border: showInfo ? "1px solid var(--text-3)" : "1px solid var(--border-2)", color: showInfo ? "var(--text-2)" : "var(--text-4)" }}>
+          ✎ info
+        </button>
         {dirty && (
           <button onClick={saveChanges} disabled={saving} className="font-mono text-[10px] tracking-[0.3em] uppercase px-6 py-2 transition-opacity hover:opacity-70 disabled:opacity-40 ml-auto"
             style={{ background: "var(--text)", color: "var(--bg)" }}>
@@ -548,6 +657,41 @@ export default function AdminAlbumPage() {
           </button>
         )}
       </div>
+
+      {/* Info panel */}
+      {showInfo && (
+        <div style={{ borderBottom: "1px solid var(--border)", padding: "16px 24px", background: "var(--bg-surface)", flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+            <div style={{ width: 220, flexShrink: 0 }}>
+              <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Nombre del álbum</p>
+              <input
+                value={localName}
+                onChange={e => setLocalName(e.target.value)}
+                className="font-mono text-[11px] w-full"
+                style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "6px 10px", color: "var(--text-2)", outline: "none" }}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Pie de foto (soporta <strong>negrita</strong>, <em>cursiva</em> y @handles)</p>
+              <RichTextEditor
+                defaultValue={descriptionHtml}
+                onChange={setDescriptionHtml}
+                placeholder="SILHOUETTE – COVER FEATURE&#10;SELIN MAGAZINE | Issue 65..."
+              />
+            </div>
+            <div style={{ paddingTop: 18, flexShrink: 0 }}>
+              <button
+                onClick={saveInfo}
+                disabled={savingInfo}
+                className="font-mono text-[10px] tracking-[0.25em] uppercase px-5 py-2 transition-opacity hover:opacity-70 disabled:opacity-40"
+                style={{ background: "var(--text)", color: "var(--bg)", border: "none", cursor: "pointer" }}
+              >
+                {savingInfo ? "..." : "Guardar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main area: canvas + sidebar */}
       <div className="flex flex-1 overflow-hidden">

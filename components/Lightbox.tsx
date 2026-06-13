@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import Image from "next/image";
 import type { LightboxPhoto } from "@/lib/types";
@@ -15,10 +15,27 @@ interface LightboxProps {
 
 const SWIPE_THRESHOLD = 60;
 
+function linkifyDescription(html: string): string {
+  return html.replace(/@([\w.]+)/g, (_, h) =>
+    `<a href="https://instagram.com/${h}" target="_blank" rel="noopener noreferrer" style="color:#e1aa6e;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(225,170,110,0.45);font-weight:600;letter-spacing:0.04em;cursor:pointer">@${h}</a>`
+  );
+}
+
+const COLLAPSED_H = 44;
+
 export default function Lightbox({ photos, index, onClose, onChange, description }: LightboxProps) {
   const photo = photos[index];
   const x = useMotionValue(0);
   const opacity = useTransform(x, [-200, 0, 200], [0.4, 1, 0.4]);
+  const [expanded, setExpanded] = useState(false);
+  const [fullHeight, setFullHeight] = useState(0);
+  const descRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { setExpanded(false); }, [index]);
+
+  useEffect(() => {
+    if (descRef.current) setFullHeight(descRef.current.scrollHeight);
+  }, [description]);
 
   const prev = useCallback(() => {
     if (index > 0) onChange(index - 1);
@@ -124,9 +141,32 @@ export default function Lightbox({ photos, index, onClose, onChange, description
       <div className="flex-shrink-0 px-6 py-5">
         <div className="flex items-end justify-between gap-4">
           {/* Left: album description */}
-          <p className="font-mono text-[13px] tracking-[0.12em] leading-relaxed max-w-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
-            {description ?? ""}
-          </p>
+          {description ? (
+            <div style={{ maxWidth: 360 }}>
+              <motion.div
+                animate={{ height: expanded ? fullHeight : COLLAPSED_H }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                style={{ overflow: "hidden" }}
+              >
+                <div
+                  ref={descRef}
+                  className="font-mono text-[13px] tracking-[0.08em] leading-relaxed"
+                  style={{ color: "rgba(255,255,255,0.55)", whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+                  dangerouslySetInnerHTML={{ __html: linkifyDescription(description) }}
+                />
+              </motion.div>
+              {fullHeight > COLLAPSED_H && (
+                <motion.button
+                  onClick={() => setExpanded(v => !v)}
+                  className="font-mono text-[11px] tracking-[0.2em] uppercase mt-1 transition-colors duration-200"
+                  style={{ color: "#555", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                  whileHover={{ color: "#aaa" }}
+                >
+                  {expanded ? "ver menos" : "... ver más"}
+                </motion.button>
+              )}
+            </div>
+          ) : <div />}
 
           {/* Right: counter */}
           <span className="font-mono text-[11px] tracking-[0.3em] uppercase select-none flex-shrink-0" style={{ color: "#444" }}>

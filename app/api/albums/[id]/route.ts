@@ -34,6 +34,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const { id } = await params;
   const body = await req.json() as {
     visibility?: string;
+    name?: string;
+    description?: string;
     photoOrder?: string[];
     photoScales?: { id: string; scale: number; visibility: string }[];
     photoPositions?: { id: string; canvas_x: number; canvas_y: number; canvas_w: number; canvas_h: number; visibility: string }[];
@@ -71,6 +73,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const albumUpdate: Record<string, string> = {};
   if (body.visibility) albumUpdate.visibility = body.visibility;
   if ((body as Record<string, unknown>).cover_url) albumUpdate.cover_url = (body as Record<string, unknown>).cover_url as string;
+  if (body.name !== undefined) albumUpdate.name = body.name;
+  if (body.description !== undefined) albumUpdate.description = body.description;
 
   if (Object.keys(albumUpdate).length) {
     const { error } = await supabaseAdmin.from("albums").update(albumUpdate).eq("id", id);
