@@ -123,28 +123,15 @@ export default function Lightbox({ photos, index, onClose, onChange, description
       {/* Bottom bar */}
       <div className="flex-shrink-0 px-6 py-5">
         <div className="flex items-end justify-between gap-4">
-          {/* Left: dot nav */}
-          <div className="flex gap-2 items-center pb-[2px]">
-            {photos.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => onChange(i)}
-                aria-label={`Photo ${i + 1}`}
-                className="w-[5px] h-[5px] rounded-full transition-all duration-200 cursor-pointer"
-                style={{
-                  background: i === index ? "#fff" : "#333",
-                  transform: i === index ? "scale(1.4)" : "scale(1)",
-                }}
-              />
-            ))}
-          </div>
+          {/* Left: album description */}
+          <p className="font-mono text-[10px] tracking-[0.15em] leading-relaxed max-w-xs" style={{ color: "#555" }}>
+            {description ?? ""}
+          </p>
 
-          {/* Right: album description */}
-          {description && (
-            <p className="font-mono text-[10px] tracking-[0.15em] text-right max-w-xs leading-relaxed" style={{ color: "#555" }}>
-              {description}
-            </p>
-          )}
+          {/* Right: counter */}
+          <span className="font-mono text-[11px] tracking-[0.3em] uppercase select-none flex-shrink-0" style={{ color: "#444" }}>
+            {String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}
+          </span>
         </div>
       </div>
     </motion.div>
