@@ -3,9 +3,10 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import { showToast } from "nextjs-toast-notify";
+import { BLUR_DATA_URL } from "@/lib/blur";
 
 type AdminAlbum = {
   id: string;
@@ -28,6 +29,9 @@ export default function AdminPage() {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [savingOrder, setSavingOrder] = useState(false);
+  const [aboutPhoto, setAboutPhoto] = useState<string>("");
+  const [uploadingAbout, setUploadingAbout] = useState(false);
+  const aboutInputRef = useRef<HTMLInputElement>(null);
 
   const fetchAlbums = useCallback(async () => {
     setLoading(true);
@@ -40,6 +44,30 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => { fetchAlbums(); }, [fetchAlbums]);
+
+  useEffect(() => {
+    fetch("/api/settings").then(r => r.json()).then(d => setAboutPhoto(d.settings?.about_photo_url || "")).catch(() => {});
+  }, []);
+
+  async function handleAboutPhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAbout(true);
+    const form = new FormData();
+    form.append("photo", file);
+    const uploadRes = await fetch("/api/upload/photo", { method: "POST", body: form });
+    if (!uploadRes.ok) {
+      showToast.error("Error al subir la foto", { duration: 3000, sound: true, position: "bottom-right" });
+      setUploadingAbout(false);
+      return;
+    }
+    const { url } = await uploadRes.json();
+    await fetch("/api/settings", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ about_photo_url: url }) });
+    setAboutPhoto(url);
+    setUploadingAbout(false);
+    showToast.success("Foto del About actualizada", { duration: 3000, sound: true, position: "bottom-right" });
+    if (aboutInputRef.current) aboutInputRef.current.value = "";
+  }
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -147,6 +175,28 @@ export default function AdminPage() {
           Subir álbum
         </Link>
 
+        {/* About photo */}
+        <div className="flex flex-col gap-3 pb-2 border-b" style={{ borderColor: "var(--border)" }}>
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: "var(--text-3)" }}>Foto del About</p>
+          <div className="flex items-center gap-5">
+            <div className="relative flex-shrink-0 overflow-hidden" style={{ width: 64, height: 80, background: "var(--bg-surface)" }}>
+              {aboutPhoto && (
+                <Image src={aboutPhoto} alt="About" fill sizes="64px" className="object-cover" placeholder="blur" blurDataURL={BLUR_DATA_URL} />
+              )}
+            </div>
+            <label
+              className="font-mono text-[10px] tracking-[0.25em] uppercase px-5 py-2 transition-opacity hover:opacity-70"
+              style={{ border: "1px solid var(--border-2)", color: uploadingAbout ? "var(--text-4)" : "var(--text-3)", cursor: uploadingAbout ? "wait" : "pointer" }}
+            >
+              {uploadingAbout ? "Subiendo..." : "Cambiar foto"}
+              <input ref={aboutInputRef} type="file" accept="image/*" className="hidden" onChange={handleAboutPhotoUpload} disabled={uploadingAbout} />
+            </label>
+            <p className="font-mono text-[9px] tracking-[0.15em]" style={{ color: "var(--text-4)" }}>
+              Se muestra en la página About
+            </p>
+          </div>
+        </div>
+
         {/* Albums list */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-3 mb-3">
@@ -160,9 +210,20 @@ export default function AdminPage() {
             )}
           </div>
 
-          {loading && (
-            <p className="font-mono text-[10px] tracking-[0.2em] uppercase" style={{ color: "var(--text-4)" }}>Cargando...</p>
-          )}
+          {loading && Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4 py-3 border-b" style={{ borderColor: "var(--border)" }}>
+              <div style={{ width: 10, height: 16, flexShrink: 0 }} />
+              <div className="rounded" style={{ width: 48, height: 48, flexShrink: 0, background: "var(--bg-surface)", animation: "pulse 1.5s ease-in-out infinite" }} />
+              <div className="flex-1 flex flex-col gap-2">
+                <div className="rounded" style={{ height: 10, width: "40%", background: "var(--bg-surface)", animation: "pulse 1.5s ease-in-out infinite" }} />
+                <div className="rounded" style={{ height: 8, width: "20%", background: "var(--bg-surface)", animation: "pulse 1.5s ease-in-out infinite", animationDelay: "0.2s" }} />
+              </div>
+              <div className="flex gap-2">
+                <div className="rounded" style={{ width: 52, height: 26, background: "var(--bg-surface)", animation: "pulse 1.5s ease-in-out infinite" }} />
+                <div className="rounded" style={{ width: 44, height: 26, background: "var(--bg-surface)", animation: "pulse 1.5s ease-in-out infinite", animationDelay: "0.1s" }} />
+              </div>
+            </div>
+          ))}
 
           {!loading && albums.length === 0 && (
             <p className="font-mono text-[10px] tracking-[0.2em] uppercase" style={{ color: "var(--text-4)" }}>Sin álbumes todavía</p>

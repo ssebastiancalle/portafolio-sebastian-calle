@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { categories } from "@/data/categories";
 import type { AlbumSlim } from "@/lib/types";
+import { BLUR_DATA_URL } from "@/lib/blur";
 
 const SWIPE_THRESHOLD = 50;
 const SLIDE_VW = 80;
@@ -77,7 +78,7 @@ export default function HomeCarousel({ albums }: Props) {
                   transition={{ duration: 0.3 }}
                   onClick={() => !isCurrent && go(i > index ? 1 : -1)}
                 >
-                  <Image src={item.coverUrl} alt={item.label} fill sizes="80vw" className="object-contain" draggable={false} priority={isCurrent} />
+                  <Image src={item.coverUrl} alt={item.label} fill sizes="80vw" className="object-contain" draggable={false} priority={isCurrent} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
                   {isCurrent && (
                     <>
                       <Link href={`/album/${item.id}`} className="absolute inset-0 z-10" aria-label={item.label} />
@@ -136,7 +137,7 @@ export default function HomeCarousel({ albums }: Props) {
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => go(-1)}
             >
-              <Image src={leftItem.coverUrl} alt={leftItem.label} fill sizes="22vw" className="object-contain transition-transform duration-700 group-hover:scale-105" />
+              <Image src={leftItem.coverUrl} alt={leftItem.label} fill sizes="22vw" className="object-contain transition-transform duration-700 group-hover:scale-105" placeholder="blur" blurDataURL={BLUR_DATA_URL} />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -153,7 +154,7 @@ export default function HomeCarousel({ albums }: Props) {
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
             <Link href={`/album/${mainItem.id}`} className="block w-full h-full">
-              <Image src={mainItem.coverUrl} alt={mainItem.label} fill sizes="50vw" className="object-contain transition-transform duration-700 group-hover:scale-[1.03]" priority />
+              <Image src={mainItem.coverUrl} alt={mainItem.label} fill sizes="50vw" className="object-contain transition-transform duration-700 group-hover:scale-[1.03]" priority placeholder="blur" blurDataURL={BLUR_DATA_URL} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -180,7 +181,7 @@ export default function HomeCarousel({ albums }: Props) {
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => go(1)}
             >
-              <Image src={rightItem.coverUrl} alt={rightItem.label} fill sizes="22vw" className="object-contain transition-transform duration-700 group-hover:scale-105" />
+              <Image src={rightItem.coverUrl} alt={rightItem.label} fill sizes="22vw" className="object-contain transition-transform duration-700 group-hover:scale-105" placeholder="blur" blurDataURL={BLUR_DATA_URL} />
             </motion.div>
           </AnimatePresence>
         </div>

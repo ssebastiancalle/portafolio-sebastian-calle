@@ -7,6 +7,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Lightbox from "@/components/Lightbox";
 import type { LightboxPhoto } from "@/lib/types";
+import { BLUR_DATA_URL } from "@/lib/blur";
 
 export interface AlbumNavItem {
   id: string;
@@ -125,6 +126,8 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
                       fill
                       sizes="(max-width: 768px) 50vw, 30vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      placeholder="blur"
+                      blurDataURL={BLUR_DATA_URL}
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                   </motion.div>
@@ -150,6 +153,8 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
                 sizes="(max-width: 768px) 100vw, 40vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 priority
+                placeholder="blur"
+                blurDataURL={BLUR_DATA_URL}
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
             </motion.div>
@@ -176,6 +181,8 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
                     fill
                     sizes="25vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    placeholder="blur"
+                    blurDataURL={BLUR_DATA_URL}
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 </motion.div>

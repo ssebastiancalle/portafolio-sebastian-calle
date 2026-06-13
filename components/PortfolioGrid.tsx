@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import type { AlbumSlim } from "@/lib/types";
+import { BLUR_DATA_URL } from "@/lib/blur";
 
 export default function PortfolioGrid({ albums }: { albums: AlbumSlim[] }) {
   const top = albums.slice(0, 2);
@@ -46,6 +47,8 @@ function AlbumCard({ album, index, tall }: { album: AlbumSlim; index: number; ta
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover transition-transform duration-700 group-hover:scale-105"
+          placeholder="blur"
+          blurDataURL={BLUR_DATA_URL}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-5">

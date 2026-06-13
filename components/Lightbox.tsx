@@ -4,6 +4,7 @@ import { useEffect, useCallback, useState, useRef } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import Image from "next/image";
 import type { LightboxPhoto } from "@/lib/types";
+import { BLUR_DATA_URL } from "@/lib/blur";
 
 interface LightboxProps {
   photos: LightboxPhoto[];
@@ -112,6 +113,8 @@ export default function Lightbox({ photos, index, onClose, onChange, description
               className="object-contain select-none"
               draggable={false}
               priority
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URL}
             />
           </motion.div>
         </AnimatePresence>
