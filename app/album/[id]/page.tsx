@@ -22,14 +22,21 @@ export default async function AlbumPage({ params }: Props) {
 
     const photos: LightboxPhoto[] = (supabaseAlbum.photos ?? [])
       .filter((p) => p.url)
-      .map((p) => ({
-        id: p.id,
-        url: p.url!,
-        alt: p.alt ?? "",
-        width: p.width,
-        height: p.height,
-        scale: (p as Record<string, unknown>).scale as number | undefined,
-      }));
+      .map((p) => {
+        const extra = p as Record<string, unknown>;
+        return {
+          id: p.id,
+          url: p.url!,
+          alt: p.alt ?? "",
+          width: p.width,
+          height: p.height,
+          scale: extra.scale as number | undefined,
+          canvas_x: extra.canvas_x as number | null | undefined,
+          canvas_y: extra.canvas_y as number | null | undefined,
+          canvas_w: extra.canvas_w as number | null | undefined,
+          canvas_h: extra.canvas_h as number | null | undefined,
+        };
+      });
 
     return (
       <AlbumView

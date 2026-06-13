@@ -23,11 +23,16 @@ interface Props {
   next: AlbumNavItem | null;
 }
 
+const CANVAS_W = 1200;
+const CANVAS_H = 800;
+
+function hasCanvasLayout(photos: LightboxPhoto[]): boolean {
+  return photos.length > 0 && photos[0].canvas_x != null;
+}
+
 export default function AlbumView({ label, description, albumIndex, totalAlbums, photos, prev, next }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-
-  const cover = photos[0];
-  const rest  = photos.slice(1);
+  const isCanvas = hasCanvasLayout(photos);
 
   return (
     <>
@@ -72,56 +77,106 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
           )}
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-0 px-6 md:px-10 pb-24">
-          {/* Cover photo */}
+        {isCanvas ? (
+          /* ── Canvas layout ── */
           <motion.div
-            className="relative cursor-pointer overflow-hidden group"
-            style={{ height: "clamp(400px, 70vh, 700px)" }}
+            className="px-6 md:px-10 pb-24"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            onClick={() => setLightboxIndex(0)}
           >
-            <Image
-              src={cover.url}
-              alt={cover.alt}
-              fill
-              sizes="(max-width: 768px) 100vw, 40vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-              priority
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                paddingBottom: `${(CANVAS_H / CANVAS_W) * 100}%`,
+              }}
+            >
+              {photos.map((photo, i) => {
+                const cx = photo.canvas_x ?? 0;
+                const cy = photo.canvas_y ?? 0;
+                const cw = photo.canvas_w ?? 200;
+                const ch = photo.canvas_h ?? 150;
+                return (
+                  <motion.div
+                    key={photo.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 0.05 * i }}
+                    onClick={() => setLightboxIndex(i)}
+                    className="cursor-pointer group overflow-hidden"
+                    style={{
+                      position: "absolute",
+                      left: `${(cx / CANVAS_W) * 100}%`,
+                      top: `${(cy / CANVAS_H) * 100}%`,
+                      width: `${(cw / CANVAS_W) * 100}%`,
+                      height: `${(ch / CANVAS_H) * 100}%`,
+                    }}
+                  >
+                    <Image
+                      src={photo.url}
+                      alt={photo.alt}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 30vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                  </motion.div>
+                );
+              })}
+            </div>
           </motion.div>
+        ) : (
+          /* ── Original grid layout (fallback) ── */
+          <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-0 px-6 md:px-10 pb-24">
+            <motion.div
+              className="relative cursor-pointer overflow-hidden group"
+              style={{ height: "clamp(400px, 70vh, 700px)" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              onClick={() => setLightboxIndex(0)}
+            >
+              <Image
+                src={photos[0].url}
+                alt={photos[0].alt}
+                fill
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                priority
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </motion.div>
 
-          {/* Remaining photos grid */}
-          <motion.div
-            className="grid grid-cols-2 gap-2 md:gap-3 md:pl-3 pt-3 md:pt-0 content-start"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            {rest.map((photo, i) => (
-              <motion.div
-                key={photo.id}
-                className="relative overflow-hidden cursor-pointer group"
-                style={{ height: "clamp(160px, 22vh, 240px)" }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.25 + i * 0.06 }}
-                onClick={() => setLightboxIndex(i + 1)}
-              >
-                <Image
-                  src={photo.url}
-                  alt={photo.alt}
-                  fill
-                  sizes="25vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
+            <motion.div
+              className="grid grid-cols-2 gap-2 md:gap-3 md:pl-3 pt-3 md:pt-0 content-start"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              {photos.slice(1).map((photo, i) => (
+                <motion.div
+                  key={photo.id}
+                  className="relative overflow-hidden cursor-pointer group"
+                  style={{ height: "clamp(160px, 22vh, 240px)" }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.25 + i * 0.06 }}
+                  onClick={() => setLightboxIndex(i + 1)}
+                >
+                  <Image
+                    src={photo.url}
+                    alt={photo.alt}
+                    fill
+                    sizes="25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        )}
 
         {/* Bottom nav */}
         <div

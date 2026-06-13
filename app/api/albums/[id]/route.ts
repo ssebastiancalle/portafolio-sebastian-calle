@@ -32,7 +32,26 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!await auth()) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   const { id } = await params;
-  const body = await req.json() as { visibility?: string; photoOrder?: string[]; photoScales?: { id: string; scale: number; visibility: string }[] };
+  const body = await req.json() as {
+    visibility?: string;
+    photoOrder?: string[];
+    photoScales?: { id: string; scale: number; visibility: string }[];
+    photoPositions?: { id: string; canvas_x: number; canvas_y: number; canvas_w: number; canvas_h: number; visibility: string }[];
+  };
+
+  if (body.photoPositions) {
+    const updates = body.photoPositions.map((p) =>
+      supabaseAdmin.from("photos").update({
+        canvas_x: p.canvas_x,
+        canvas_y: p.canvas_y,
+        canvas_w: p.canvas_w,
+        canvas_h: p.canvas_h,
+        visibility: p.visibility,
+      }).eq("id", p.id).eq("album_id", id)
+    );
+    await Promise.all(updates);
+    return NextResponse.json({ ok: true });
+  }
 
   if (body.photoOrder) {
     const scales: Record<string, { scale: number; visibility: string }> = {};

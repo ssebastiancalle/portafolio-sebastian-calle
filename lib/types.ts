@@ -36,6 +36,10 @@ export type LightboxPhoto = {
   width?: number
   height?: number
   scale?: number
+  canvas_x?: number | null
+  canvas_y?: number | null
+  canvas_w?: number | null
+  canvas_h?: number | null
   meta?: { title: string; publication: string }
 }
 

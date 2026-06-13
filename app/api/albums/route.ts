@@ -12,7 +12,7 @@ export async function GET() {
 
   let { data, error } = await supabaseAdmin
     .from("albums")
-    .select("id, name, title, slug, cover_url, visibility, created_at, photos(id, url, alt, order, width, height, scale, visibility)")
+    .select("id, name, title, slug, cover_url, visibility, created_at, photos(id, url, alt, order, width, height, scale, visibility, canvas_x, canvas_y, canvas_w, canvas_h)")
     .order("order", { ascending: true });
 
   // If the join fails (e.g. photos table issue), retry without it
