@@ -68,11 +68,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ ok: true });
   }
 
-  if (body.visibility) {
-    const { error } = await supabaseAdmin
-      .from("albums")
-      .update({ visibility: body.visibility })
-      .eq("id", id);
+  const albumUpdate: Record<string, string> = {};
+  if (body.visibility) albumUpdate.visibility = body.visibility;
+  if ((body as Record<string, unknown>).cover_url) albumUpdate.cover_url = (body as Record<string, unknown>).cover_url as string;
+
+  if (Object.keys(albumUpdate).length) {
+    const { error } = await supabaseAdmin.from("albums").update(albumUpdate).eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

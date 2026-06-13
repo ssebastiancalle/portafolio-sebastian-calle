@@ -124,7 +124,7 @@ export default function Lightbox({ photos, index, onClose, onChange, description
       <div className="flex-shrink-0 px-6 py-5">
         <div className="flex items-end justify-between gap-4">
           {/* Left: album description */}
-          <p className="font-mono text-[10px] tracking-[0.15em] leading-relaxed max-w-xs" style={{ color: "#555" }}>
+          <p className="font-mono text-[13px] tracking-[0.12em] leading-relaxed max-w-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
             {description ?? ""}
           </p>
 

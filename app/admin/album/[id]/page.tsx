@@ -244,28 +244,62 @@ function PhotoCard({ photo, scale, isLocked, onUpdate, onRemove, onToggleLock, o
 
 // ─── Sidebar thumbnail ────────────────────────────────────────────────────────
 
-function SidebarPhoto({ photo, onDragStart }: {
+function SidebarPhoto({ photo, isCover, onDragStart, onSetCover }: {
   photo: AdminPhoto;
+  isCover: boolean;
   onDragStart: (e: React.PointerEvent, id: string) => void;
+  onSetCover: (id: string) => void;
 }) {
+  const [hovered, setHovered] = useState(false);
   const placed = photo.canvas_x != null;
+
   return (
     <div
-      onPointerDown={placed ? undefined : (e) => onDragStart(e, photo.id)}
-      style={{
-        position: "relative", width: "100%", aspectRatio: "3/2",
-        overflow: "hidden", background: "#111",
-        cursor: placed ? "default" : "grab",
-        opacity: placed ? 0.35 : 1,
-        border: placed ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(255,255,255,0.15)",
-        userSelect: "none", touchAction: "none", flexShrink: 0,
-      }}
+      style={{ position: "relative", width: "100%", flexShrink: 0 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      {photo.url && <Image src={photo.url} alt={photo.alt ?? ""} fill sizes="180px" className="object-cover" draggable={false} style={{ pointerEvents: "none" }} />}
-      {placed && (
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.4)" }}>
-          <span className="font-mono" style={{ fontSize: 8, color: "rgba(255,255,255,0.5)", letterSpacing: "0.2em" }}>EN CANVAS</span>
-        </div>
+      <div
+        onPointerDown={placed ? undefined : (e) => onDragStart(e, photo.id)}
+        style={{
+          position: "relative", width: "100%", aspectRatio: "3/2",
+          overflow: "hidden", background: "#111",
+          cursor: placed ? "default" : "grab",
+          opacity: placed ? 0.35 : 1,
+          border: isCover ? "2px solid #fbbf24" : placed ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(255,255,255,0.15)",
+          userSelect: "none", touchAction: "none",
+        }}
+      >
+        {photo.url && <Image src={photo.url} alt={photo.alt ?? ""} fill sizes="180px" className="object-cover" draggable={false} style={{ pointerEvents: "none" }} />}
+        {/* Cover badge */}
+        {isCover && (
+          <div style={{ position: "absolute", top: 4, left: 4, background: "#fbbf24", padding: "1px 5px" }}>
+            <span className="font-mono" style={{ fontSize: 7, color: "#000", letterSpacing: "0.15em" }}>PORTADA</span>
+          </div>
+        )}
+        {placed && !isCover && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.4)" }}>
+            <span className="font-mono" style={{ fontSize: 8, color: "rgba(255,255,255,0.5)", letterSpacing: "0.2em" }}>EN CANVAS</span>
+          </div>
+        )}
+      </div>
+
+      {/* Set as cover button — shown on hover */}
+      {hovered && !isCover && (
+        <button
+          onClick={() => onSetCover(photo.id)}
+          onPointerDown={e => e.stopPropagation()}
+          className="font-mono uppercase transition-opacity hover:opacity-80"
+          style={{
+            position: "absolute", bottom: 0, left: 0, right: 0,
+            fontSize: 7, letterSpacing: "0.15em",
+            background: "rgba(251,191,36,0.9)", color: "#000",
+            padding: "3px 0", textAlign: "center",
+            border: "none", cursor: "pointer",
+          }}
+        >
+          ★ Portada
+        </button>
       )}
     </div>
   );
@@ -394,6 +428,21 @@ export default function AdminAlbumPage() {
   function toggleVisibility(photoId: string) {
     setPhotos(prev => prev.map(p => p.id === photoId ? { ...p, visibility: p.visibility === "public" ? "private" : "public" } : p));
     setDirty(true);
+  }
+
+  async function setCover(photoId: string) {
+    const photo = photos.find(p => p.id === photoId);
+    if (!photo?.url) return;
+    const res = await fetch(`/api/albums/${id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cover_url: photo.url }),
+    });
+    if (res.ok) {
+      setAlbum(prev => prev ? { ...prev, cover_url: photo.url } : prev);
+      showToast.success("Portada actualizada", { duration: 3000, sound: true, position: "bottom-right" });
+    } else {
+      showToast.error("Error al actualizar portada", { duration: 4000, sound: true, position: "bottom-right" });
+    }
   }
 
   async function doSaveChanges() {
@@ -561,7 +610,7 @@ export default function AdminAlbumPage() {
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "8px 10px" }}>
             {photos.map(photo => (
-              <SidebarPhoto key={photo.id} photo={photo} onDragStart={onSidebarDragStart} />
+              <SidebarPhoto key={photo.id} photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} />
             ))}
           </div>
         </div>

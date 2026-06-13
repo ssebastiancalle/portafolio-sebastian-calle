@@ -8,7 +8,7 @@ export default function AboutPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-black pt-24 px-6 md:px-10 pb-16 flex items-center">
+      <main className="min-h-screen pt-24 px-6 md:px-10 pb-16 flex items-center" style={{ background: "var(--bg)" }}>
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 max-w-5xl mx-auto">
           {/* Photo */}
           <motion.div
@@ -34,41 +34,39 @@ export default function AboutPage() {
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
             <div>
-              <p className="font-mono text-[10px] tracking-[0.35em] text-[#444] uppercase mb-3">
+              <p className="font-mono text-[10px] tracking-[0.35em] uppercase mb-3" style={{ color: "var(--text-4)" }}>
                 About
               </p>
-              <h1 className="font-mono text-2xl md:text-3xl tracking-tighter text-white uppercase font-bold leading-tight">
+              <h1 className="font-mono text-2xl md:text-3xl tracking-tighter uppercase font-bold leading-tight" style={{ color: "var(--text)" }}>
                 Sebastian Calle
               </h1>
-              <p className="font-mono text-[11px] tracking-[0.2em] text-[#555] uppercase mt-1">
+              <p className="font-mono text-[11px] tracking-[0.2em] uppercase mt-1" style={{ color: "var(--text-3)" }}>
                 Photographer & Retoucher
               </p>
             </div>
 
             <div className="flex flex-col gap-4">
-              <p className="font-mono text-[11px] leading-relaxed text-[#666]">
-                I'm Sebastian Calle, a fashion, portrait, and editorial photographer. Born in Buenos Aires and currently based in Barcelona, I view photography as a medium to build unique visual universes.
-              </p>
-              <p className="font-mono text-[11px] leading-relaxed text-[#666]">
-                My work navigates between nostalgia and vanguard aesthetics. I am passionate about bold contrasts, deep shadows, and vibrant colors that demand attention. For me, every shoot is a perfect opportunity to blend my own visual identity with the inner world of the subject, resulting in images with cinematic strength and a sharp editorial edge.
-              </p>
-              <p className="font-mono text-[11px] leading-relaxed text-[#666]">
-                Throughout my career, I've had the opportunity to cover runway shows, showcase my work in exhibitions, and see my photography published in various fashion magazines.
-              </p>
-              <p className="font-mono text-[11px] leading-relaxed text-[#666]">
-                When I'm not behind the lens, you'll likely find me traveling or exploring new places to inspire my next project. I am available for both local and international assignments.
-              </p>
+              {[
+                "I'm Sebastian Calle, a fashion, portrait, and editorial photographer. Born in Buenos Aires and currently based in Barcelona, I view photography as a medium to build unique visual universes.",
+                "My work navigates between nostalgia and vanguard aesthetics. I am passionate about bold contrasts, deep shadows, and vibrant colors that demand attention. For me, every shoot is a perfect opportunity to blend my own visual identity with the inner world of the subject, resulting in images with cinematic strength and a sharp editorial edge.",
+                "Throughout my career, I've had the opportunity to cover runway shows, showcase my work in exhibitions, and see my photography published in various fashion magazines.",
+                "When I'm not behind the lens, you'll likely find me traveling or exploring new places to inspire my next project. I am available for both local and international assignments.",
+              ].map((text, i) => (
+                <p key={i} className="font-mono text-[11px] leading-relaxed" style={{ color: "var(--text-3)" }}>
+                  {text}
+                </p>
+              ))}
             </div>
 
-            <div className="flex flex-col gap-2 pt-2 border-t border-[#111]">
+            <div className="flex flex-col gap-2 pt-2 border-t" style={{ borderColor: "var(--border)" }}>
               {[
-                ["Based in",   "Barcelona, ES"],
-                ["Available",  "Worldwide"],
-                ["Contact",    "sebastiancalle@gmail.com"],
+                ["Based in",  "Barcelona, ES"],
+                ["Available", "Worldwide"],
+                ["Contact",   "sebastiancalle@gmail.com"],
               ].map(([label, value]) => (
                 <div key={label} className="flex gap-4">
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#333] uppercase w-20 flex-shrink-0">{label}</span>
-                  <span className="font-mono text-[10px] tracking-[0.1em] text-[#666] uppercase">{value}</span>
+                  <span className="font-mono text-[10px] tracking-[0.2em] uppercase w-20 flex-shrink-0" style={{ color: "var(--text-4)" }}>{label}</span>
+                  <span className="font-mono text-[10px] tracking-[0.1em] uppercase" style={{ color: "var(--text-3)" }}>{value}</span>
                 </div>
               ))}
             </div>

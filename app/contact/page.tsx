@@ -13,10 +13,11 @@ export default function ContactPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-black flex items-center px-6 md:px-16 lg:px-24">
+      <main className="min-h-screen flex items-center px-6 md:px-16 lg:px-24" style={{ background: "var(--bg)" }}>
         <div className="w-full">
           <motion.p
-            className="font-mono text-[10px] tracking-[0.35em] text-[#444] uppercase mb-8"
+            className="font-mono text-[10px] tracking-[0.35em] uppercase mb-8"
+            style={{ color: "var(--text-4)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
@@ -31,15 +32,22 @@ export default function ContactPage() {
                 href={link.href}
                 target={link.href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className="group flex items-baseline justify-between py-6 border-b border-[#111] hover:border-white/10 transition-colors duration-300"
+                className="group flex items-baseline justify-between py-6 border-b transition-colors duration-300"
+                style={{ borderColor: "var(--border)" }}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
               >
-                <span className="font-mono text-2xl md:text-4xl tracking-tighter text-white uppercase font-bold group-hover:translate-x-2 transition-transform duration-300 inline-block">
+                <span
+                  className="font-mono text-2xl md:text-4xl tracking-tighter uppercase font-bold group-hover:translate-x-2 transition-transform duration-300 inline-block"
+                  style={{ color: "var(--text)" }}
+                >
                   {link.label}
                 </span>
-                <span className="font-mono text-[10px] tracking-[0.15em] text-[#333] uppercase group-hover:text-[#666] transition-colors duration-300">
+                <span
+                  className="font-mono text-[10px] tracking-[0.15em] uppercase transition-colors duration-300"
+                  style={{ color: "var(--text-4)" }}
+                >
                   {link.sub}
                 </span>
               </motion.a>

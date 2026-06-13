@@ -77,7 +77,7 @@ export default function HomeCarousel({ albums }: Props) {
                   transition={{ duration: 0.3 }}
                   onClick={() => !isCurrent && go(i > index ? 1 : -1)}
                 >
-                  <Image src={item.coverUrl} alt={item.label} fill sizes="80vw" className="object-cover" draggable={false} priority={isCurrent} />
+                  <Image src={item.coverUrl} alt={item.label} fill sizes="80vw" className="object-contain" draggable={false} priority={isCurrent} />
                   {isCurrent && (
                     <>
                       <Link href={`/album/${item.id}`} className="absolute inset-0 z-10" aria-label={item.label} />
@@ -106,7 +106,7 @@ export default function HomeCarousel({ albums }: Props) {
               <svg width="18" height="18" viewBox="0 0 24 24"><polygon points="8,4 16,12 8,20" fill="currentColor" /></svg>
             </button>
           </div>
-          <span className="font-mono text-[10px] tracking-[0.3em] uppercase select-none" style={{ color: "rgba(var(--header-border), 0.3)" }}>
+          <span className="font-mono text-[12px] font-bold tracking-[0.3em] uppercase select-none" style={{ color: "var(--text)" }}>
             {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
           </span>
         </div>
@@ -136,7 +136,7 @@ export default function HomeCarousel({ albums }: Props) {
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => go(-1)}
             >
-              <Image src={leftItem.coverUrl} alt={leftItem.label} fill sizes="22vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+              <Image src={leftItem.coverUrl} alt={leftItem.label} fill sizes="22vw" className="object-contain transition-transform duration-700 group-hover:scale-105" />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -153,7 +153,7 @@ export default function HomeCarousel({ albums }: Props) {
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
             <Link href={`/album/${mainItem.id}`} className="block w-full h-full">
-              <Image src={mainItem.coverUrl} alt={mainItem.label} fill sizes="50vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.03]" priority />
+              <Image src={mainItem.coverUrl} alt={mainItem.label} fill sizes="50vw" className="object-contain transition-transform duration-700 group-hover:scale-[1.03]" priority />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -180,7 +180,7 @@ export default function HomeCarousel({ albums }: Props) {
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => go(1)}
             >
-              <Image src={rightItem.coverUrl} alt={rightItem.label} fill sizes="22vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+              <Image src={rightItem.coverUrl} alt={rightItem.label} fill sizes="22vw" className="object-contain transition-transform duration-700 group-hover:scale-105" />
             </motion.div>
           </AnimatePresence>
         </div>
