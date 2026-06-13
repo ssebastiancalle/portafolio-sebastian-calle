@@ -7,7 +7,6 @@ import Link from "next/link";
 import imageCompression from "browser-image-compression";
 import exifr from "exifr";
 import { showToast } from "nextjs-toast-notify";
-import "nextjs-toast-notify/dist/nextjs-toast-notify.min.css";
 
 type ExifData = {
   taken_at?: string;

@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import { showToast } from "nextjs-toast-notify";
-import "nextjs-toast-notify/dist/nextjs-toast-notify.min.css";
 
 type AdminAlbum = {
   id: string;
