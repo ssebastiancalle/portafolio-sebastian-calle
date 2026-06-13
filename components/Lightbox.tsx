@@ -126,7 +126,7 @@ export default function Lightbox({ photos, index, onClose, onChange, description
             className="absolute left-0 top-0 h-full w-1/4 cursor-w-resize opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center pl-6 group"
             aria-label="Previous"
           >
-            <span className="font-mono text-[11px] tracking-[0.3em] text-white/60 group-hover:text-white transition-colors">←</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" className="text-white/60 group-hover:text-white transition-colors"><polygon points="16,4 8,12 16,20" fill="currentColor" /></svg>
           </button>
         )}
         {index < photos.length - 1 && (
@@ -135,7 +135,7 @@ export default function Lightbox({ photos, index, onClose, onChange, description
             className="absolute right-0 top-0 h-full w-1/4 cursor-e-resize opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-end pr-6 group"
             aria-label="Next"
           >
-            <span className="font-mono text-[11px] tracking-[0.3em] text-white/60 group-hover:text-white transition-colors">→</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" className="text-white/60 group-hover:text-white transition-colors"><polygon points="8,4 16,12 8,20" fill="currentColor" /></svg>
           </button>
         )}
       </div>

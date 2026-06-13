@@ -67,38 +67,38 @@ function RichTextEditor({ defaultValue, onChange, placeholder }: {
 
   return (
     <div style={{ border: "1px solid var(--border)", background: "var(--bg)" }}>
-      <div style={{ display: "flex", gap: 0, padding: "3px 6px", borderBottom: "1px solid var(--border)", flexWrap: "wrap", alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 0, padding: "4px 6px", borderBottom: "1px solid var(--border)", flexWrap: "wrap", alignItems: "center" }}>
         {[
-          { label: "B", cmd: "bold",            style: { fontWeight: "bold" },          title: "Negrita" },
-          { label: "I", cmd: "italic",           style: { fontStyle: "italic" },         title: "Cursiva" },
-          { label: "U", cmd: "underline",        style: { textDecoration: "underline" }, title: "Subrayado" },
-          { label: "S", cmd: "strikeThrough",    style: { textDecoration: "line-through" }, title: "Tachado" },
+          { label: "B", cmd: "bold",         style: { fontWeight: "bold" },             title: "Negrita" },
+          { label: "I", cmd: "italic",        style: { fontStyle: "italic" },            title: "Cursiva" },
+          { label: "U", cmd: "underline",     style: { textDecoration: "underline" },    title: "Subrayado" },
+          { label: "S", cmd: "strikeThrough", style: { textDecoration: "line-through" }, title: "Tachado" },
         ].map(({ label, cmd, style, title }) => (
           <button key={cmd}
-            onMouseDown={e => { e.preventDefault(); exec(cmd); }}
-            className="font-mono text-[11px] px-2 py-1 transition-opacity hover:opacity-70"
-            style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", ...style }}
+            onPointerDown={e => { e.preventDefault(); exec(cmd); }}
+            className="font-mono text-[13px] transition-opacity hover:opacity-70"
+            style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", minWidth: 40, minHeight: 40, display: "flex", alignItems: "center", justifyContent: "center", ...style }}
             title={title}
           >{label}</button>
         ))}
-        <span style={{ width: 1, height: 14, background: "var(--border)", margin: "0 4px", display: "inline-block" }} />
+        <span style={{ width: 1, height: 16, background: "var(--border)", margin: "0 4px", display: "inline-block" }} />
         {[
-          { label: "≡", cmd: "justifyLeft",   title: "Alinear izquierda" },
-          { label: "≡", cmd: "justifyCenter", title: "Centrar" },
-          { label: "≡", cmd: "justifyRight",  title: "Alinear derecha" },
-        ].map(({ label, cmd, title }, i) => (
+          { label: "≡", cmd: "justifyLeft",   title: "Izquierda", ls: "0" },
+          { label: "≡", cmd: "justifyCenter", title: "Centrar",   ls: "0.15em" },
+          { label: "≡", cmd: "justifyRight",  title: "Derecha",   ls: "0.3em" },
+        ].map(({ label, cmd, title, ls }) => (
           <button key={cmd}
-            onMouseDown={e => { e.preventDefault(); exec(cmd); }}
-            className="font-mono text-[13px] px-2 py-1 transition-opacity hover:opacity-70"
-            style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", letterSpacing: i === 1 ? "0.15em" : i === 2 ? "0.3em" : "0" }}
+            onPointerDown={e => { e.preventDefault(); exec(cmd); }}
+            className="font-mono text-[15px] transition-opacity hover:opacity-70"
+            style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", minWidth: 40, minHeight: 40, display: "flex", alignItems: "center", justifyContent: "center", letterSpacing: ls }}
             title={title}
           >{label}</button>
         ))}
-        <span style={{ width: 1, height: 14, background: "var(--border)", margin: "0 4px", display: "inline-block" }} />
+        <span style={{ width: 1, height: 16, background: "var(--border)", margin: "0 4px", display: "inline-block" }} />
         <button
-          onMouseDown={e => { e.preventDefault(); exec("removeFormat"); }}
-          className="font-mono text-[10px] px-2 py-1 transition-opacity hover:opacity-70"
-          style={{ color: "var(--text-4)", background: "none", border: "none", cursor: "pointer" }}
+          onPointerDown={e => { e.preventDefault(); exec("removeFormat"); }}
+          className="font-mono text-[11px] transition-opacity hover:opacity-70"
+          style={{ color: "var(--text-4)", background: "none", border: "none", cursor: "pointer", minWidth: 40, minHeight: 40, display: "flex", alignItems: "center", justifyContent: "center" }}
           title="Limpiar formato"
         >Tx</button>
       </div>
@@ -116,7 +116,7 @@ function RichTextEditor({ defaultValue, onChange, placeholder }: {
         data-placeholder={placeholder}
         style={{
           minHeight: 130, padding: "8px 10px",
-          fontFamily: "monospace", fontSize: 11, lineHeight: 1.7,
+          fontFamily: "monospace", fontSize: 16, lineHeight: 1.6,
           color: "var(--text-2)", outline: "none", whiteSpace: "pre-wrap", wordBreak: "break-word",
         }}
       />
@@ -404,14 +404,23 @@ export default function AdminAlbumPage() {
   const [localName, setLocalName] = useState("");
   const [descriptionHtml, setDescriptionHtml] = useState("");
   const [savingInfo, setSavingInfo] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   // Sidebar drag state
   const [ghost, setGhost] = useState<{ url: string; x: number; y: number; w: number; h: number } | null>(null);
   const placingRef = useRef<{ id: string } | null>(null);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const canvasAreaRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const photosRef = useRef<AdminPhoto[]>([]);
   photosRef.current = photos;
+
+  useEffect(() => {
+    const update = () => setIsMobile(window.innerWidth < 768);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   useEffect(() => {
     function updateScale() {
@@ -452,6 +461,7 @@ export default function AdminAlbumPage() {
     const ratio = photo.width && photo.height ? photo.width / photo.height : 3 / 2;
     const gw = 120; const gh = gw / ratio;
     placingRef.current = { id: photoId };
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
     setGhost({ url: photo.url, x: e.clientX - gw / 2, y: e.clientY - gh / 2, w: gw, h: gh });
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }
@@ -463,12 +473,32 @@ export default function AdminAlbumPage() {
 
   function onSidebarDragEnd(e: React.PointerEvent) {
     const placing = placingRef.current;
+    const start = dragStartRef.current;
     placingRef.current = null;
+    dragStartRef.current = null;
     setGhost(null);
     if (!placing || !canvasAreaRef.current) return;
 
+    const dist = start ? Math.hypot(e.clientX - start.x, e.clientY - start.y) : 999;
     const rect = canvasAreaRef.current.getBoundingClientRect();
-    if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) return;
+    const onCanvas = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+
+    if (!onCanvas) {
+      // Tap without drag → place at canvas center
+      if (dist < 10) {
+        const photo = photosRef.current.find(p => p.id === placing.id);
+        if (!photo || photo.canvas_x != null) return;
+        const ratio = photo.width && photo.height ? photo.width / photo.height : 3 / 2;
+        const w = DEFAULT_PHOTO_W; const h = w / ratio;
+        handleUpdate(placing.id, {
+          canvas_x: snapGrid(CANVAS_W / 2 - w / 2),
+          canvas_y: snapGrid(CANVAS_H / 2 - h / 2),
+          canvas_w: w,
+          canvas_h: Math.round(h),
+        });
+      }
+      return;
+    }
 
     const cx = (e.clientX - rect.left) / scale;
     const cy = (e.clientY - rect.top) / scale;
@@ -660,18 +690,18 @@ export default function AdminAlbumPage() {
 
       {/* Info panel */}
       {showInfo && (
-        <div style={{ borderBottom: "1px solid var(--border)", padding: "16px 24px", background: "var(--bg-surface)", flexShrink: 0 }}>
-          <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
-            <div style={{ width: 220, flexShrink: 0 }}>
+        <div style={{ borderBottom: "1px solid var(--border)", padding: isMobile ? "12px 16px" : "16px 24px", background: "var(--bg-surface)", flexShrink: 0 }}>
+          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 20, alignItems: "flex-start" }}>
+            <div style={{ width: isMobile ? "100%" : 220, flexShrink: 0 }}>
               <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Nombre del álbum</p>
               <input
                 value={localName}
                 onChange={e => setLocalName(e.target.value)}
-                className="font-mono text-[11px] w-full"
-                style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "6px 10px", color: "var(--text-2)", outline: "none" }}
+                className="font-mono w-full"
+                style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 16 }}
               />
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, width: isMobile ? "100%" : undefined }}>
               <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Pie de foto (soporta <strong>negrita</strong>, <em>cursiva</em> y @handles)</p>
               <RichTextEditor
                 defaultValue={descriptionHtml}
@@ -679,12 +709,12 @@ export default function AdminAlbumPage() {
                 placeholder="SILHOUETTE – COVER FEATURE&#10;SELIN MAGAZINE | Issue 65..."
               />
             </div>
-            <div style={{ paddingTop: 18, flexShrink: 0 }}>
+            <div style={{ paddingTop: isMobile ? 0 : 18, flexShrink: 0, width: isMobile ? "100%" : undefined }}>
               <button
                 onClick={saveInfo}
                 disabled={savingInfo}
                 className="font-mono text-[10px] tracking-[0.25em] uppercase px-5 py-2 transition-opacity hover:opacity-70 disabled:opacity-40"
-                style={{ background: "var(--text)", color: "var(--bg)", border: "none", cursor: "pointer" }}
+                style={{ background: "var(--text)", color: "var(--bg)", border: "none", cursor: "pointer", width: isMobile ? "100%" : undefined, minHeight: 40 }}
               >
                 {savingInfo ? "..." : "Guardar"}
               </button>
@@ -694,12 +724,14 @@ export default function AdminAlbumPage() {
       )}
 
       {/* Main area: canvas + sidebar */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden" style={{ flexDirection: isMobile ? "column" : "row" }}>
 
         {/* Canvas area */}
-        <div ref={canvasAreaRef} className="flex-1 overflow-auto p-6">
+        <div ref={canvasAreaRef} className="flex-1 overflow-auto" style={{ padding: isMobile ? "10px" : "24px" }}>
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-3" style={{ color: "var(--text-4)" }}>
-            Arrastrá fotos desde la lista · mover · esquinas para redimensionar · ← quitar del canvas
+            {isMobile
+              ? "Tapeá una foto (abajo) para agregar · arrastrá para mover"
+              : "Arrastrá fotos desde la lista · mover · esquinas para redimensionar · ← quitar del canvas"}
           </p>
           <div style={{ position: "relative" }}>
             <div ref={canvasRef} style={{ width: "100%" }} />
@@ -722,7 +754,9 @@ export default function AdminAlbumPage() {
               {/* Empty state hint */}
               {placedPhotos.length === 0 && (
                 <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                  <p className="font-mono text-[11px] tracking-[0.25em] uppercase" style={{ color: "rgba(255,255,255,0.12)" }}>Arrastrá fotos desde la lista →</p>
+                  <p className="font-mono text-[11px] tracking-[0.25em] uppercase" style={{ color: "rgba(255,255,255,0.12)" }}>
+                    {isMobile ? "Tapeá una foto ↓" : "Arrastrá fotos desde la lista →"}
+                  </p>
                 </div>
               )}
 
@@ -743,21 +777,38 @@ export default function AdminAlbumPage() {
         </div>
 
         {/* Sidebar */}
-        <div
-          className="overflow-y-auto flex-shrink-0 border-l"
-          style={{ width: 176, borderColor: "var(--border)", background: "var(--bg-surface)" }}
-          onPointerMove={onSidebarDragMove}
-          onPointerUp={onSidebarDragEnd}
-        >
-          <p className="font-mono text-[8px] tracking-[0.3em] uppercase px-3 py-3 border-b" style={{ color: "var(--text-4)", borderColor: "var(--border)" }}>
-            Fotos ({photos.length})
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "8px 10px" }}>
-            {photos.map(photo => (
-              <SidebarPhoto key={photo.id} photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} />
-            ))}
+        {isMobile ? (
+          <div
+            className="flex-shrink-0"
+            style={{ borderTop: "1px solid var(--border)", background: "var(--bg-surface)", height: 128, display: "flex", flexDirection: "row", alignItems: "stretch", overflowX: "auto", overflowY: "hidden" }}
+            onPointerMove={onSidebarDragMove}
+            onPointerUp={onSidebarDragEnd}
+          >
+            <div style={{ display: "flex", flexDirection: "row", gap: 6, padding: "8px 10px", alignItems: "center" }}>
+              {photos.map(photo => (
+                <div key={photo.id} style={{ width: 90, flexShrink: 0 }}>
+                  <SidebarPhoto photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div
+            className="overflow-y-auto flex-shrink-0 border-l"
+            style={{ width: 176, borderColor: "var(--border)", background: "var(--bg-surface)" }}
+            onPointerMove={onSidebarDragMove}
+            onPointerUp={onSidebarDragEnd}
+          >
+            <p className="font-mono text-[8px] tracking-[0.3em] uppercase px-3 py-3 border-b" style={{ color: "var(--text-4)", borderColor: "var(--border)" }}>
+              Fotos ({photos.length})
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "8px 10px" }}>
+              {photos.map(photo => (
+                <SidebarPhoto key={photo.id} photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Drag ghost */}
