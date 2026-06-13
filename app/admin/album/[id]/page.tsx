@@ -6,8 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { showToast } from "nextjs-toast-notify";
 
-export const CANVAS_W = 1200;
-export const CANVAS_H = 800;
+const CANVAS_W = 1200;
+const CANVAS_H = 800;
 const MIN_SIZE = 60;
 
 type AdminPhoto = {
