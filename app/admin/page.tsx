@@ -25,7 +25,7 @@ export default function AdminPage() {
 
   const fetchAlbums = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/albums");
+    const res = await fetch("/api/albums", { cache: "no-store" });
     if (res.ok) {
       const data = await res.json();
       setAlbums(data.albums ?? []);

@@ -3,17 +3,28 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { slugify } from "@/lib/albums";
 import { createClient } from "@/lib/supabase-server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-  const { data, error } = await supabaseAdmin
+  let { data, error } = await supabaseAdmin
     .from("albums")
     .select("id, name, title, slug, cover_url, visibility, created_at, photos(id)")
     .order("order", { ascending: true });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // If the join fails (e.g. photos table issue), retry without it
+  if (error) {
+    const fallback = await supabaseAdmin
+      .from("albums")
+      .select("id, name, title, slug, cover_url, visibility, created_at")
+      .order("order", { ascending: true });
+    if (fallback.error) return NextResponse.json({ error: fallback.error.message }, { status: 500 });
+    data = fallback.data?.map((a) => ({ ...a, photos: [] })) ?? [];
+  }
+
   return NextResponse.json({ albums: data });
 }
 
