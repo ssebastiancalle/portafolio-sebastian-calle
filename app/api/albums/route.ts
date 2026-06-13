@@ -3,6 +3,20 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { slugify } from "@/lib/albums";
 import { createClient } from "@/lib/supabase-server";
 
+export async function GET() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
+  const { data, error } = await supabaseAdmin
+    .from("albums")
+    .select("id, name, title, slug, cover_url, visibility, created_at, photos(id)")
+    .order("order", { ascending: true });
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ albums: data });
+}
+
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

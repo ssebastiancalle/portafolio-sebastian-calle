@@ -15,6 +15,7 @@ export interface AlbumNavItem {
 
 interface Props {
   label: string;
+  description?: string;
   albumIndex: number;
   totalAlbums: number;
   photos: LightboxPhoto[];
@@ -22,7 +23,7 @@ interface Props {
   next: AlbumNavItem | null;
 }
 
-export default function AlbumView({ label, albumIndex, totalAlbums, photos, prev, next }: Props) {
+export default function AlbumView({ label, description, albumIndex, totalAlbums, photos, prev, next }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const cover = photos[0];
@@ -63,6 +64,11 @@ export default function AlbumView({ label, albumIndex, totalAlbums, photos, prev
           <h1 className="font-mono text-2xl md:text-4xl tracking-tighter text-white uppercase font-bold">
             {label}
           </h1>
+          {description && (
+            <p className="font-mono text-[11px] leading-relaxed mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>
+              {description}
+            </p>
+          )}
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-0 px-6 md:px-10 pb-24">

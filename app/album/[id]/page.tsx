@@ -29,6 +29,7 @@ export default async function AlbumPage({ params }: Props) {
     return (
       <AlbumView
         label={supabaseAlbum.name}
+        description={supabaseAlbum.description}
         albumIndex={idx}
         totalAlbums={allAlbums.length}
         photos={photos}
