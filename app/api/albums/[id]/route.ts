@@ -32,12 +32,18 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!await auth()) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   const { id } = await params;
-  const body = await req.json() as { visibility?: string; photoOrder?: string[] };
+  const body = await req.json() as { visibility?: string; photoOrder?: string[]; photoScales?: { id: string; scale: number; visibility: string }[] };
 
   if (body.photoOrder) {
-    // Bulk-update photo order
+    const scales: Record<string, { scale: number; visibility: string }> = {};
+    if (body.photoScales) {
+      for (const s of body.photoScales) scales[s.id] = { scale: s.scale, visibility: s.visibility };
+    }
     const updates = body.photoOrder.map((photoId, i) =>
-      supabaseAdmin.from("photos").update({ order: i }).eq("id", photoId).eq("album_id", id)
+      supabaseAdmin.from("photos").update({
+        order: i,
+        ...(scales[photoId] ? { scale: scales[photoId].scale, visibility: scales[photoId].visibility } : {}),
+      }).eq("id", photoId).eq("album_id", id)
     );
     await Promise.all(updates);
     return NextResponse.json({ ok: true });

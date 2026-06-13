@@ -26,6 +26,9 @@ export default async function AlbumPage({ params }: Props) {
         id: p.id,
         url: p.url!,
         alt: p.alt ?? "",
+        width: p.width,
+        height: p.height,
+        scale: (p as Record<string, unknown>).scale as number | undefined,
       }));
 
     return (

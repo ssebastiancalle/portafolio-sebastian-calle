@@ -14,12 +14,16 @@ import {
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  rectSortingStrategy,
+  horizontalListSortingStrategy,
   useSortable,
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { showToast } from "nextjs-toast-notify";
+
+const ROW_HEIGHT = 260;
+const GAP = 4;
+const SCALE_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3];
 
 type AdminPhoto = {
   id: string;
@@ -27,6 +31,9 @@ type AdminPhoto = {
   alt: string | null;
   order: number;
   visibility?: string;
+  width?: number;
+  height?: number;
+  scale?: number;
 };
 
 type AdminAlbum = {
@@ -41,45 +48,55 @@ type AdminAlbum = {
 
 function SortablePhoto({
   photo,
+  onScaleUp,
+  onScaleDown,
   onDelete,
   onToggleVisibility,
-  deleting,
-  toggling,
 }: {
   photo: AdminPhoto;
-  onDelete: (id: string) => void;
-  onToggleVisibility: (id: string, current: string | undefined) => void;
-  deleting: boolean;
-  toggling: boolean;
+  onScaleUp: () => void;
+  onScaleDown: () => void;
+  onDelete: () => void;
+  onToggleVisibility: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: photo.id });
 
+  const ratio = photo.width && photo.height ? photo.width / photo.height : 3 / 2;
+  const scale = photo.scale ?? 1;
   const photoPublic = photo.visibility !== "private";
+
+  const scaleIdx = SCALE_STEPS.indexOf(scale);
+  const canScaleUp = scaleIdx < SCALE_STEPS.length - 1;
+  const canScaleDown = scaleIdx > 0;
 
   return (
     <div
       ref={setNodeRef}
       style={{
-        background: "var(--bg-surface)",
+        flex: `${ratio * scale} 1 ${ROW_HEIGHT * ratio * scale}px`,
+        height: ROW_HEIGHT,
+        minWidth: 100,
         transform: CSS.Transform.toString(transform),
         transition,
-        opacity: isDragging ? 0.5 : 1,
-        zIndex: isDragging ? 10 : undefined,
+        opacity: isDragging ? 0.4 : photoPublic ? 1 : 0.4,
+        position: "relative",
+        flexShrink: 0,
+        overflow: "hidden",
+        background: "var(--bg-surface)",
       }}
-      className="relative aspect-square overflow-hidden group"
     >
-      {/* Drag handle — always visible */}
+      {/* Drag handle */}
       <div
         {...attributes}
         {...listeners}
-        className="absolute inset-x-0 top-0 h-7 z-10 cursor-grab active:cursor-grabbing flex items-center justify-center"
-        style={{ background: "rgba(0,0,0,0.55)" }}
-        title="Arrastrá para reordenar"
+        className="absolute inset-x-0 top-0 z-20 flex items-center justify-center cursor-grab active:cursor-grabbing"
+        style={{ height: 24, background: "rgba(0,0,0,0.6)" }}
+        title="Arrastrá para mover"
       >
-        <svg width="18" height="8" viewBox="0 0 18 8" fill="none">
-          <rect y="0" width="18" height="2" rx="1" fill="rgba(255,255,255,0.7)" />
-          <rect y="6" width="18" height="2" rx="1" fill="rgba(255,255,255,0.7)" />
+        <svg width="20" height="6" viewBox="0 0 20 6" fill="none">
+          <rect width="20" height="2" rx="1" fill="rgba(255,255,255,0.6)" />
+          <rect y="4" width="20" height="2" rx="1" fill="rgba(255,255,255,0.6)" />
         </svg>
       </div>
 
@@ -88,43 +105,61 @@ function SortablePhoto({
           src={photo.url}
           alt={photo.alt ?? ""}
           fill
-          sizes="150px"
-          className="object-cover transition-opacity duration-200"
-          style={{ opacity: photoPublic ? 1 : 0.35, pointerEvents: "none" }}
+          sizes="300px"
+          className="object-cover"
+          style={{ pointerEvents: "none" }}
           draggable={false}
         />
       )}
 
-      {/* Hover overlay — bottom buttons */}
+      {/* Bottom controls */}
       <div
-        className="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 py-2"
+        className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between px-1.5 py-1"
         style={{ background: "rgba(0,0,0,0.65)" }}
       >
-        <button
-          onClick={() => onToggleVisibility(photo.id, photo.visibility)}
-          disabled={toggling}
-          className="font-mono text-[8px] tracking-[0.15em] uppercase px-2 py-1 transition-opacity hover:opacity-80 disabled:opacity-30"
-          style={{
-            border: photoPublic ? "1px solid #4ade80" : "1px solid #888",
-            color: photoPublic ? "#4ade80" : "#888",
-          }}
-        >
-          {toggling ? "..." : photoPublic ? "Visible" : "Oculta"}
-        </button>
+        {/* Scale controls */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={onScaleDown}
+            disabled={!canScaleDown}
+            className="w-5 h-5 flex items-center justify-center font-mono text-xs transition-opacity hover:opacity-80 disabled:opacity-20"
+            style={{ color: "white", border: "1px solid rgba(255,255,255,0.3)" }}
+            title="Achicar"
+          >
+            −
+          </button>
+          <span className="font-mono text-[9px] text-white/50 w-6 text-center">
+            {scale}x
+          </span>
+          <button
+            onClick={onScaleUp}
+            disabled={!canScaleUp}
+            className="w-5 h-5 flex items-center justify-center font-mono text-xs transition-opacity hover:opacity-80 disabled:opacity-20"
+            style={{ color: "white", border: "1px solid rgba(255,255,255,0.3)" }}
+            title="Agrandar"
+          >
+            +
+          </button>
+        </div>
 
-        <button
-          onClick={() => onDelete(photo.id)}
-          disabled={deleting}
-          className="transition-opacity hover:opacity-80 disabled:opacity-30"
-        >
-          {deleting ? (
-            <span className="font-mono text-[8px] text-white/40">...</span>
-          ) : (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e05c5c" strokeWidth="2.5" strokeLinecap="round">
+        {/* Visibility + delete */}
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={onToggleVisibility}
+            className="font-mono text-[8px] tracking-wide uppercase px-1.5 py-0.5"
+            style={{
+              border: photoPublic ? "1px solid #4ade80" : "1px solid #555",
+              color: photoPublic ? "#4ade80" : "#555",
+            }}
+          >
+            {photoPublic ? "✓" : "○"}
+          </button>
+          <button onClick={onDelete}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#e05c5c" strokeWidth="2.5" strokeLinecap="round">
               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
             </svg>
-          )}
-        </button>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -137,8 +172,6 @@ export default function AdminAlbumPage() {
   const [photos, setPhotos] = useState<AdminPhoto[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState<string | null>(null);
-  const [togglingPhoto, setTogglingPhoto] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
@@ -169,51 +202,51 @@ export default function AdminAlbumPage() {
     setDirty(true);
   }
 
-  async function saveOrder() {
+  function adjustScale(photoId: string, direction: 1 | -1) {
+    setPhotos((prev) => prev.map((p) => {
+      if (p.id !== photoId) return p;
+      const current = p.scale ?? 1;
+      const idx = SCALE_STEPS.indexOf(current);
+      const next = SCALE_STEPS[idx + direction];
+      return next !== undefined ? { ...p, scale: next } : p;
+    }));
+    setDirty(true);
+  }
+
+  function toggleVisibility(photoId: string) {
+    setPhotos((prev) => prev.map((p) => {
+      if (p.id !== photoId) return p;
+      return { ...p, visibility: p.visibility === "public" ? "private" : "public" };
+    }));
+    setDirty(true);
+  }
+
+  async function deletePhoto(photoId: string) {
+    if (!confirm("¿Borrar esta foto?")) return;
+    await fetch(`/api/photos/${photoId}`, { method: "DELETE" });
+    fetchAlbum();
+  }
+
+  async function saveChanges() {
     setSaving(true);
     const res = await fetch(`/api/albums/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ photoOrder: photos.map((p) => p.id) }),
+      body: JSON.stringify({
+        photoOrder: photos.map((p) => p.id),
+        photoScales: photos.map((p) => ({ id: p.id, scale: p.scale ?? 1, visibility: p.visibility ?? "public" })),
+      }),
     });
     setSaving(false);
     if (res.ok) {
-      showToast.success("Orden guardado", { duration: 3000, sound: true, position: "bottom-right" });
+      showToast.success("Cambios guardados", { duration: 3000, sound: true, position: "bottom-right" });
       setDirty(false);
     } else {
-      showToast.error("Error al guardar el orden", { duration: 4000, sound: true, position: "bottom-right" });
+      showToast.error("Error al guardar", { duration: 4000, sound: true, position: "bottom-right" });
     }
   }
 
-  async function handleDeletePhoto(photoId: string) {
-    if (!confirm("¿Borrar esta foto?")) return;
-    setDeleting(photoId);
-    await fetch(`/api/photos/${photoId}`, { method: "DELETE" });
-    fetchAlbum();
-    setDeleting(null);
-  }
-
-  async function handleTogglePhoto(photoId: string, current: string | undefined) {
-    const next = current === "public" ? "private" : "public";
-    setTogglingPhoto(photoId);
-    await fetch(`/api/photos/${photoId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visibility: next }),
-    });
-    fetchAlbum();
-    setTogglingPhoto(null);
-  }
-
-  async function handleDeleteAlbum() {
-    if (!album) return;
-    const label = album.name || album.title;
-    if (!confirm(`¿Borrar el álbum "${label}"? Esto elimina todas sus fotos.`)) return;
-    await fetch(`/api/albums/${id}`, { method: "DELETE" });
-    router.push("/admin");
-  }
-
-  async function handleToggleVisibility() {
+  async function handleToggleAlbumVisibility() {
     if (!album) return;
     const next = album.visibility === "public" ? "private" : "public";
     const res = await fetch(`/api/albums/${id}`, {
@@ -225,6 +258,14 @@ export default function AdminAlbumPage() {
       showToast.success(next === "public" ? "Álbum publicado" : "Álbum ocultado", { duration: 3000, sound: true, position: "bottom-right" });
       fetchAlbum();
     }
+  }
+
+  async function handleDeleteAlbum() {
+    if (!album) return;
+    const label = album.name || album.title;
+    if (!confirm(`¿Borrar el álbum "${label}"?`)) return;
+    await fetch(`/api/albums/${id}`, { method: "DELETE" });
+    router.push("/admin");
   }
 
   if (loading) {
@@ -249,78 +290,69 @@ export default function AdminAlbumPage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
       {/* Top bar */}
-      <div className="flex items-center justify-between px-6 md:px-10 h-14 border-b" style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}>
-        <Link href="/admin" className="font-mono text-[10px] tracking-[0.3em] uppercase transition-opacity hover:opacity-60 flex items-center gap-2" style={{ color: "var(--text-3)" }}>
+      <div className="flex items-center justify-between px-6 md:px-10 h-14 border-b flex-shrink-0" style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}>
+        <Link href="/admin" className="font-mono text-[10px] tracking-[0.3em] uppercase transition-opacity hover:opacity-60" style={{ color: "var(--text-3)" }}>
           ← Admin
         </Link>
         <p className="font-mono text-[10px] tracking-[0.4em] uppercase truncate max-w-[200px]" style={{ color: "var(--text-3)" }}>{label}</p>
         <div className="w-16" />
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 md:px-10 py-10 flex flex-col gap-8">
-        {/* Album actions */}
-        <div className="flex items-center gap-3 flex-wrap">
+      {/* Album actions */}
+      <div className="flex items-center gap-3 flex-wrap px-6 md:px-10 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+        <button
+          onClick={handleToggleAlbumVisibility}
+          className="font-mono text-[10px] tracking-[0.3em] uppercase px-4 py-2 transition-opacity hover:opacity-70"
+          style={{
+            border: isPublic ? "1px solid #4ade80" : "1px solid var(--border-2)",
+            color: isPublic ? "#4ade80" : "var(--text-4)",
+          }}
+        >
+          {isPublic ? "Visible" : "Oculto"} — {isPublic ? "Ocultar" : "Publicar"}
+        </button>
+        <button
+          onClick={handleDeleteAlbum}
+          className="font-mono text-[10px] tracking-[0.3em] uppercase px-4 py-2 transition-opacity hover:opacity-60"
+          style={{ border: "1px solid #e05c5c", color: "#e05c5c" }}
+        >
+          Borrar álbum
+        </button>
+
+        {dirty && (
           <button
-            onClick={handleToggleVisibility}
-            className="font-mono text-[10px] tracking-[0.3em] uppercase px-4 py-2 transition-opacity hover:opacity-70"
-            style={{
-              border: isPublic ? "1px solid #4ade80" : "1px solid var(--border-2)",
-              color: isPublic ? "#4ade80" : "var(--text-4)",
-            }}
-          >
-            {isPublic ? "Visible" : "Oculto"} — {isPublic ? "Ocultar" : "Publicar"}
-          </button>
-          <button
-            onClick={handleDeleteAlbum}
-            className="font-mono text-[10px] tracking-[0.3em] uppercase px-4 py-2 transition-opacity hover:opacity-60"
-            style={{ border: "1px solid #e05c5c", color: "#e05c5c" }}
-          >
-            Borrar álbum
-          </button>
-          <Link
-            href="/admin/upload"
-            className="font-mono text-[10px] tracking-[0.3em] uppercase px-4 py-2 transition-opacity hover:opacity-70 ml-auto"
+            onClick={saveChanges}
+            disabled={saving}
+            className="font-mono text-[10px] tracking-[0.3em] uppercase px-6 py-2 transition-opacity hover:opacity-70 disabled:opacity-40 ml-auto"
             style={{ background: "var(--text)", color: "var(--bg)" }}
           >
-            + Nuevo álbum
-          </Link>
-        </div>
+            {saving ? "Guardando..." : "Guardar cambios"}
+          </button>
+        )}
+      </div>
 
-        {/* Photos grid */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: "var(--text-3)" }}>
-              Fotos ({photos.length}) — arrastrá para reordenar
-            </p>
-            {dirty && (
-              <button
-                onClick={saveOrder}
-                disabled={saving}
-                className="font-mono text-[9px] tracking-[0.2em] uppercase px-3 py-1.5 transition-opacity hover:opacity-70 disabled:opacity-40"
-                style={{ background: "var(--text)", color: "var(--bg)" }}
-              >
-                {saving ? "Guardando..." : "Guardar orden"}
-              </button>
-            )}
-          </div>
+      {/* WYSIWYG gallery editor */}
+      <div className="px-6 md:px-10 py-6">
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-4" style={{ color: "var(--text-4)" }}>
+          Arrastrá para reordenar · + / − para cambiar el tamaño
+        </p>
 
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={photos.map((p) => p.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                {photos.map((photo) => (
-                  <SortablePhoto
-                    key={photo.id}
-                    photo={photo}
-                    onDelete={handleDeletePhoto}
-                    onToggleVisibility={handleTogglePhoto}
-                    deleting={deleting === photo.id}
-                    toggling={togglingPhoto === photo.id}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={photos.map((p) => p.id)} strategy={horizontalListSortingStrategy}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: GAP }}>
+              {photos.map((photo) => (
+                <SortablePhoto
+                  key={photo.id}
+                  photo={photo}
+                  onScaleUp={() => adjustScale(photo.id, 1)}
+                  onScaleDown={() => adjustScale(photo.id, -1)}
+                  onDelete={() => deletePhoto(photo.id)}
+                  onToggleVisibility={() => toggleVisibility(photo.id)}
+                />
+              ))}
+              <div style={{ flex: "9999 1 0px", height: ROW_HEIGHT, maxHeight: ROW_HEIGHT }} />
+            </div>
+          </SortableContext>
+        </DndContext>
       </div>
     </div>
   );
