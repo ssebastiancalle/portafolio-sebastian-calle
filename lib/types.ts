@@ -17,12 +17,14 @@ export type Photo = {
 
 export type Album = {
   id: string
-  name: string
+  name: string | null
+  title: string
   slug: string
   description?: string
-  cover_url: string
+  cover_url: string | null
   created_at: string
   order: number
+  visibility?: string
   photos?: Photo[]
 }
 

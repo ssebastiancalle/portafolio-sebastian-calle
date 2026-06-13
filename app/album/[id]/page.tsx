@@ -17,18 +17,20 @@ export default async function AlbumPage({ params }: Props) {
   if (supabaseAlbum) {
     const allAlbums = await getAlbums();
     const idx = allAlbums.findIndex((a) => a.slug === id);
-    const prev = idx > 0 ? { id: allAlbums[idx - 1].slug, label: allAlbums[idx - 1].name } : null;
-    const next = idx < allAlbums.length - 1 ? { id: allAlbums[idx + 1].slug, label: allAlbums[idx + 1].name } : null;
+    const prev = idx > 0 ? { id: allAlbums[idx - 1].slug, label: allAlbums[idx - 1].name || allAlbums[idx - 1].title } : null;
+    const next = idx < allAlbums.length - 1 ? { id: allAlbums[idx + 1].slug, label: allAlbums[idx + 1].name || allAlbums[idx + 1].title } : null;
 
-    const photos: LightboxPhoto[] = (supabaseAlbum.photos ?? []).map((p) => ({
-      id: p.id,
-      url: p.url,
-      alt: p.alt,
-    }));
+    const photos: LightboxPhoto[] = (supabaseAlbum.photos ?? [])
+      .filter((p) => p.url)
+      .map((p) => ({
+        id: p.id,
+        url: p.url!,
+        alt: p.alt ?? "",
+      }));
 
     return (
       <AlbumView
-        label={supabaseAlbum.name}
+        label={supabaseAlbum.name || supabaseAlbum.title}
         description={supabaseAlbum.description}
         albumIndex={idx}
         totalAlbums={allAlbums.length}

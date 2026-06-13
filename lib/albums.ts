@@ -10,6 +10,7 @@ export async function getAlbums(): Promise<Album[]> {
   const { data, error } = await supabaseAdmin
     .from("albums")
     .select("*, photos(*)")
+    .eq("visibility", "public")
     .order("order", { ascending: true })
     .order("order", { foreignTable: "photos", ascending: true });
   if (error) {

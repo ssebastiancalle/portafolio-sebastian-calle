@@ -8,12 +8,14 @@ export default async function PortfolioPage() {
   const supabaseAlbums = await getAlbums();
 
   const albums: AlbumSlim[] = supabaseAlbums.length > 0
-    ? supabaseAlbums.map((a) => ({
-        id: a.slug,
-        label: a.name,
-        coverUrl: a.cover_url,
-        photoCount: a.photos?.length ?? 0,
-      }))
+    ? supabaseAlbums
+        .filter((a) => a.cover_url && (a.name || a.title))
+        .map((a) => ({
+          id: a.slug,
+          label: (a.name || a.title)!,
+          coverUrl: a.cover_url!,
+          photoCount: a.photos?.length ?? 0,
+        }))
     : categories.map((c) => ({
         id: c.id,
         label: c.label,
