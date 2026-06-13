@@ -99,8 +99,8 @@ export default function HomeCarousel({ albums }: Props) {
 
         <div className="flex flex-col items-center pb-4 pt-2 gap-1" style={{ background: "var(--bg)" }}>
           <div className="flex items-center gap-10">
-            <button onClick={() => go(-1)} aria-label="Previous" className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation" style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>←</button>
-            <button onClick={() => go(1)} aria-label="Next" className="carousel-arrow font-mono text-sm tracking-widest touch-manipulation" style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
+            <button onClick={() => go(-1)} aria-label="Previous" className="carousel-arrow font-mono text-2xl tracking-widest touch-manipulation" style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>←</button>
+            <button onClick={() => go(1)} aria-label="Next" className="carousel-arrow font-mono text-2xl tracking-widest touch-manipulation" style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
           </div>
           <span className="font-mono text-[10px] tracking-[0.3em] uppercase select-none" style={{ color: "rgba(var(--header-border), 0.3)" }}>
             {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
@@ -190,7 +190,7 @@ export default function HomeCarousel({ albums }: Props) {
         <button
           onClick={() => go(-1)}
           aria-label="Previous"
-          className="carousel-arrow font-mono text-sm tracking-widest pointer-events-auto"
+          className="carousel-arrow font-mono text-2xl tracking-widest pointer-events-auto"
           style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           ←
@@ -205,7 +205,7 @@ export default function HomeCarousel({ albums }: Props) {
         <button
           onClick={() => go(1)}
           aria-label="Next"
-          className="carousel-arrow font-mono text-sm tracking-widest pointer-events-auto"
+          className="carousel-arrow font-mono text-2xl tracking-widest pointer-events-auto"
           style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           →
