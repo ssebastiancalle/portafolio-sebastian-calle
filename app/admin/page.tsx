@@ -152,10 +152,10 @@ export default function AdminPage() {
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <button
                     onClick={() => handleToggleVisibility(album.id, album.visibility)}
-                    className="font-mono text-[9px] tracking-[0.2em] uppercase px-2 py-1 transition-opacity hover:opacity-60"
+                    className="font-mono text-[9px] tracking-[0.2em] uppercase px-2 py-1 transition-opacity hover:opacity-70"
                     style={{
-                      border: "1px solid var(--border-2)",
-                      color: isPublic ? "var(--text)" : "var(--text-4)",
+                      border: isPublic ? "1px solid #4ade80" : "1px solid var(--border-2)",
+                      color: isPublic ? "#4ade80" : "var(--text-4)",
                     }}
                     title={isPublic ? "Visible — clic para ocultar" : "Oculto — clic para publicar"}
                   >

@@ -10,6 +10,7 @@ type AdminPhoto = {
   url: string;
   alt: string | null;
   order: number;
+  visibility?: string;
 };
 
 type AdminAlbum = {
@@ -28,6 +29,7 @@ export default function AdminAlbumPage() {
   const [album, setAlbum] = useState<AdminAlbum | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [togglingPhoto, setTogglingPhoto] = useState<string | null>(null);
 
   const fetchAlbum = useCallback(async () => {
     setLoading(true);
@@ -48,6 +50,18 @@ export default function AdminAlbumPage() {
     await fetch(`/api/photos/${photoId}`, { method: "DELETE" });
     fetchAlbum();
     setDeleting(null);
+  }
+
+  async function handleTogglePhoto(photoId: string, current: string | undefined) {
+    const next = current === "public" ? "private" : "public";
+    setTogglingPhoto(photoId);
+    await fetch(`/api/photos/${photoId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visibility: next }),
+    });
+    fetchAlbum();
+    setTogglingPhoto(null);
   }
 
   async function handleDeleteAlbum() {
@@ -104,8 +118,11 @@ export default function AdminAlbumPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={handleToggleVisibility}
-            className="font-mono text-[10px] tracking-[0.3em] uppercase px-4 py-2 transition-opacity hover:opacity-60"
-            style={{ border: "1px solid var(--border-2)", color: isPublic ? "var(--text)" : "var(--text-4)" }}
+            className="font-mono text-[10px] tracking-[0.3em] uppercase px-4 py-2 transition-opacity hover:opacity-70"
+            style={{
+              border: isPublic ? "1px solid #4ade80" : "1px solid var(--border-2)",
+              color: isPublic ? "#4ade80" : "var(--text-4)",
+            }}
           >
             {isPublic ? "Visible" : "Oculto"} — {isPublic ? "Ocultar" : "Publicar"}
           </button>
@@ -131,27 +148,54 @@ export default function AdminAlbumPage() {
             Fotos ({album.photos.length})
           </p>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-            {album.photos.map((photo) => (
-              <div key={photo.id} className="relative aspect-square overflow-hidden group" style={{ background: "var(--bg-surface)" }}>
-                {photo.url && (
-                  <Image src={photo.url} alt={photo.alt ?? ""} fill sizes="150px" className="object-cover" />
-                )}
-                <button
-                  onClick={() => handleDeletePhoto(photo.id)}
-                  disabled={deleting === photo.id}
-                  className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-100"
-                  style={{ background: "rgba(0,0,0,0.6)" }}
-                >
-                  {deleting === photo.id ? (
-                    <span className="font-mono text-[9px] text-white/50 tracking-widest">...</span>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e05c5c" strokeWidth="2.5" strokeLinecap="round">
-                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
+            {album.photos.map((photo) => {
+              const photoPublic = photo.visibility !== "private";
+              return (
+                <div key={photo.id} className="relative aspect-square overflow-hidden group" style={{ background: "var(--bg-surface)" }}>
+                  {photo.url && (
+                    <Image
+                      src={photo.url}
+                      alt={photo.alt ?? ""}
+                      fill
+                      sizes="150px"
+                      className="object-cover transition-opacity duration-200"
+                      style={{ opacity: photoPublic ? 1 : 0.35 }}
+                    />
                   )}
-                </button>
-              </div>
-            ))}
+
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2" style={{ background: "rgba(0,0,0,0.65)" }}>
+                    {/* Toggle visibility */}
+                    <button
+                      onClick={() => handleTogglePhoto(photo.id, photo.visibility)}
+                      disabled={togglingPhoto === photo.id}
+                      className="font-mono text-[8px] tracking-[0.15em] uppercase px-2 py-1 transition-opacity hover:opacity-80 disabled:opacity-30"
+                      style={{
+                        border: photoPublic ? "1px solid #4ade80" : "1px solid #888",
+                        color: photoPublic ? "#4ade80" : "#888",
+                      }}
+                    >
+                      {togglingPhoto === photo.id ? "..." : photoPublic ? "Visible" : "Oculta"}
+                    </button>
+
+                    {/* Delete */}
+                    <button
+                      onClick={() => handleDeletePhoto(photo.id)}
+                      disabled={deleting === photo.id}
+                      className="transition-opacity hover:opacity-80 disabled:opacity-30"
+                    >
+                      {deleting === photo.id ? (
+                        <span className="font-mono text-[8px] text-white/40">...</span>
+                      ) : (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e05c5c" strokeWidth="2.5" strokeLinecap="round">
+                          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

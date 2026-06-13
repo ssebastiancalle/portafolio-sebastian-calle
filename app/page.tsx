@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Header from "@/components/Header";
 import HomeCarousel from "@/components/HomeCarousel";
 import { getAlbums } from "@/lib/albums";

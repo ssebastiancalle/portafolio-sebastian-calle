@@ -13,8 +13,8 @@ export default function ContactPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-black flex items-center px-6 md:px-10">
-        <div className="w-full max-w-lg">
+      <main className="min-h-screen bg-black flex items-center px-6 md:px-16 lg:px-24">
+        <div className="w-full">
           <motion.p
             className="font-mono text-[10px] tracking-[0.35em] text-[#444] uppercase mb-8"
             initial={{ opacity: 0 }}
