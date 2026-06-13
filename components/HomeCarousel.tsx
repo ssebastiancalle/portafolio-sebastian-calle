@@ -29,14 +29,7 @@ export default function HomeCarousel({ albums }: Props) {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const items: AlbumSlim[] = albums && albums.length > 0
-    ? albums
-    : categories.map((c) => ({
-        id: c.id,
-        label: c.label,
-        coverUrl: c.photos[0].url,
-        photoCount: c.photos.length,
-      }));
+  const items: AlbumSlim[] = albums && albums.length > 0 ? albums : [];
 
   const total = items.length;
 
@@ -44,6 +37,16 @@ export default function HomeCarousel({ albums }: Props) {
     setDir(d);
     setIndex((i) => (i + d + total) % total);
   };
+
+  if (total === 0) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: "var(--text-4)" }}>
+          Sin álbumes
+        </p>
+      </div>
+    );
+  }
 
   /* ── Mobile ── */
   if (isMobile) {

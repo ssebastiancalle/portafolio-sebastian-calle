@@ -7,16 +7,28 @@ const supabaseConfigured =
 export async function getAlbums(): Promise<Album[]> {
   if (!supabaseConfigured) return [];
   const { supabaseAdmin } = await import("./supabase-admin");
-  const { data, error } = await supabaseAdmin
+
+  let { data, error } = await supabaseAdmin
     .from("albums")
     .select("*, photos(*)")
     .eq("visibility", "public")
     .order("order", { ascending: true })
     .order("order", { foreignTable: "photos", ascending: true });
+
   if (error) {
-    console.error("getAlbums error:", error.message);
-    return [];
+    // Fallback: fetch without photos join (foreign key may not be set up)
+    const fallback = await supabaseAdmin
+      .from("albums")
+      .select("*")
+      .eq("visibility", "public")
+      .order("order", { ascending: true });
+    if (fallback.error) {
+      console.error("getAlbums error:", fallback.error.message);
+      return [];
+    }
+    data = fallback.data?.map((a) => ({ ...a, photos: [] })) ?? [];
   }
+
   return data ?? [];
 }
 
