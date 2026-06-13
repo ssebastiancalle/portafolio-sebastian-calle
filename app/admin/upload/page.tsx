@@ -6,6 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import imageCompression from "browser-image-compression";
 import exifr from "exifr";
+import { showToast } from "nextjs-toast-notify";
+import "nextjs-toast-notify/dist/nextjs-toast-notify.min.css";
 
 type ExifData = {
   taken_at?: string;
@@ -130,7 +132,9 @@ export default function UploadPage() {
         uploaded.push({ url, storagePath, filename, exif });
       } catch (err: unknown) {
         setFileStatus(f.id, { status: "error" });
-        setGlobalError(err instanceof Error ? err.message : "Error al subir foto");
+        const msg = err instanceof Error ? err.message : "Error al subir foto";
+        setFileStatus(f.id, { status: "error" });
+        showToast.error(msg, { duration: 5000, sound: true, position: "bottom-right" });
         setPhase("error");
         return;
       }
@@ -148,11 +152,13 @@ export default function UploadPage() {
         throw new Error(data.error ?? "Error al crear álbum");
       }
     } catch (err: unknown) {
-      setGlobalError(err instanceof Error ? err.message : "Error al crear álbum");
+      const msg = err instanceof Error ? err.message : "Error al crear álbum";
+      showToast.error(msg, { duration: 5000, sound: true, position: "bottom-right" });
       setPhase("error");
       return;
     }
 
+    showToast.success(`Álbum "${albumName.trim()}" creado`, { duration: 4000, sound: true, position: "bottom-right" });
     setPhase("done");
   }
 
