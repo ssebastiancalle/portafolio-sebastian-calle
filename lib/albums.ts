@@ -39,7 +39,6 @@ export async function getAlbumBySlug(slug: string): Promise<Album | null> {
     .from("albums")
     .select("*, photos(*)")
     .eq("slug", slug)
-    .neq("photos.visibility", "private")
     .order("order", { foreignTable: "photos", ascending: true })
     .single();
   if (error) return null;
