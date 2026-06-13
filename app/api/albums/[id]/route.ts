@@ -32,13 +32,24 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!await auth()) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   const { id } = await params;
-  const { visibility } = await req.json() as { visibility: string };
+  const body = await req.json() as { visibility?: string; photoOrder?: string[] };
 
-  const { error } = await supabaseAdmin
-    .from("albums")
-    .update({ visibility })
-    .eq("id", id);
+  if (body.photoOrder) {
+    // Bulk-update photo order
+    const updates = body.photoOrder.map((photoId, i) =>
+      supabaseAdmin.from("photos").update({ order: i }).eq("id", photoId).eq("album_id", id)
+    );
+    await Promise.all(updates);
+    return NextResponse.json({ ok: true });
+  }
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (body.visibility) {
+    const { error } = await supabaseAdmin
+      .from("albums")
+      .update({ visibility: body.visibility })
+      .eq("id", id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
   return NextResponse.json({ ok: true });
 }

@@ -4,6 +4,22 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  rectSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { showToast } from "nextjs-toast-notify";
 
 type AdminPhoto = {
   id: string;
@@ -23,26 +39,151 @@ type AdminAlbum = {
   photos: AdminPhoto[];
 };
 
+function SortablePhoto({
+  photo,
+  onDelete,
+  onToggleVisibility,
+  deleting,
+  toggling,
+}: {
+  photo: AdminPhoto;
+  onDelete: (id: string) => void;
+  onToggleVisibility: (id: string, current: string | undefined) => void;
+  deleting: boolean;
+  toggling: boolean;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: photo.id });
+
+  const photoPublic = photo.visibility !== "private";
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        background: "var(--bg-surface)",
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 10 : undefined,
+      }}
+      className="relative aspect-square overflow-hidden group"
+    >
+      {/* Drag handle — top area */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="absolute inset-x-0 top-0 h-8 z-10 cursor-grab active:cursor-grabbing flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        style={{ background: "rgba(0,0,0,0.4)" }}
+      >
+        <svg width="16" height="10" viewBox="0 0 16 10" fill="none">
+          <rect y="0" width="16" height="2" rx="1" fill="rgba(255,255,255,0.5)" />
+          <rect y="4" width="16" height="2" rx="1" fill="rgba(255,255,255,0.5)" />
+          <rect y="8" width="16" height="2" rx="1" fill="rgba(255,255,255,0.5)" />
+        </svg>
+      </div>
+
+      {photo.url && (
+        <Image
+          src={photo.url}
+          alt={photo.alt ?? ""}
+          fill
+          sizes="150px"
+          className="object-cover transition-opacity duration-200"
+          style={{ opacity: photoPublic ? 1 : 0.35, pointerEvents: "none" }}
+          draggable={false}
+        />
+      )}
+
+      {/* Hover overlay — bottom buttons */}
+      <div
+        className="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 py-2"
+        style={{ background: "rgba(0,0,0,0.65)" }}
+      >
+        <button
+          onClick={() => onToggleVisibility(photo.id, photo.visibility)}
+          disabled={toggling}
+          className="font-mono text-[8px] tracking-[0.15em] uppercase px-2 py-1 transition-opacity hover:opacity-80 disabled:opacity-30"
+          style={{
+            border: photoPublic ? "1px solid #4ade80" : "1px solid #888",
+            color: photoPublic ? "#4ade80" : "#888",
+          }}
+        >
+          {toggling ? "..." : photoPublic ? "Visible" : "Oculta"}
+        </button>
+
+        <button
+          onClick={() => onDelete(photo.id)}
+          disabled={deleting}
+          className="transition-opacity hover:opacity-80 disabled:opacity-30"
+        >
+          {deleting ? (
+            <span className="font-mono text-[8px] text-white/40">...</span>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e05c5c" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminAlbumPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [album, setAlbum] = useState<AdminAlbum | null>(null);
+  const [photos, setPhotos] = useState<AdminPhoto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [togglingPhoto, setTogglingPhoto] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
   const fetchAlbum = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/albums");
+    const res = await fetch("/api/albums", { cache: "no-store" });
     if (res.ok) {
       const data = await res.json();
       const found = (data.albums as AdminAlbum[]).find((a) => a.id === id) ?? null;
       setAlbum(found);
+      setPhotos(found?.photos ?? []);
+      setDirty(false);
     }
     setLoading(false);
   }, [id]);
 
   useEffect(() => { fetchAlbum(); }, [fetchAlbum]);
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setPhotos((prev) => {
+      const oldIdx = prev.findIndex((p) => p.id === active.id);
+      const newIdx = prev.findIndex((p) => p.id === over.id);
+      return arrayMove(prev, oldIdx, newIdx);
+    });
+    setDirty(true);
+  }
+
+  async function saveOrder() {
+    setSaving(true);
+    const res = await fetch(`/api/albums/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photoOrder: photos.map((p) => p.id) }),
+    });
+    setSaving(false);
+    if (res.ok) {
+      showToast.success("Orden guardado", { duration: 3000, sound: true, position: "bottom-right" });
+      setDirty(false);
+    } else {
+      showToast.error("Error al guardar el orden", { duration: 4000, sound: true, position: "bottom-right" });
+    }
+  }
 
   async function handleDeletePhoto(photoId: string) {
     if (!confirm("¿Borrar esta foto?")) return;
@@ -75,12 +216,15 @@ export default function AdminAlbumPage() {
   async function handleToggleVisibility() {
     if (!album) return;
     const next = album.visibility === "public" ? "private" : "public";
-    await fetch(`/api/albums/${id}`, {
+    const res = await fetch(`/api/albums/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ visibility: next }),
     });
-    fetchAlbum();
+    if (res.ok) {
+      showToast.success(next === "public" ? "Álbum publicado" : "Álbum ocultado", { duration: 3000, sound: true, position: "bottom-right" });
+      fetchAlbum();
+    }
   }
 
   if (loading) {
@@ -115,7 +259,7 @@ export default function AdminAlbumPage() {
 
       <div className="max-w-4xl mx-auto px-6 md:px-10 py-10 flex flex-col gap-8">
         {/* Album actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={handleToggleVisibility}
             className="font-mono text-[10px] tracking-[0.3em] uppercase px-4 py-2 transition-opacity hover:opacity-70"
@@ -144,59 +288,38 @@ export default function AdminAlbumPage() {
 
         {/* Photos grid */}
         <div>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-4" style={{ color: "var(--text-3)" }}>
-            Fotos ({album.photos.length})
-          </p>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-            {album.photos.map((photo) => {
-              const photoPublic = photo.visibility !== "private";
-              return (
-                <div key={photo.id} className="relative aspect-square overflow-hidden group" style={{ background: "var(--bg-surface)" }}>
-                  {photo.url && (
-                    <Image
-                      src={photo.url}
-                      alt={photo.alt ?? ""}
-                      fill
-                      sizes="150px"
-                      className="object-cover transition-opacity duration-200"
-                      style={{ opacity: photoPublic ? 1 : 0.35 }}
-                    />
-                  )}
-
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2" style={{ background: "rgba(0,0,0,0.65)" }}>
-                    {/* Toggle visibility */}
-                    <button
-                      onClick={() => handleTogglePhoto(photo.id, photo.visibility)}
-                      disabled={togglingPhoto === photo.id}
-                      className="font-mono text-[8px] tracking-[0.15em] uppercase px-2 py-1 transition-opacity hover:opacity-80 disabled:opacity-30"
-                      style={{
-                        border: photoPublic ? "1px solid #4ade80" : "1px solid #888",
-                        color: photoPublic ? "#4ade80" : "#888",
-                      }}
-                    >
-                      {togglingPhoto === photo.id ? "..." : photoPublic ? "Visible" : "Oculta"}
-                    </button>
-
-                    {/* Delete */}
-                    <button
-                      onClick={() => handleDeletePhoto(photo.id)}
-                      disabled={deleting === photo.id}
-                      className="transition-opacity hover:opacity-80 disabled:opacity-30"
-                    >
-                      {deleting === photo.id ? (
-                        <span className="font-mono text-[8px] text-white/40">...</span>
-                      ) : (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e05c5c" strokeWidth="2.5" strokeLinecap="round">
-                          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="flex items-center justify-between mb-4">
+            <p className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: "var(--text-3)" }}>
+              Fotos ({photos.length}) — arrastrá para reordenar
+            </p>
+            {dirty && (
+              <button
+                onClick={saveOrder}
+                disabled={saving}
+                className="font-mono text-[9px] tracking-[0.2em] uppercase px-3 py-1.5 transition-opacity hover:opacity-70 disabled:opacity-40"
+                style={{ background: "var(--text)", color: "var(--bg)" }}
+              >
+                {saving ? "Guardando..." : "Guardar orden"}
+              </button>
+            )}
           </div>
+
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={photos.map((p) => p.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                {photos.map((photo) => (
+                  <SortablePhoto
+                    key={photo.id}
+                    photo={photo}
+                    onDelete={handleDeletePhoto}
+                    onToggleVisibility={handleTogglePhoto}
+                    deleting={deleting === photo.id}
+                    toggling={togglingPhoto === photo.id}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
     </div>
