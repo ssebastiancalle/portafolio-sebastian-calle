@@ -40,7 +40,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   };
 
   if (body.photoPositions) {
-    const updates = body.photoPositions.map((p) =>
+    const updates = (body.photoPositions as { id: string; canvas_x: number | null; canvas_y: number | null; canvas_w: number | null; canvas_h: number | null; visibility: string }[]).map((p) =>
       supabaseAdmin.from("photos").update({
         canvas_x: p.canvas_x,
         canvas_y: p.canvas_y,
