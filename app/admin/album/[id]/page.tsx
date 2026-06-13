@@ -69,17 +69,17 @@ function SortablePhoto({
       }}
       className="relative aspect-square overflow-hidden group"
     >
-      {/* Drag handle — top area */}
+      {/* Drag handle — always visible */}
       <div
         {...attributes}
         {...listeners}
-        className="absolute inset-x-0 top-0 h-8 z-10 cursor-grab active:cursor-grabbing flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-        style={{ background: "rgba(0,0,0,0.4)" }}
+        className="absolute inset-x-0 top-0 h-7 z-10 cursor-grab active:cursor-grabbing flex items-center justify-center"
+        style={{ background: "rgba(0,0,0,0.55)" }}
+        title="Arrastrá para reordenar"
       >
-        <svg width="16" height="10" viewBox="0 0 16 10" fill="none">
-          <rect y="0" width="16" height="2" rx="1" fill="rgba(255,255,255,0.5)" />
-          <rect y="4" width="16" height="2" rx="1" fill="rgba(255,255,255,0.5)" />
-          <rect y="8" width="16" height="2" rx="1" fill="rgba(255,255,255,0.5)" />
+        <svg width="18" height="8" viewBox="0 0 18 8" fill="none">
+          <rect y="0" width="18" height="2" rx="1" fill="rgba(255,255,255,0.7)" />
+          <rect y="6" width="18" height="2" rx="1" fill="rgba(255,255,255,0.7)" />
         </svg>
       </div>
 
