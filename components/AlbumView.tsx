@@ -186,7 +186,7 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
 
         {/* Bottom nav */}
         <div
-          className="fixed bottom-0 left-0 right-0 flex items-center justify-between px-6 md:px-10 py-5 backdrop-blur-md border-t"
+          className="fixed bottom-0 left-0 right-0 flex items-center justify-between px-6 md:px-10 py-2 backdrop-blur-md border-t"
           style={{
             background: "rgba(var(--header-bg), 0.92)",
             borderColor: "rgba(var(--header-border), 0.06)",
