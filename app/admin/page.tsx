@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase-browser";
+import { showToast } from "nextjs-toast-notify";
+import "nextjs-toast-notify/dist/nextjs-toast-notify.min.css";
 
 type AdminAlbum = {
   id: string;
@@ -22,6 +24,8 @@ export default function AdminPage() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [albums, setAlbums] = useState<AdminAlbum[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchAlbums = useCallback(async () => {
     setLoading(true);
@@ -43,20 +47,34 @@ export default function AdminPage() {
     router.refresh();
   }
 
-  async function handleDelete(id: string, name: string) {
-    if (!confirm(`¿Borrar el álbum "${name}"? Esto elimina todas sus fotos.`)) return;
-    await fetch(`/api/albums/${id}`, { method: "DELETE" });
-    fetchAlbums();
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const res = await fetch(`/api/albums/${deleteTarget.id}`, { method: "DELETE" });
+    const name = deleteTarget.name;
+    setDeleteTarget(null);
+    setDeleting(false);
+    if (res.ok) {
+      showToast.success(`Álbum "${name}" eliminado`, { duration: 4000, sound: true, position: "bottom-right" });
+      fetchAlbums();
+    } else {
+      showToast.error("No se pudo eliminar el álbum", { duration: 5000, sound: true, position: "bottom-right" });
+    }
   }
 
   async function handleToggleVisibility(id: string, current: string) {
     const next = current === "public" ? "private" : "public";
-    await fetch(`/api/albums/${id}`, {
+    const res = await fetch(`/api/albums/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ visibility: next }),
     });
-    fetchAlbums();
+    if (res.ok) {
+      showToast.success(next === "public" ? "Álbum publicado" : "Álbum ocultado", { duration: 3000, sound: true, position: "bottom-right" });
+      fetchAlbums();
+    } else {
+      showToast.error("No se pudo cambiar la visibilidad", { duration: 4000, sound: true, position: "bottom-right" });
+    }
   }
 
   return (
@@ -133,7 +151,6 @@ export default function AdminPage() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  {/* Visibility toggle */}
                   <button
                     onClick={() => handleToggleVisibility(album.id, album.visibility)}
                     className="font-mono text-[9px] tracking-[0.2em] uppercase px-2 py-1 transition-opacity hover:opacity-60"
@@ -146,9 +163,8 @@ export default function AdminPage() {
                     {isPublic ? "Visible" : "Oculto"}
                   </button>
 
-                  {/* Delete */}
                   <button
-                    onClick={() => handleDelete(album.id, label)}
+                    onClick={() => setDeleteTarget({ id: album.id, name: label })}
                     className="font-mono text-[9px] tracking-[0.2em] uppercase px-2 py-1 transition-opacity hover:opacity-60"
                     style={{ border: "1px solid #e05c5c", color: "#e05c5c" }}
                   >
@@ -160,6 +176,47 @@ export default function AdminPage() {
           })}
         </div>
       </div>
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-6"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+          onClick={(e) => { if (e.target === e.currentTarget) setDeleteTarget(null); }}
+        >
+          <div
+            className="w-full max-w-sm p-8 flex flex-col gap-6"
+            style={{ background: "var(--bg)", border: "1px solid var(--border)" }}
+          >
+            <div className="flex flex-col gap-2">
+              <p className="font-mono text-[11px] tracking-[0.3em] uppercase" style={{ color: "var(--text)" }}>
+                Borrar álbum
+              </p>
+              <p className="font-mono text-[10px] tracking-[0.15em]" style={{ color: "var(--text-3)" }}>
+                ¿Eliminar &ldquo;{deleteTarget.name}&rdquo;? Esta acción borra todas sus fotos y no se puede deshacer.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+                className="flex-1 py-3 font-mono text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-60 disabled:opacity-30"
+                style={{ border: "1px solid var(--border)", color: "var(--text-3)" }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="flex-1 py-3 font-mono text-[10px] tracking-[0.2em] uppercase transition-opacity hover:opacity-70 disabled:opacity-40"
+                style={{ background: "#e05c5c", color: "#fff", border: "1px solid #e05c5c" }}
+              >
+                {deleting ? "Borrando..." : "Borrar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
