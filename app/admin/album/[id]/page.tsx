@@ -6,6 +6,45 @@ import Image from "next/image";
 import Link from "next/link";
 import { showToast } from "nextjs-toast-notify";
 
+// ─── Confirm modal ────────────────────────────────────────────────────────────
+
+function ConfirmModal({ title, message, confirmLabel = "Confirmar", danger = false, onConfirm, onCancel }: {
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  danger?: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div
+      style={{ position: "fixed", inset: 0, zIndex: 9000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+      onPointerDown={(e) => { if (e.target === e.currentTarget) onCancel(); }}
+    >
+      <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", padding: "28px 32px", maxWidth: 380, width: "90%", display: "flex", flexDirection: "column", gap: 12 }}>
+        <p className="font-mono text-[11px] tracking-[0.3em] uppercase" style={{ color: "var(--text-3)" }}>{title}</p>
+        <p className="font-mono text-[11px] leading-relaxed" style={{ color: "var(--text-2)" }}>{message}</p>
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}>
+          <button
+            onClick={onCancel}
+            className="font-mono text-[10px] tracking-[0.25em] uppercase px-5 py-2 transition-opacity hover:opacity-70"
+            style={{ border: "1px solid var(--border-2)", color: "var(--text-4)" }}
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirm}
+            className="font-mono text-[10px] tracking-[0.25em] uppercase px-5 py-2 transition-opacity hover:opacity-70"
+            style={{ background: danger ? "#e05c5c" : "var(--text)", color: danger ? "white" : "var(--bg)", border: "none" }}
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const CANVAS_W = 1200;
 const CANVAS_H = 800;
 const MIN_SIZE = 60;
@@ -246,6 +285,7 @@ export default function AdminAlbumPage() {
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [snapGuides, setSnapGuides] = useState<Guide[]>([]);
   const [lockedPhotos, setLockedPhotos] = useState<Set<string>>(new Set());
+  const [modal, setModal] = useState<{ title: string; message: string; confirmLabel: string; danger: boolean; onConfirm: () => void } | null>(null);
   // Sidebar drag state
   const [ghost, setGhost] = useState<{ url: string; x: number; y: number; w: number; h: number } | null>(null);
   const placingRef = useRef<{ id: string } | null>(null);
@@ -356,7 +396,7 @@ export default function AdminAlbumPage() {
     setDirty(true);
   }
 
-  async function saveChanges() {
+  async function doSaveChanges() {
     setSaving(true);
     const res = await fetch(`/api/albums/${id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
@@ -376,6 +416,10 @@ export default function AdminAlbumPage() {
     else showToast.error("Error al guardar", { duration: 4000, sound: true, position: "bottom-right" });
   }
 
+  function saveChanges() {
+    setModal({ title: "Guardar layout", message: "¿Guardás el layout actual? Se va a sobreescribir el diseño publicado.", confirmLabel: "Guardar", danger: false, onConfirm: () => { setModal(null); doSaveChanges(); } });
+  }
+
   async function handleToggleAlbumVisibility() {
     if (!album) return;
     const next = album.visibility === "public" ? "private" : "public";
@@ -384,11 +428,20 @@ export default function AdminAlbumPage() {
     fetchAlbum();
   }
 
-  async function handleDeleteAlbum() {
+  function handleDeleteAlbum() {
     if (!album) return;
-    if (!confirm(`¿Borrar el álbum "${album.name || album.title}"?`)) return;
-    await fetch(`/api/albums/${id}`, { method: "DELETE" });
-    router.push("/admin");
+    setModal({
+      title: "Borrar álbum",
+      message: `¿Borrar el álbum "${album.name || album.title}"? Esta acción no se puede deshacer.`,
+      confirmLabel: "Borrar",
+      danger: true,
+      onConfirm: async () => {
+        setModal(null);
+        await fetch(`/api/albums/${id}`, { method: "DELETE" });
+        showToast.success("Álbum borrado", { duration: 3000, sound: true, position: "bottom-right" });
+        router.push("/admin");
+      },
+    });
   }
 
   if (loading) return (
@@ -408,6 +461,16 @@ export default function AdminAlbumPage() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--bg)" }}>
+      {modal && (
+        <ConfirmModal
+          title={modal.title}
+          message={modal.message}
+          confirmLabel={modal.confirmLabel}
+          danger={modal.danger}
+          onConfirm={modal.onConfirm}
+          onCancel={() => setModal(null)}
+        />
+      )}
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 md:px-10 h-14 border-b flex-shrink-0" style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}>
         <Link href="/admin" className="font-mono text-[10px] tracking-[0.3em] uppercase transition-opacity hover:opacity-60" style={{ color: "var(--text-3)" }}>← Admin</Link>
