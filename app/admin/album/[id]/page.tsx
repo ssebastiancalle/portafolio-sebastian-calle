@@ -156,7 +156,7 @@ type AdminAlbum = {
 };
 
 type Guide = { axis: "x" | "y"; position: number };
-type DragState = { startX: number; startY: number; cx: number; cy: number; cw: number; ch: number };
+type DragState = { startX: number; startY: number; cx: number; cy: number; cw: number; ch: number; ratio: number };
 
 function snapGrid(v: number) { return Math.round(v / GRID) * GRID; }
 
@@ -198,19 +198,33 @@ function CornerHandle({ corner, cx, cy, cw, ch, scale, onUpdate, onDragEnd }: {
 
   function onPointerDown(e: React.PointerEvent) {
     e.stopPropagation(); e.preventDefault();
-    ref.current = { startX: e.clientX, startY: e.clientY, cx, cy, cw, ch };
+    ref.current = { startX: e.clientX, startY: e.clientY, cx, cy, cw, ch, ratio: cw / ch };
     e.currentTarget.setPointerCapture(e.pointerId);
   }
 
   function onPointerMove(e: React.PointerEvent) {
     const s = ref.current; if (!s) return;
     const dx = (e.clientX - s.startX) / scale;
-    const dy = (e.clientY - s.startY) / scale;
-    let nx = s.cx, ny = s.cy, nw = s.cw, nh = s.ch;
-    if (corner === "br") { nw = Math.max(MIN_SIZE, snapGrid(s.cw + dx)); nh = Math.max(MIN_SIZE, snapGrid(s.ch + dy)); }
-    else if (corner === "bl") { const dw = Math.max(-(s.cw - MIN_SIZE), dx); nx = snapGrid(s.cx + dw); nw = s.cw - (nx - s.cx); nh = Math.max(MIN_SIZE, snapGrid(s.ch + dy)); }
-    else if (corner === "tr") { nw = Math.max(MIN_SIZE, snapGrid(s.cw + dx)); const dh = Math.max(-(s.ch - MIN_SIZE), dy); ny = snapGrid(s.cy + dh); nh = s.ch - (ny - s.cy); }
-    else { const dw = Math.max(-(s.cw - MIN_SIZE), dx); nx = snapGrid(s.cx + dw); nw = s.cw - (nx - s.cx); const dh = Math.max(-(s.ch - MIN_SIZE), dy); ny = snapGrid(s.cy + dh); nh = s.ch - (ny - s.cy); }
+    let nx = s.cx, ny = s.cy, nw = s.cw, nh: number;
+    if (corner === "br") {
+      nw = Math.max(MIN_SIZE, snapGrid(s.cw + dx));
+      nh = Math.round(nw / s.ratio);
+    } else if (corner === "bl") {
+      const dw = Math.max(-(s.cw - MIN_SIZE), dx);
+      nx = snapGrid(s.cx + dw);
+      nw = s.cw - (nx - s.cx);
+      nh = Math.round(nw / s.ratio);
+    } else if (corner === "tr") {
+      nw = Math.max(MIN_SIZE, snapGrid(s.cw + dx));
+      nh = Math.round(nw / s.ratio);
+      ny = s.cy + s.ch - nh;
+    } else {
+      const dw = Math.max(-(s.cw - MIN_SIZE), dx);
+      nx = snapGrid(s.cx + dw);
+      nw = s.cw - (nx - s.cx);
+      nh = Math.round(nw / s.ratio);
+      ny = s.cy + s.ch - nh;
+    }
     onUpdate({ canvas_x: nx, canvas_y: ny, canvas_w: nw, canvas_h: nh });
   }
 
@@ -241,7 +255,7 @@ function PhotoCard({ photo, scale, isLocked, onUpdate, onRemove, onToggleLock, o
   function onPointerDown(e: React.PointerEvent) {
     if (isLocked) return;
     e.stopPropagation();
-    moveRef.current = { startX: e.clientX, startY: e.clientY, cx, cy, cw, ch };
+    moveRef.current = { startX: e.clientX, startY: e.clientY, cx, cy, cw, ch, ratio: cw / ch };
     e.currentTarget.setPointerCapture(e.pointerId);
   }
 

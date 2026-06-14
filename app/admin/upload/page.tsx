@@ -103,10 +103,10 @@ export default function UploadPage() {
       let compressed: File;
       try {
         compressed = await imageCompression(f.file, {
-          maxSizeMB: 3,
-          maxWidthOrHeight: 2400,
+          maxSizeMB: 8,
+          maxWidthOrHeight: 3200,
           fileType: "image/webp",
-          initialQuality: 0.9,
+          initialQuality: 0.95,
           useWebWorker: true,
         });
       } catch {
@@ -115,6 +115,16 @@ export default function UploadPage() {
         setPhase("error");
         return;
       }
+
+      // Always measure actual pixel dimensions from the compressed file
+      const actualDims = await new Promise<{ width: number; height: number }>((resolve) => {
+        const img = document.createElement("img");
+        const url = URL.createObjectURL(compressed);
+        img.onload = () => { resolve({ width: img.naturalWidth, height: img.naturalHeight }); URL.revokeObjectURL(url); };
+        img.onerror = () => { resolve({ width: 0, height: 0 }); URL.revokeObjectURL(url); };
+        img.src = url;
+      });
+      exif = { ...exif, width: actualDims.width || exif?.width, height: actualDims.height || exif?.height };
 
       // 3. Upload
       setFileStatus(f.id, { status: "uploading" });

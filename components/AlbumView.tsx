@@ -61,7 +61,7 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
           <Link
             href="/portfolio"
             className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] uppercase mb-4 transition-opacity hover:opacity-60"
-            style={{ color: "rgba(255,255,255,0.35)" }}
+            style={{ color: "var(--text-4)" }}
           >
             ← PORTFOLIO
           </Link>
