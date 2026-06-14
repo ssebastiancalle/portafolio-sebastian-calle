@@ -35,7 +35,7 @@ function AlbumCard({ album, index }: { album: AlbumSlim; index: number }) {
         />
         <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--bg) 0%, transparent 60%)" }} />
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-3)" }}>
             {String(album.photoCount).padStart(2, "0")} IMAGES
           </p>
           <p className="font-mono text-sm tracking-widest uppercase font-bold" style={{ color: "var(--text)" }}>
