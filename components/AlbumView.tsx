@@ -65,16 +65,16 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
           >
             ← PORTFOLIO
           </Link>
-          <p className="font-mono text-[10px] tracking-[0.35em] text-[#444] uppercase mb-1">
+          <p className="font-mono text-[10px] tracking-[0.35em] uppercase mb-1" style={{ color: "var(--text-3)" }}>
             {String(albumIndex + 1).padStart(2, "0")} / {String(totalAlbums).padStart(2, "0")}
           </p>
-          <h1 className="font-mono text-2xl md:text-4xl tracking-tighter text-white uppercase font-bold">
+          <h1 className="font-mono text-2xl md:text-4xl tracking-tighter uppercase font-bold" style={{ color: "var(--text)" }}>
             {label}
           </h1>
           {description && (
             <div
               className="font-mono text-[11px] leading-relaxed mt-2"
-              style={{ color: "rgba(255,255,255,0.4)", wordBreak: "break-word" }}
+              style={{ color: "var(--text-3)", wordBreak: "break-word" }}
               dangerouslySetInnerHTML={{
                 __html: description.replace(/\n/g, "<br>").replace(/@([\w.]+)/g, (_, h) =>
                   `<a href="https://instagram.com/${h}" target="_blank" rel="noopener noreferrer" style="color:#e1aa6e;text-decoration:underline;text-underline-offset:3px;font-weight:600;cursor:pointer">@${h}</a>`

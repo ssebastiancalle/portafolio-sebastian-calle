@@ -57,7 +57,7 @@ export default function HomeCarousel({ albums }: Props) {
           <motion.div
             className="absolute top-0 left-0 flex h-full"
             animate={{ x: `${PEEK_VW - index * STEP_VW}vw` }}
-            transition={{ type: "spring", stiffness: 360, damping: 36, mass: 0.85 }}
+            transition={{ type: "tween", duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.25}
