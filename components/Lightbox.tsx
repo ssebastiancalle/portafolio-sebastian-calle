@@ -142,36 +142,7 @@ export default function Lightbox({ photos, index, onClose, onChange, description
 
       {/* Bottom bar */}
       <div className="flex-shrink-0 px-6 py-5">
-        <div className="flex items-end justify-between gap-4">
-          {/* Left: album description */}
-          {description ? (
-            <div style={{ maxWidth: 360 }}>
-              <motion.div
-                animate={{ height: expanded ? fullHeight : COLLAPSED_H }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                style={{ overflow: "hidden" }}
-              >
-                <div
-                  ref={descRef}
-                  className="font-mono text-[13px] tracking-[0.08em] leading-relaxed"
-                  style={{ color: "rgba(255,255,255,0.55)", whiteSpace: "pre-wrap", wordBreak: "break-word" }}
-                  dangerouslySetInnerHTML={{ __html: linkifyDescription(description) }}
-                />
-              </motion.div>
-              {fullHeight > COLLAPSED_H && (
-                <motion.button
-                  onClick={() => setExpanded(v => !v)}
-                  className="font-mono text-[11px] tracking-[0.2em] uppercase mt-1 transition-colors duration-200"
-                  style={{ color: "#555", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-                  whileHover={{ color: "#aaa" }}
-                >
-                  {expanded ? "ver menos" : "... ver más"}
-                </motion.button>
-              )}
-            </div>
-          ) : <div />}
-
-          {/* Right: counter */}
+        <div className="flex items-end justify-end">
           <span className="font-mono text-[11px] tracking-[0.3em] uppercase select-none flex-shrink-0" style={{ color: "#444" }}>
             {String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}
           </span>

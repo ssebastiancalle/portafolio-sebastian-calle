@@ -76,7 +76,7 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
               className="font-mono text-[11px] leading-relaxed mt-2"
               style={{ color: "rgba(255,255,255,0.4)", wordBreak: "break-word" }}
               dangerouslySetInnerHTML={{
-                __html: description.replace(/@([\w.]+)/g, (_, h) =>
+                __html: description.replace(/\n/g, "<br>").replace(/@([\w.]+)/g, (_, h) =>
                   `<a href="https://instagram.com/${h}" target="_blank" rel="noopener noreferrer" style="color:#e1aa6e;text-decoration:underline;text-underline-offset:3px;font-weight:600;cursor:pointer">@${h}</a>`
                 )
               }}

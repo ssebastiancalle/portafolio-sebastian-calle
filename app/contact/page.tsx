@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 
 const LINKS = [
   { label: "Instagram", href: "https://www.instagram.com/ssebastiancalle/", sub: "@ssebastiancalle" },
-  { label: "E-mail",    href: "mailto:sebastiancalle@gmail.com",            sub: "sebastiancalle@gmail.com" },
+  { label: "E-mail",    href: "mailto:hello@sebastiancalle.com",            sub: "hello@sebastiancalle.com" },
 ];
 
 export default function ContactPage() {

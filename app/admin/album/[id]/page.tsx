@@ -55,7 +55,7 @@ function RichTextEditor({ defaultValue, onChange, placeholder }: {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (ref.current) ref.current.innerHTML = defaultValue;
+    if (ref.current) ref.current.innerHTML = defaultValue.replace(/\n/g, "<br>");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -128,7 +128,7 @@ const CANVAS_W = 1200;
 const CANVAS_H = 800;
 const MIN_SIZE = 60;
 const GRID = 20;
-const SNAP_THRESHOLD = 14;
+const SNAP_THRESHOLD = 24;
 const DEFAULT_PHOTO_W = 280;
 
 type AdminPhoto = {
@@ -324,14 +324,17 @@ function PhotoCard({ photo, scale, isLocked, onUpdate, onRemove, onToggleLock, o
 
 // ─── Sidebar thumbnail ────────────────────────────────────────────────────────
 
-function SidebarPhoto({ photo, isCover, onDragStart, onSetCover }: {
+function SidebarPhoto({ photo, isCover, onDragStart, onSetCover, onToggleVisibility, onDelete }: {
   photo: AdminPhoto;
   isCover: boolean;
   onDragStart: (e: React.PointerEvent, id: string) => void;
   onSetCover: (id: string) => void;
+  onToggleVisibility: (id: string) => void;
+  onDelete: (id: string) => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const placed = photo.canvas_x != null;
+  const hidden = photo.visibility === "private";
 
   return (
     <div
@@ -345,26 +348,65 @@ function SidebarPhoto({ photo, isCover, onDragStart, onSetCover }: {
           position: "relative", width: "100%", aspectRatio: "3/2",
           overflow: "hidden", background: "#111",
           cursor: placed ? "default" : "grab",
-          opacity: placed ? 0.35 : 1,
-          border: isCover ? "2px solid #fbbf24" : placed ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(255,255,255,0.15)",
+          opacity: placed || hidden ? 0.35 : 1,
+          border: isCover ? "2px solid #fbbf24" : hidden ? "1px solid rgba(239,68,68,0.4)" : placed ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(255,255,255,0.15)",
           userSelect: "none", touchAction: "none",
         }}
       >
         {photo.url && <Image src={photo.url} alt={photo.alt ?? ""} fill sizes="180px" className="object-cover" draggable={false} style={{ pointerEvents: "none" }} />}
-        {/* Cover badge */}
         {isCover && (
           <div style={{ position: "absolute", top: 4, left: 4, background: "#fbbf24", padding: "1px 5px" }}>
             <span className="font-mono" style={{ fontSize: 7, color: "#000", letterSpacing: "0.15em" }}>PORTADA</span>
           </div>
         )}
-        {placed && !isCover && (
+        {hidden && (
+          <div style={{ position: "absolute", top: 4, right: 4, background: "rgba(239,68,68,0.85)", padding: "1px 5px" }}>
+            <span className="font-mono" style={{ fontSize: 7, color: "#fff", letterSpacing: "0.15em" }}>OCULTA</span>
+          </div>
+        )}
+        {placed && !isCover && !hidden && (
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.4)" }}>
             <span className="font-mono" style={{ fontSize: 8, color: "rgba(255,255,255,0.5)", letterSpacing: "0.2em" }}>EN CANVAS</span>
           </div>
         )}
       </div>
 
-      {/* Set as cover button — shown on hover */}
+      {/* Action buttons — shown on hover */}
+      {hovered && (
+        <div style={{ position: "absolute", top: 4, left: 4, right: 4, display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 4 }} onPointerDown={e => e.stopPropagation()}>
+          {/* Visibility toggle */}
+          <button
+            onClick={() => onToggleVisibility(photo.id)}
+            title={hidden ? "Mostrar foto" : "Ocultar foto"}
+            style={{ background: "rgba(0,0,0,0.75)", border: "none", cursor: "pointer", padding: "4px 5px", borderRadius: 2, display: "flex", alignItems: "center" }}
+          >
+            {hidden ? (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            ) : (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            )}
+          </button>
+          {/* Delete */}
+          <button
+            onClick={() => onDelete(photo.id)}
+            title="Eliminar foto"
+            style={{ background: "rgba(0,0,0,0.75)", border: "none", cursor: "pointer", padding: "4px 5px", borderRadius: 2, display: "flex", alignItems: "center" }}
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Set as cover — shown on hover when not cover */}
       {hovered && !isCover && (
         <button
           onClick={() => onSetCover(photo.id)}
@@ -491,6 +533,7 @@ export default function AdminAlbumPage() {
   const canvasAreaRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const photosRef = useRef<AdminPhoto[]>([]);
+  const initialCanvasIds = useRef<Set<string>>(new Set());
   photosRef.current = photos;
 
   useEffect(() => {
@@ -524,6 +567,7 @@ export default function AdminAlbumPage() {
         setDirty(false);
         setLocalName(found.name || found.title || "");
         setDescriptionHtml(found.description || "");
+        initialCanvasIds.current = new Set(found.photos.filter(p => p.canvas_x != null).map(p => p.id));
       }
     }
     setLoading(false);
@@ -654,6 +698,25 @@ export default function AdminAlbumPage() {
     setDirty(true);
   }
 
+  function deletePhoto(photoId: string) {
+    setModal({
+      title: "Eliminar foto",
+      message: "¿Eliminás esta foto del álbum? Esta acción no se puede deshacer.",
+      confirmLabel: "Eliminar",
+      danger: true,
+      onConfirm: async () => {
+        setModal(null);
+        const res = await fetch(`/api/photos/${photoId}`, { method: "DELETE" });
+        if (res.ok) {
+          setPhotos(prev => prev.filter(p => p.id !== photoId));
+          showToast.success("Foto eliminada", { duration: 3000, sound: true, position: "bottom-right" });
+        } else {
+          showToast.error("Error al eliminar", { duration: 4000, sound: true, position: "bottom-right" });
+        }
+      },
+    });
+  }
+
   async function saveInfo() {
     if (!album) return;
     setSavingInfo(true);
@@ -690,14 +753,16 @@ export default function AdminAlbumPage() {
     const res = await fetch(`/api/albums/${id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        photoPositions: photos.map(p => ({
-          id: p.id,
-          canvas_x: p.canvas_x ?? null,
-          canvas_y: p.canvas_y ?? null,
-          canvas_w: p.canvas_w ?? null,
-          canvas_h: p.canvas_h ?? null,
-          visibility: p.visibility ?? "public",
-        })),
+        photoPositions: photos
+          .filter(p => p.canvas_x != null || initialCanvasIds.current.has(p.id))
+          .map(p => ({
+            id: p.id,
+            canvas_x: p.canvas_x ?? null,
+            canvas_y: p.canvas_y ?? null,
+            canvas_w: p.canvas_w ?? null,
+            canvas_h: p.canvas_h ?? null,
+            visibility: p.visibility ?? "public",
+          })),
       }),
     });
     setSaving(false);
@@ -864,9 +929,12 @@ export default function AdminAlbumPage() {
               }}
             >
               {/* Snap guides */}
-              {snapGuides.map((g, i) => (
-                <div key={i} style={{ position: "absolute", background: "#60a5fa", opacity: 0.8, pointerEvents: "none", zIndex: 50, ...(g.axis === "x" ? { left: g.position, top: 0, width: 1, height: CANVAS_H } : { top: g.position, left: 0, height: 1, width: CANVAS_W }) }} />
-              ))}
+              {snapGuides.map((g, i) => {
+                const thickness = Math.ceil(1.5 / scale);
+                return (
+                  <div key={i} style={{ position: "absolute", background: "#60a5fa", opacity: 0.9, pointerEvents: "none", zIndex: 50, ...(g.axis === "x" ? { left: g.position, top: 0, width: thickness, height: CANVAS_H } : { top: g.position, left: 0, height: thickness, width: CANVAS_W }) }} />
+                );
+              })}
 
               {/* Empty state hint */}
               {placedPhotos.length === 0 && (
@@ -904,7 +972,7 @@ export default function AdminAlbumPage() {
             <div style={{ display: "flex", flexDirection: "row", gap: 6, padding: "8px 10px", alignItems: "center" }}>
               {photos.map(photo => (
                 <div key={photo.id} style={{ width: 90, flexShrink: 0 }}>
-                  <SidebarPhoto photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} />
+                  <SidebarPhoto photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} onToggleVisibility={toggleVisibility} onDelete={deletePhoto} />
                 </div>
               ))}
             </div>
@@ -921,7 +989,7 @@ export default function AdminAlbumPage() {
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "8px 10px" }}>
               {photos.map(photo => (
-                <SidebarPhoto key={photo.id} photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} />
+                <SidebarPhoto key={photo.id} photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} onToggleVisibility={toggleVisibility} onDelete={deletePhoto} />
               ))}
             </div>
           </div>

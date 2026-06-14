@@ -60,11 +60,14 @@ export default function HomeCarousel({ albums }: Props) {
             transition={{ type: "spring", stiffness: 360, damping: 36, mass: 0.85 }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.06}
+            dragElastic={0.25}
+            dragMomentum={false}
             style={{ touchAction: "pan-y", gap: `${GAP_VW}vw` }}
             onDragEnd={(_, info) => {
-              if (info.offset.x < -SWIPE_THRESHOLD) go(1);
-              else if (info.offset.x > SWIPE_THRESHOLD) go(-1);
+              const swipedFar = info.offset.x < -SWIPE_THRESHOLD || info.offset.x > SWIPE_THRESHOLD;
+              const swipedFast = Math.abs(info.velocity.x) > 300;
+              if (info.offset.x < 0 && (swipedFar || swipedFast)) go(1);
+              else if (info.offset.x > 0 && (swipedFar || swipedFast)) go(-1);
             }}
           >
             {items.map((item, i) => {
@@ -82,11 +85,11 @@ export default function HomeCarousel({ albums }: Props) {
                   {isCurrent && (
                     <>
                       <Link href={`/album/${item.id}`} className="absolute inset-0 z-10" aria-label={item.label} />
-                      <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/75 to-transparent z-20 pointer-events-none">
-                        <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+                      <div className="absolute bottom-0 left-0 right-0 p-5 z-20 pointer-events-none" style={{ background: "linear-gradient(to top, var(--bg), transparent)" }}>
+                        <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>
                           {String(item.photoCount).padStart(2, "0")} IMAGES
                         </p>
-                        <p className="font-mono text-base tracking-widest uppercase font-bold" style={{ color: "#ffffff" }}>
+                        <p className="font-mono text-base tracking-widest uppercase font-bold" style={{ color: "var(--text)" }}>
                           {item.label}
                         </p>
                       </div>
@@ -120,8 +123,20 @@ export default function HomeCarousel({ albums }: Props) {
   const mainItem  = items[index];
   const rightItem = items[(index + 1) % total];
 
+  function handleDesktopDragEnd(_: unknown, info: { offset: { x: number } }) {
+    if (info.offset.x < -SWIPE_THRESHOLD) go(1);
+    else if (info.offset.x > SWIPE_THRESHOLD) go(-1);
+  }
+
   return (
-    <div className="relative w-full h-screen flex items-center overflow-hidden">
+    <motion.div
+      className="relative w-full h-screen flex items-center overflow-hidden"
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.04}
+      onDragEnd={handleDesktopDragEnd}
+      style={{ touchAction: "pan-y", cursor: "default" }}
+    >
       <div className="grid px-12 w-full items-center gap-4" style={{ gridTemplateColumns: "1fr 2.4fr 1fr" }}>
 
         {/* Left — previous album */}
@@ -155,12 +170,12 @@ export default function HomeCarousel({ albums }: Props) {
           >
             <Link href={`/album/${mainItem.id}`} className="block w-full h-full">
               <Image src={mainItem.coverUrl} alt={mainItem.label} fill sizes="50vw" className="object-contain transition-transform duration-700 group-hover:scale-[1.03]" priority placeholder="blur" blurDataURL={BLUR_DATA_URL} />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--bg), transparent 70%)" }} />
               <div className="absolute bottom-0 left-0 right-0 p-6">
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>
                   {String(mainItem.photoCount).padStart(2, "0")} IMAGES
                 </p>
-                <p className="font-mono text-xl tracking-widest uppercase font-bold text-white">
+                <p className="font-mono text-xl tracking-widest uppercase font-bold" style={{ color: "var(--text)" }}>
                   {mainItem.label}
                 </p>
               </div>
@@ -223,6 +238,6 @@ export default function HomeCarousel({ albums }: Props) {
           {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
         </span>
       </div>
-    </div>
+    </motion.div>
   );
 }

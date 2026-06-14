@@ -49,4 +49,5 @@ export type AlbumSlim = {
   label: string
   coverUrl: string
   photoCount: number
+  coverAspectRatio?: number  // width / height of cover photo
 }

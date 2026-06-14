@@ -12,12 +12,19 @@ export default async function PortfolioPage() {
   const albums: AlbumSlim[] = supabaseAlbums.length > 0
     ? supabaseAlbums
         .filter((a) => a.cover_url && (a.name || a.title))
-        .map((a) => ({
-          id: a.slug,
-          label: (a.name || a.title)!,
-          coverUrl: a.cover_url!,
-          photoCount: a.photos?.length ?? 0,
-        }))
+        .map((a) => {
+          const coverPhoto = a.photos?.find((p) => p.url === a.cover_url);
+          const coverAspectRatio = coverPhoto?.width && coverPhoto?.height
+            ? coverPhoto.width / coverPhoto.height
+            : undefined;
+          return {
+            id: a.slug,
+            label: (a.name || a.title)!,
+            coverUrl: a.cover_url!,
+            photoCount: a.photos?.length ?? 0,
+            coverAspectRatio,
+          };
+        })
     : categories.map((c) => ({
         id: c.id,
         label: c.label,
