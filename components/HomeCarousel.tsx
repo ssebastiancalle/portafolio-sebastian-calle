@@ -141,7 +141,7 @@ export default function HomeCarousel({ albums }: Props) {
 
         {/* Left — previous album */}
         <div className="flex justify-end">
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="sync" initial={false}>
             <motion.div
               key={leftItem.id + "-left"}
               className="relative w-full group cursor-pointer overflow-hidden"
@@ -158,7 +158,7 @@ export default function HomeCarousel({ albums }: Props) {
         </div>
 
         {/* Center — active album */}
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="sync" initial={false}>
           <motion.div
             key={mainItem.id}
             className="relative w-full group cursor-pointer overflow-hidden"
@@ -185,7 +185,7 @@ export default function HomeCarousel({ albums }: Props) {
 
         {/* Right — next album */}
         <div className="flex justify-start">
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="sync" initial={false}>
             <motion.div
               key={rightItem.id + "-right"}
               className="relative w-full group cursor-pointer overflow-hidden"
