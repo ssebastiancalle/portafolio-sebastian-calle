@@ -71,7 +71,8 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
             className="inline-flex items-center gap-2 font-mono text-xs tracking-[0.3em] uppercase mb-4 transition-opacity hover:opacity-60"
             style={{ color: "var(--text-4)" }}
           >
-            ← PORTFOLIO
+            <svg width="10" height="10" viewBox="0 0 24 24"><polygon points="16,4 8,12 16,20" fill="currentColor" /></svg>
+            PORTFOLIO
           </Link>
           <p className="font-mono text-xs tracking-[0.35em] uppercase mb-1" style={{ color: "var(--text-3)" }}>
             {String(albumIndex + 1).padStart(2, "0")} / {String(totalAlbums).padStart(2, "0")}
@@ -225,21 +226,25 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
           }}
         >
           {prev ? (
-            <Link href={`/album/${prev.id}`} className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center gap-3 touch-manipulation" style={{ minHeight: 44 }}>
-              ← {prev.label}
+            <Link href={`/album/${prev.id}`} className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center gap-2 touch-manipulation" style={{ minHeight: 44 }}>
+              <svg width="10" height="10" viewBox="0 0 24 24"><polygon points="16,4 8,12 16,20" fill="currentColor" /></svg>
+              {prev.label}
             </Link>
           ) : (
-            <Link href="/portfolio" className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center touch-manipulation" style={{ minHeight: 44 }}>
-              ← PORTFOLIO
+            <Link href="/portfolio" className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center gap-2 touch-manipulation" style={{ minHeight: 44 }}>
+              <svg width="10" height="10" viewBox="0 0 24 24"><polygon points="16,4 8,12 16,20" fill="currentColor" /></svg>
+              PORTFOLIO
             </Link>
           )}
           {next ? (
-            <Link href={`/album/${next.id}`} className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center gap-3 touch-manipulation" style={{ minHeight: 44 }}>
-              {next.label} →
+            <Link href={`/album/${next.id}`} className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center gap-2 touch-manipulation" style={{ minHeight: 44 }}>
+              {next.label}
+              <svg width="10" height="10" viewBox="0 0 24 24"><polygon points="8,4 16,12 8,20" fill="currentColor" /></svg>
             </Link>
           ) : (
-            <Link href="/portfolio" className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center touch-manipulation" style={{ minHeight: 44 }}>
-              PORTFOLIO →
+            <Link href="/portfolio" className="nav-link-dim font-mono text-[11px] tracking-[0.3em] uppercase flex items-center gap-2 touch-manipulation" style={{ minHeight: 44 }}>
+              PORTFOLIO
+              <svg width="10" height="10" viewBox="0 0 24 24"><polygon points="8,4 16,12 8,20" fill="currentColor" /></svg>
             </Link>
           )}
         </div>
