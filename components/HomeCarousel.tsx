@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useMotionValue, animate } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { categories } from "@/data/categories";
@@ -51,7 +51,71 @@ export default function HomeCarousel({ albums }: Props) {
 
   /* ── Mobile ── */
   if (isMobile) {
-    return <MobileCarousel items={items} index={index} total={total} go={go} />;
+    return (
+      <div className="relative w-full flex flex-col bg-black" style={{ height: "100svh", paddingTop: "64px" }}>
+        <div className="relative flex-1 overflow-hidden">
+          <motion.div
+            className="absolute top-0 left-0 flex h-full"
+            animate={{ x: `${PEEK_VW - index * STEP_VW}vw` }}
+            transition={{ type: "spring", stiffness: 360, damping: 36, mass: 0.85 }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.25}
+            dragMomentum={false}
+            style={{ touchAction: "pan-y", gap: `${GAP_VW}vw` }}
+            onDragEnd={(_, info) => {
+              const swipedFar = info.offset.x < -SWIPE_THRESHOLD || info.offset.x > SWIPE_THRESHOLD;
+              const swipedFast = Math.abs(info.velocity.x) > 300;
+              if (info.offset.x < 0 && (swipedFar || swipedFast)) go(1);
+              else if (info.offset.x > 0 && (swipedFar || swipedFast)) go(-1);
+            }}
+          >
+            {items.map((item, i) => {
+              const isCurrent = i === index;
+              return (
+                <motion.div
+                  key={item.id}
+                  className="relative flex-shrink-0 h-full overflow-hidden"
+                  style={{ width: `${SLIDE_VW}vw` }}
+                  animate={{ opacity: isCurrent ? 1 : 0.4, scale: isCurrent ? 1 : 0.94 }}
+                  transition={{ duration: 0.3 }}
+                  onClick={() => !isCurrent && go(i > index ? 1 : -1)}
+                >
+                  <Image src={item.coverUrl} alt={item.label} fill sizes="80vw" className="object-contain" draggable={false} priority={isCurrent} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
+                  {isCurrent && (
+                    <>
+                      <Link href={`/album/${item.id}`} className="absolute inset-0 z-10" aria-label={item.label} />
+                      <div className="absolute bottom-0 left-0 right-0 p-5 z-20 pointer-events-none" style={{ background: "linear-gradient(to top, var(--bg), transparent)" }}>
+                        <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>
+                          {String(item.photoCount).padStart(2, "0")} IMAGES
+                        </p>
+                        <p className="font-mono text-base tracking-widest uppercase font-bold" style={{ color: "var(--text)" }}>
+                          {item.label}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+
+        <div className="flex flex-col items-center pb-4 pt-2 gap-1" style={{ background: "var(--bg)" }}>
+          <div className="flex items-center gap-10">
+            <button onClick={() => go(-1)} aria-label="Previous" className="carousel-arrow touch-manipulation transition-opacity hover:opacity-60" style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text)" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24"><polygon points="16,4 8,12 16,20" fill="currentColor" /></svg>
+            </button>
+            <button onClick={() => go(1)} aria-label="Next" className="carousel-arrow touch-manipulation transition-opacity hover:opacity-60" style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text)" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24"><polygon points="8,4 16,12 8,20" fill="currentColor" /></svg>
+            </button>
+          </div>
+          <span className="font-mono text-[12px] font-bold tracking-[0.3em] uppercase select-none" style={{ color: "var(--text)" }}>
+            {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
+          </span>
+        </div>
+      </div>
+    );
   }
 
   /* ── Desktop ── */
@@ -175,121 +239,5 @@ export default function HomeCarousel({ albums }: Props) {
         </span>
       </div>
     </motion.div>
-  );
-}
-
-// ─── Mobile carousel ──────────────────────────────────────────────────────────
-
-function MobileCarousel({ items, index, total, go }: {
-  items: AlbumSlim[];
-  index: number;
-  total: number;
-  go: (d: number) => void;
-}) {
-  const x = useMotionValue(0);
-  const pointerStart = useRef<{ clientX: number; startX: number; t: number; lastX: number; lastT: number } | null>(null);
-
-  // Animate to the correct position whenever index changes
-  useEffect(() => {
-    const target = (PEEK_VW - index * STEP_VW) * window.innerWidth / 100;
-    animate(x, target, { type: "tween", duration: 0.32, ease: [0.32, 0.72, 0, 1] });
-  }, [index, x]);
-
-  // Set initial position on mount without animation
-  useEffect(() => {
-    x.set((PEEK_VW - index * STEP_VW) * window.innerWidth / 100);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  function onPointerDown(e: React.PointerEvent) {
-    pointerStart.current = { clientX: e.clientX, startX: x.get(), t: e.timeStamp, lastX: e.clientX, lastT: e.timeStamp };
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-  }
-
-  function onPointerMove(e: React.PointerEvent) {
-    if (!pointerStart.current) return;
-    const dx = e.clientX - pointerStart.current.clientX;
-    x.set(pointerStart.current.startX + dx);
-    pointerStart.current.lastX = e.clientX;
-    pointerStart.current.lastT = e.timeStamp;
-  }
-
-  function onPointerUp(e: React.PointerEvent) {
-    if (!pointerStart.current) return;
-    const dx = e.clientX - pointerStart.current.clientX;
-    const dt = e.timeStamp - pointerStart.current.lastT || 1;
-    const vx = (e.clientX - pointerStart.current.lastX) / dt * 1000;
-    pointerStart.current = null;
-
-    const swipedFar = Math.abs(dx) > SWIPE_THRESHOLD;
-    const swipedFast = Math.abs(vx) > 300;
-
-    if (dx < 0 && (swipedFar || swipedFast)) go(1);
-    else if (dx > 0 && (swipedFar || swipedFast)) go(-1);
-    else {
-      const target = (PEEK_VW - index * STEP_VW) * window.innerWidth / 100;
-      animate(x, target, { type: "tween", duration: 0.25, ease: [0.32, 0.72, 0, 1] });
-    }
-  }
-
-  return (
-    <div className="relative w-full flex flex-col bg-black" style={{ height: "100svh", paddingTop: "64px" }}>
-      <div
-        className="relative flex-1 overflow-hidden"
-        style={{ touchAction: "pan-y" }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={() => { pointerStart.current = null; }}
-      >
-        <motion.div
-          className="absolute top-0 left-0 flex h-full"
-          style={{ x, gap: `${GAP_VW}vw` }}
-        >
-          {items.map((item, i) => {
-            const isCurrent = i === index;
-            return (
-              <motion.div
-                key={item.id}
-                className="relative flex-shrink-0 h-full overflow-hidden"
-                style={{ width: `${SLIDE_VW}vw` }}
-                animate={{ opacity: isCurrent ? 1 : 0.4, scale: isCurrent ? 1 : 0.94 }}
-                transition={{ duration: 0.3 }}
-                onClick={() => !isCurrent && go(i > index ? 1 : -1)}
-              >
-                <Image src={item.coverUrl} alt={item.label} fill sizes="80vw" className="object-contain" draggable={false} priority={isCurrent} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
-                {isCurrent && (
-                  <>
-                    <Link href={`/album/${item.id}`} className="absolute inset-0 z-10" aria-label={item.label} />
-                    <div className="absolute bottom-0 left-0 right-0 p-5 z-20 pointer-events-none" style={{ background: "linear-gradient(to top, var(--bg), transparent)" }}>
-                      <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>
-                        {String(item.photoCount).padStart(2, "0")} IMAGES
-                      </p>
-                      <p className="font-mono text-base tracking-widest uppercase font-bold" style={{ color: "var(--text)" }}>
-                        {item.label}
-                      </p>
-                    </div>
-                  </>
-                )}
-              </motion.div>
-            );
-          })}
-        </motion.div>
-      </div>
-
-      <div className="flex flex-col items-center pb-4 pt-2 gap-1" style={{ background: "var(--bg)" }}>
-        <div className="flex items-center gap-10">
-          <button onClick={() => go(-1)} aria-label="Previous" className="carousel-arrow touch-manipulation transition-opacity hover:opacity-60" style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text)" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24"><polygon points="16,4 8,12 16,20" fill="currentColor" /></svg>
-          </button>
-          <button onClick={() => go(1)} aria-label="Next" className="carousel-arrow touch-manipulation transition-opacity hover:opacity-60" style={{ minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text)" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24"><polygon points="8,4 16,12 8,20" fill="currentColor" /></svg>
-          </button>
-        </div>
-        <span className="font-mono text-[12px] font-bold tracking-[0.3em] uppercase select-none" style={{ color: "var(--text)" }}>
-          {String(index + 1).padStart(2, "0")} — {String(total).padStart(2, "0")}
-        </span>
-      </div>
-    </div>
   );
 }
