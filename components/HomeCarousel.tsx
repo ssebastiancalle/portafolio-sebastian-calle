@@ -81,7 +81,7 @@ export default function HomeCarousel({ albums }: Props) {
                   transition={{ duration: 0.3 }}
                   onClick={() => !isCurrent && go(i > index ? 1 : -1)}
                 >
-                  <Image src={item.coverUrl} alt={item.label} fill sizes="80vw" className="object-contain" draggable={false} priority={isCurrent} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
+                  <Image src={item.coverUrl} alt={item.label} fill sizes="(max-width: 768px) 100vw, 80vw" className="object-contain" draggable={false} priority={isCurrent} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
                   {isCurrent && (
                     <>
                       <Link href={`/album/${item.id}`} className="absolute inset-0 z-10" aria-label={item.label} />
