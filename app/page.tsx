@@ -27,7 +27,7 @@ export default async function Home() {
         <link
           rel="preload"
           as="image"
-          href={`/_next/image?url=${encodeURIComponent(firstCover)}&w=640&q=75`}
+          href={`/_next/image?url=${encodeURIComponent(firstCover)}&w=750&q=75`}
           fetchPriority="high"
         />
       )}
