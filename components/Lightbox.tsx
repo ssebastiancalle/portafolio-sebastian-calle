@@ -72,13 +72,13 @@ export default function Lightbox({ photos, index, onClose, onChange, description
     >
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 py-5 flex-shrink-0">
-        <span className="font-mono text-[11px] tracking-[0.3em] text-[#444] uppercase select-none">
+        <span className="font-mono text-[11px] tracking-[0.3em] uppercase select-none" style={{ color: "#888" }}>
           {String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}
         </span>
         <button
           onClick={onClose}
-          className="font-mono text-[11px] tracking-[0.3em] text-[#444] uppercase hover:text-white transition-colors duration-200 cursor-pointer py-2 px-1"
-          style={{ minHeight: 44, minWidth: 44 }}
+          className="font-mono text-[11px] tracking-[0.3em] uppercase hover:text-white transition-colors duration-200 cursor-pointer py-2 px-1"
+          style={{ color: "#888", minHeight: 44, minWidth: 44 }}
           aria-label="Close"
         >
           [ ESC ]
@@ -140,14 +140,6 @@ export default function Lightbox({ photos, index, onClose, onChange, description
         )}
       </div>
 
-      {/* Bottom bar */}
-      <div className="flex-shrink-0 px-6 py-5">
-        <div className="flex items-end justify-end">
-          <span className="font-mono text-[11px] tracking-[0.3em] uppercase select-none flex-shrink-0" style={{ color: "#444" }}>
-            {String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}
-          </span>
-        </div>
-      </div>
     </motion.div>
   );
 }
