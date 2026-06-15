@@ -68,20 +68,20 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
         >
           <Link
             href="/portfolio"
-            className="inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] uppercase mb-4 transition-opacity hover:opacity-60"
+            className="inline-flex items-center gap-2 font-mono text-xs tracking-[0.3em] uppercase mb-4 transition-opacity hover:opacity-60"
             style={{ color: "var(--text-4)" }}
           >
             ← PORTFOLIO
           </Link>
-          <p className="font-mono text-[10px] tracking-[0.35em] uppercase mb-1" style={{ color: "var(--text-3)" }}>
+          <p className="font-mono text-xs tracking-[0.35em] uppercase mb-1" style={{ color: "var(--text-3)" }}>
             {String(albumIndex + 1).padStart(2, "0")} / {String(totalAlbums).padStart(2, "0")}
           </p>
-          <h1 className="font-mono text-2xl md:text-4xl tracking-tighter uppercase font-bold" style={{ color: "var(--text)" }}>
+          <h1 className="font-mono text-3xl md:text-5xl tracking-tighter uppercase font-bold" style={{ color: "var(--text)" }}>
             {label}
           </h1>
           {description && (
             <div
-              className="font-mono text-[11px] leading-relaxed mt-2"
+              className="font-mono text-sm leading-relaxed mt-2"
               style={{ color: "var(--text-3)", wordBreak: "break-word" }}
               dangerouslySetInnerHTML={{
                 __html: description.replace(/\n/g, "<br>").replace(/@([\w.]+)/g, (_, h) =>
