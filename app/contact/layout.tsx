@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Book a Session",
   description:
     "Get in touch with Sebastian Calle for photography and retouching inquiries. Available for local and international assignments.",
   openGraph: {
-    title: "Contact | Sebastian Calle",
+    title: "Book a Session | Sebastian Calle",
     description:
       "Get in touch with Sebastian Calle for photography and retouching inquiries. Available for local and international assignments.",
     url: "https://sebastiancalle.com/contact",

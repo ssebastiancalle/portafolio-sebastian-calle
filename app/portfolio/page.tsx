@@ -4,11 +4,11 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "Portfolio",
+  title: "Photography Portfolio",
   description:
     "Browse Sebastian Calle's photography portfolio — fashion, portrait, and editorial work from Buenos Aires to Barcelona.",
   openGraph: {
-    title: "Portfolio | Sebastian Calle",
+    title: "Photography Portfolio | Sebastian Calle",
     description:
       "Browse Sebastian Calle's photography portfolio — fashion, portrait, and editorial work from Buenos Aires to Barcelona.",
     url: "https://sebastiancalle.com/portfolio",

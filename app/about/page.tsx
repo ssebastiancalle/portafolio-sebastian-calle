@@ -3,11 +3,11 @@ import AboutContent from "@/components/AboutContent";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "About Sebastian Calle",
   description:
     "Fashion, portrait, and editorial photographer born in Buenos Aires, based in Barcelona. Bold contrasts, deep shadows, cinematic strength.",
   openGraph: {
-    title: "About | Sebastian Calle",
+    title: "About Sebastian Calle | Photographer & Retoucher",
     description:
       "Fashion, portrait, and editorial photographer born in Buenos Aires, based in Barcelona. Bold contrasts, deep shadows, cinematic strength.",
     url: "https://sebastiancalle.com/about",
