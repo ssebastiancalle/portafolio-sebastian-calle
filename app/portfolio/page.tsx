@@ -1,6 +1,19 @@
 export const dynamic = "force-dynamic";
 
+import type { Metadata } from "next";
 import Header from "@/components/Header";
+
+export const metadata: Metadata = {
+  title: "Portfolio",
+  description:
+    "Browse Sebastian Calle's photography portfolio — fashion, portrait, and editorial work from Buenos Aires to Barcelona.",
+  openGraph: {
+    title: "Portfolio | Sebastian Calle",
+    description:
+      "Browse Sebastian Calle's photography portfolio — fashion, portrait, and editorial work from Buenos Aires to Barcelona.",
+    url: "https://sebastiancalle.com/portfolio",
+  },
+};
 import PortfolioGrid from "@/components/PortfolioGrid";
 import { getAlbums } from "@/lib/albums";
 import { categories } from "@/data/categories";

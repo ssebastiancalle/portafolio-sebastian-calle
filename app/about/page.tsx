@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import AboutContent from "@/components/AboutContent";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "Fashion, portrait, and editorial photographer born in Buenos Aires, based in Barcelona. Bold contrasts, deep shadows, cinematic strength.",
+  openGraph: {
+    title: "About | Sebastian Calle",
+    description:
+      "Fashion, portrait, and editorial photographer born in Buenos Aires, based in Barcelona. Bold contrasts, deep shadows, cinematic strength.",
+    url: "https://sebastiancalle.com/about",
+  },
+};
 
 export const dynamic = "force-dynamic";
 

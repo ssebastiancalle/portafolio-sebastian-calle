@@ -32,9 +32,54 @@ const playfair = localFont({
   display: "swap",
 });
 
+const BASE_URL = "https://sebastiancalle.com";
+
 export const metadata: Metadata = {
-  title: "Sebastian Calle — Photography",
-  description: "Capturing stories through light. Professional photography portfolio.",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "Sebastian Calle — Photography & Retouching",
+    template: "%s | Sebastian Calle",
+  },
+  description:
+    "Professional photography and retouching portfolio by Sebastian Calle. Fashion, portrait, and editorial photography.",
+  keywords: [
+    "photography",
+    "photographer",
+    "retouching",
+    "fashion photography",
+    "portrait",
+    "editorial photography",
+    "Sebastian Calle",
+  ],
+  authors: [{ name: "Sebastian Calle", url: BASE_URL }],
+  creator: "Sebastian Calle",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: BASE_URL,
+    siteName: "Sebastian Calle Photography",
+    title: "Sebastian Calle — Photography & Retouching",
+    description:
+      "Professional photography and retouching portfolio by Sebastian Calle. Fashion, portrait, and editorial photography.",
+    images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "Sebastian Calle Photography" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sebastian Calle — Photography & Retouching",
+    description:
+      "Professional photography and retouching portfolio by Sebastian Calle. Fashion, portrait, and editorial photography.",
+    images: ["/og-default.jpg"],
+  },
+  robots: { index: true, follow: true },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png" }],
+  },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
@@ -42,8 +87,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Sebastian Calle",
+    url: BASE_URL,
+    jobTitle: "Photographer & Retoucher",
+    image: `${BASE_URL}/og-default.jpg`,
+    sameAs: [
+      "https://www.instagram.com/ssebastiancalle/",
+    ],
+  };
+
   return (
     <html lang="en" className={`${spaceMono.variable} ${ibmPlexMono.variable} ${playfair.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
+      </head>
       <body className="bg-black text-white antialiased" style={{ fontFamily: "var(--font-playfair), serif" }}>
         <ThemeProvider>
           <CustomCursor />

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import AlbumView from "@/components/AlbumView";
 import { getAlbums, getAlbumBySlug } from "@/lib/albums";
 import { categories } from "@/data/categories";
@@ -6,6 +7,42 @@ import type { LightboxPhoto } from "@/lib/types";
 
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const album = await getAlbumBySlug(id);
+
+  if (!album) {
+    const cat = categories.find((c) => c.id === id);
+    if (!cat) return { title: "Album" };
+    return { title: cat.label };
+  }
+
+  const title = album.name || album.title;
+  const description =
+    album.description?.replace(/<[^>]+>/g, "").slice(0, 160) ??
+    `${title} — Photography by Sebastian Calle`;
+  const coverUrl = album.cover_url;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: coverUrl
+        ? [{ url: coverUrl, width: 1200, height: 800, alt: title }]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: coverUrl ? [coverUrl] : [],
+    },
+  };
 }
 
 export default async function AlbumPage({ params }: Props) {
@@ -38,16 +75,37 @@ export default async function AlbumPage({ params }: Props) {
         };
       });
 
+    const albumTitle = supabaseAlbum.name || supabaseAlbum.title;
+    const galleryJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "ImageGallery",
+      name: albumTitle,
+      description: supabaseAlbum.description ?? undefined,
+      url: `https://sebastiancalle.com/album/${id}`,
+      author: { "@type": "Person", name: "Sebastian Calle", url: "https://sebastiancalle.com" },
+      image: photos.slice(0, 6).map((p) => ({
+        "@type": "ImageObject",
+        url: p.url,
+        name: p.alt || albumTitle,
+      })),
+    };
+
     return (
-      <AlbumView
-        label={supabaseAlbum.name || supabaseAlbum.title}
-        description={supabaseAlbum.description}
-        albumIndex={idx}
-        totalAlbums={allAlbums.length}
-        photos={photos}
-        prev={prev}
-        next={next}
-      />
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(galleryJsonLd) }}
+        />
+        <AlbumView
+          label={albumTitle}
+          description={supabaseAlbum.description}
+          albumIndex={idx}
+          totalAlbums={allAlbums.length}
+          photos={photos}
+          prev={prev}
+          next={next}
+        />
+      </>
     );
   }
 

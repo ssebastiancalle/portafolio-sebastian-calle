@@ -31,6 +31,11 @@ function hasCanvasLayout(photos: LightboxPhoto[]): boolean {
   return photos.length > 0 && photos[0].canvas_x != null;
 }
 
+function photoAlt(photo: LightboxPhoto, label: string, index: number): string {
+  if (photo.alt) return photo.alt;
+  return `${label} — photograph ${index + 1} by Sebastian Calle`;
+}
+
 export default function AlbumView({ label, description, albumIndex, totalAlbums, photos, prev, next }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -106,7 +111,7 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
                 className="cursor-pointer w-full"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.url} alt={photo.alt} className="w-full h-auto block" loading={i < 3 ? "eager" : "lazy"} />
+                <img src={photo.url} alt={photoAlt(photo, label, i)} className="w-full h-auto block" loading={i < 3 ? "eager" : "lazy"} />
               </motion.div>
             ))}
           </div>
@@ -148,7 +153,7 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
                   >
                     <Image
                       src={photo.url}
-                      alt={photo.alt}
+                      alt={photoAlt(photo, label, i)}
                       fill
                       sizes="(max-width: 768px) 50vw, 30vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
@@ -174,7 +179,7 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
             >
               <Image
                 src={photos[0].url}
-                alt={photos[0].alt}
+                alt={photoAlt(photos[0], label, 0)}
                 fill
                 sizes="(max-width: 768px) 100vw, 40vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
@@ -203,7 +208,7 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
                 >
                   <Image
                     src={photo.url}
-                    alt={photo.alt}
+                    alt={photoAlt(photo, label, i + 1)}
                     fill
                     sizes="25vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
