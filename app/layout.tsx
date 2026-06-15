@@ -61,14 +61,14 @@ export const metadata: Metadata = {
     title: "Sebastian Calle — Photography & Retouching",
     description:
       "Professional photography and retouching portfolio by Sebastian Calle. Fashion, portrait, and editorial photography.",
-    images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "Sebastian Calle Photography" }],
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Sebastian Calle Photography" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Sebastian Calle — Photography & Retouching",
     description:
       "Professional photography and retouching portfolio by Sebastian Calle. Fashion, portrait, and editorial photography.",
-    images: ["/og-default.jpg"],
+    images: ["/og-default.png"],
   },
   robots: { index: true, follow: true },
   icons: {
@@ -93,7 +93,7 @@ export default function RootLayout({
     name: "Sebastian Calle",
     url: BASE_URL,
     jobTitle: "Photographer & Retoucher",
-    image: `${BASE_URL}/og-default.jpg`,
+    image: `${BASE_URL}/og-default.png`,
     sameAs: [
       "https://www.instagram.com/ssebastiancalle/",
     ],
