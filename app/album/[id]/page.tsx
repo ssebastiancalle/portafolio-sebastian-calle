@@ -64,7 +64,7 @@ export default async function AlbumPage({ params }: Props) {
         return {
           id: p.id,
           url: p.url!,
-          alt: p.alt ?? "",
+          alt: supabaseAlbum.alt ?? p.alt ?? "",
           width: p.width,
           height: p.height,
           scale: extra.scale as number | undefined,

@@ -12,7 +12,7 @@ export async function GET() {
 
   let { data, error } = await supabaseAdmin
     .from("albums")
-    .select("id, name, title, slug, cover_url, visibility, created_at, description, location, photos(id, url, alt, order, width, height, scale, visibility, canvas_x, canvas_y, canvas_w, canvas_h)")
+    .select("id, name, title, slug, cover_url, visibility, created_at, description, location, alt, photos(id, url, alt, order, width, height, scale, visibility, canvas_x, canvas_y, canvas_w, canvas_h)")
     .order("order", { ascending: true });
 
   // If the join fails (e.g. photos table issue), retry without it
@@ -22,7 +22,7 @@ export async function GET() {
       .select("id, name, title, slug, cover_url, visibility, created_at")
       .order("order", { ascending: true });
     if (fallback.error) return NextResponse.json({ error: fallback.error.message }, { status: 500 });
-    data = fallback.data?.map((a) => ({ ...a, description: (a as Record<string, unknown>).description ?? null, location: null, photos: [] })) ?? [];
+    data = fallback.data?.map((a) => ({ ...a, description: (a as Record<string, unknown>).description ?? null, location: null, alt: null, photos: [] })) ?? [];
   }
 
   return NextResponse.json({ albums: data });
