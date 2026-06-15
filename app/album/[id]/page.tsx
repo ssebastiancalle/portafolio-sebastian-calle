@@ -76,6 +76,7 @@ export default async function AlbumPage({ params }: Props) {
       });
 
     const albumTitle = supabaseAlbum.name || supabaseAlbum.title;
+    const rawPhotos = supabaseAlbum.photos ?? [];
     const galleryJsonLd = {
       "@context": "https://schema.org",
       "@type": "ImageGallery",
@@ -83,10 +84,26 @@ export default async function AlbumPage({ params }: Props) {
       description: supabaseAlbum.description ?? undefined,
       url: `https://sebastiancalle.com/album/${id}`,
       author: { "@type": "Person", name: "Sebastian Calle", url: "https://sebastiancalle.com" },
-      image: photos.slice(0, 6).map((p) => ({
+      image: rawPhotos.slice(0, 6).map((p) => ({
         "@type": "ImageObject",
         url: p.url,
         name: p.alt || albumTitle,
+        ...(p.width && p.height ? { width: p.width, height: p.height } : {}),
+        ...(p.taken_at ? { dateCreated: p.taken_at } : {}),
+        ...(p.lat != null && p.lng != null
+          ? {
+              locationCreated: {
+                "@type": "Place",
+                geo: {
+                  "@type": "GeoCoordinates",
+                  latitude: p.lat,
+                  longitude: p.lng,
+                  ...(p.altitude != null ? { elevation: p.altitude } : {}),
+                },
+              },
+            }
+          : {}),
+        creator: { "@type": "Person", name: "Sebastian Calle" },
       })),
     };
 
