@@ -24,30 +24,24 @@ export default function ContactPage() {
             Contact
           </motion.p>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col items-center">
             {LINKS.map((link, i) => (
               <motion.a
                 key={link.label}
                 href={link.href}
                 target={link.href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className="group flex items-baseline justify-between py-6 border-b transition-colors duration-300"
+                className="group py-6 border-b w-full text-center transition-colors duration-300"
                 style={{ borderColor: "var(--border)" }}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
               >
                 <span
-                  className="font-mono text-2xl md:text-4xl tracking-tighter uppercase font-bold group-hover:translate-x-2 transition-transform duration-300 inline-block"
+                  className="font-mono text-2xl md:text-4xl tracking-tighter uppercase font-bold group-hover:tracking-widest transition-all duration-300 inline-block"
                   style={{ color: "var(--text)" }}
                 >
                   {link.label}
-                </span>
-                <span
-                  className="font-mono text-[10px] tracking-[0.15em] uppercase transition-colors duration-300"
-                  style={{ color: "var(--text-4)" }}
-                >
-                  {link.sub}
                 </span>
               </motion.a>
             ))}
