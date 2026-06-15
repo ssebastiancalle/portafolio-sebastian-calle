@@ -75,6 +75,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if ((body as Record<string, unknown>).cover_url) albumUpdate.cover_url = (body as Record<string, unknown>).cover_url as string;
   if (body.name !== undefined) albumUpdate.name = body.name;
   if (body.description !== undefined) albumUpdate.description = body.description;
+  if ((body as Record<string, unknown>).location !== undefined) albumUpdate.location = (body as Record<string, unknown>).location as string;
 
   if (Object.keys(albumUpdate).length) {
     const { error } = await supabaseAdmin.from("albums").update(albumUpdate).eq("id", id);

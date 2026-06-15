@@ -150,6 +150,7 @@ type AdminAlbum = {
   title: string;
   slug: string;
   description: string | null;
+  location: string | null;
   cover_url: string | null;
   visibility: string;
   photos: AdminPhoto[];
@@ -338,13 +339,15 @@ function PhotoCard({ photo, scale, isLocked, onUpdate, onRemove, onToggleLock, o
 
 // ─── Sidebar thumbnail ────────────────────────────────────────────────────────
 
-function SidebarPhoto({ photo, isCover, onDragStart, onSetCover, onToggleVisibility, onDelete }: {
+function SidebarPhoto({ photo, isCover, onDragStart, onSetCover, onToggleVisibility, onDelete, onAltChange, onAltBlur }: {
   photo: AdminPhoto;
   isCover: boolean;
   onDragStart: (e: React.PointerEvent, id: string) => void;
   onSetCover: (id: string) => void;
   onToggleVisibility: (id: string) => void;
   onDelete: (id: string) => void;
+  onAltChange: (id: string, value: string) => void;
+  onAltBlur: (id: string) => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const placed = photo.canvas_x != null;
@@ -437,6 +440,16 @@ function SidebarPhoto({ photo, isCover, onDragStart, onSetCover, onToggleVisibil
           ★ Portada
         </button>
       )}
+      {/* Alt text input */}
+      <input
+        value={photo.alt ?? ""}
+        onChange={e => onAltChange(photo.id, e.target.value)}
+        onBlur={() => onAltBlur(photo.id)}
+        onPointerDown={e => e.stopPropagation()}
+        placeholder="Alt text..."
+        className="font-mono w-full mt-1"
+        style={{ fontSize: 9, padding: "4px 6px", background: "var(--bg)", border: "1px solid var(--border)", color: "var(--text-3)", outline: "none", letterSpacing: "0.02em" }}
+      />
     </div>
   );
 }
@@ -537,6 +550,7 @@ export default function AdminAlbumPage() {
   const [showPreview, setShowPreview] = useState(false);
   const [localName, setLocalName] = useState("");
   const [descriptionHtml, setDescriptionHtml] = useState("");
+  const [localLocation, setLocalLocation] = useState("");
   const [savingInfo, setSavingInfo] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   // Sidebar drag state
@@ -581,6 +595,7 @@ export default function AdminAlbumPage() {
         setDirty(false);
         setLocalName(found.name || found.title || "");
         setDescriptionHtml(found.description || "");
+        setLocalLocation(found.location || "");
         initialCanvasIds.current = new Set(found.photos.filter(p => p.canvas_x != null).map(p => p.id));
       }
     }
@@ -730,7 +745,7 @@ export default function AdminAlbumPage() {
     setSavingInfo(true);
     const res = await fetch(`/api/albums/${album.id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: localName, description: descriptionHtml }),
+      body: JSON.stringify({ name: localName, description: descriptionHtml, location: localLocation }),
     });
     setSavingInfo(false);
     if (res.ok) {
@@ -739,6 +754,19 @@ export default function AdminAlbumPage() {
     } else {
       showToast.error("Error al guardar info", { duration: 4000, sound: true, position: "bottom-right" });
     }
+  }
+
+  function handleAltChange(photoId: string, value: string) {
+    setPhotos(prev => prev.map(p => p.id === photoId ? { ...p, alt: value } : p));
+  }
+
+  async function handleAltBlur(photoId: string) {
+    const photo = photosRef.current.find(p => p.id === photoId);
+    if (!photo) return;
+    await fetch(`/api/photos/${photoId}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ alt: photo.alt ?? "" }),
+    });
   }
 
   async function setCover(photoId: string) {
@@ -891,6 +919,16 @@ export default function AdminAlbumPage() {
                 style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 16 }}
               />
             </div>
+            <div style={{ width: isMobile ? "100%" : 200, flexShrink: 0 }}>
+              <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Ubicación (ciudad, país)</p>
+              <input
+                value={localLocation}
+                onChange={e => setLocalLocation(e.target.value)}
+                placeholder="Barcelona, España"
+                className="font-mono w-full"
+                style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 13 }}
+              />
+            </div>
             <div style={{ flex: 1, width: isMobile ? "100%" : undefined }}>
               <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Pie de foto (soporta <strong>negrita</strong>, <em>cursiva</em> y @handles)</p>
               <RichTextEditor
@@ -980,7 +1018,7 @@ export default function AdminAlbumPage() {
             <div style={{ display: "flex", flexDirection: "row", gap: 6, padding: "8px 10px", alignItems: "center" }}>
               {photos.map(photo => (
                 <div key={photo.id} style={{ width: 90, flexShrink: 0 }}>
-                  <SidebarPhoto photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} onToggleVisibility={toggleVisibility} onDelete={deletePhoto} />
+                  <SidebarPhoto photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} onToggleVisibility={toggleVisibility} onDelete={deletePhoto} onAltChange={handleAltChange} onAltBlur={handleAltBlur} />
                 </div>
               ))}
             </div>
@@ -997,7 +1035,7 @@ export default function AdminAlbumPage() {
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "8px 10px" }}>
               {photos.map(photo => (
-                <SidebarPhoto key={photo.id} photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} onToggleVisibility={toggleVisibility} onDelete={deletePhoto} />
+                <SidebarPhoto key={photo.id} photo={photo} isCover={album?.cover_url === photo.url} onDragStart={onSidebarDragStart} onSetCover={setCover} onToggleVisibility={toggleVisibility} onDelete={deletePhoto} onAltChange={handleAltChange} onAltBlur={handleAltBlur} />
               ))}
             </div>
           </div>

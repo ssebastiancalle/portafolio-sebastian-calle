@@ -21,6 +21,7 @@ export type Album = {
   title: string
   slug: string
   description?: string
+  location?: string | null
   cover_url: string | null
   created_at: string
   order: number

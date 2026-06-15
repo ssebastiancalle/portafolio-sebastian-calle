@@ -8,9 +8,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   const { id } = await params;
-  const { visibility } = await req.json() as { visibility: string };
+  const body = await req.json() as { visibility?: string; alt?: string };
 
-  const { error } = await supabaseAdmin.from("photos").update({ visibility }).eq("id", id);
+  const update: Record<string, unknown> = {};
+  if (body.visibility !== undefined) update.visibility = body.visibility;
+  if (body.alt !== undefined) update.alt = body.alt;
+
+  const { error } = await supabaseAdmin.from("photos").update(update).eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

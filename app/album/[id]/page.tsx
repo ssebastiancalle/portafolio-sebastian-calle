@@ -84,6 +84,7 @@ export default async function AlbumPage({ params }: Props) {
       description: supabaseAlbum.description ?? undefined,
       url: `https://sebastiancalle.com/album/${id}`,
       author: { "@type": "Person", name: "Sebastian Calle", url: "https://sebastiancalle.com" },
+      ...(supabaseAlbum.location ? { locationCreated: { "@type": "Place", name: supabaseAlbum.location } } : {}),
       image: rawPhotos.slice(0, 6).map((p) => ({
         "@type": "ImageObject",
         url: p.url,
