@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -33,7 +33,15 @@ function hasCanvasLayout(photos: LightboxPhoto[]): boolean {
 
 export default function AlbumView({ label, description, albumIndex, totalAlbums, photos, prev, next }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const isCanvas = hasCanvasLayout(photos);
+
+  useEffect(() => {
+    const update = () => setIsMobile(window.innerWidth < 768);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   return (
     <>
@@ -84,8 +92,25 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
           )}
         </motion.div>
 
-        {isCanvas ? (
-          /* ── Canvas layout ── */
+        {isMobile ? (
+          /* ── Mobile: vertical stack, full photos, no crop ── */
+          <div className="px-4 pb-24 flex flex-col gap-3">
+            {photos.map((photo, i) => (
+              <motion.div
+                key={photo.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+                onClick={() => setLightboxIndex(i)}
+                className="cursor-pointer w-full"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photo.url} alt={photo.alt} className="w-full h-auto block" loading={i < 3 ? "eager" : "lazy"} />
+              </motion.div>
+            ))}
+          </div>
+        ) : isCanvas ? (
+          /* ── Canvas layout (desktop only) ── */
           <motion.div
             className="px-6 md:px-10 pb-24"
             initial={{ opacity: 0 }}
