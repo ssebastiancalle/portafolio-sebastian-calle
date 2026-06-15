@@ -900,53 +900,59 @@ export default function AdminAlbumPage() {
       {/* Info panel */}
       {showInfo && (
         <div style={{ borderBottom: "1px solid var(--border)", padding: isMobile ? "12px 16px" : "16px 24px", background: "var(--bg-surface)", flexShrink: 0 }}>
-          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 20, alignItems: "flex-start" }}>
-            <div style={{ width: isMobile ? "100%" : 220, flexShrink: 0 }}>
-              <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Nombre del álbum</p>
-              <input
-                value={localName}
-                onChange={e => setLocalName(e.target.value)}
-                className="font-mono w-full"
-                style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 16 }}
-              />
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {/* Row 1: nombre, ubicación, alt */}
+            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 10 : 16 }}>
+              <div style={{ flex: 1 }}>
+                <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Nombre del álbum</p>
+                <input
+                  value={localName}
+                  onChange={e => setLocalName(e.target.value)}
+                  className="font-mono w-full"
+                  style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 14 }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Ubicación (ciudad, país)</p>
+                <input
+                  value={localLocation}
+                  onChange={e => setLocalLocation(e.target.value)}
+                  placeholder="Barcelona, España"
+                  className="font-mono w-full"
+                  style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 14 }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Alt text (SEO)</p>
+                <input
+                  value={localAlt}
+                  onChange={e => setLocalAlt(e.target.value)}
+                  placeholder="Fashion shoot, Barcelona 2024"
+                  className="font-mono w-full"
+                  style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 14 }}
+                />
+              </div>
             </div>
-            <div style={{ width: isMobile ? "100%" : 200, flexShrink: 0 }}>
-              <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Ubicación (ciudad, país)</p>
-              <input
-                value={localLocation}
-                onChange={e => setLocalLocation(e.target.value)}
-                placeholder="Barcelona, España"
-                className="font-mono w-full"
-                style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 13 }}
-              />
-            </div>
-            <div style={{ width: isMobile ? "100%" : 260, flexShrink: 0 }}>
-              <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Alt text (SEO)</p>
-              <input
-                value={localAlt}
-                onChange={e => setLocalAlt(e.target.value)}
-                placeholder="Fashion shoot, Barcelona 2024"
-                className="font-mono w-full"
-                style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 13 }}
-              />
-            </div>
-            <div style={{ flex: 1, width: isMobile ? "100%" : undefined }}>
-              <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Pie de foto (soporta <strong>negrita</strong>, <em>cursiva</em> y @handles)</p>
-              <RichTextEditor
-                defaultValue={descriptionHtml}
-                onChange={setDescriptionHtml}
-                placeholder="SILHOUETTE – COVER FEATURE&#10;SELIN MAGAZINE | Issue 65..."
-              />
-            </div>
-            <div style={{ paddingTop: isMobile ? 0 : 18, flexShrink: 0, width: isMobile ? "100%" : undefined }}>
-              <button
-                onClick={saveInfo}
-                disabled={savingInfo}
-                className="font-mono text-[10px] tracking-[0.25em] uppercase px-5 py-2 transition-opacity hover:opacity-70 disabled:opacity-40"
-                style={{ background: "var(--text)", color: "var(--bg)", border: "none", cursor: "pointer", width: isMobile ? "100%" : undefined, minHeight: 40 }}
-              >
-                {savingInfo ? "..." : "Guardar"}
-              </button>
+            {/* Row 2: descripción + guardar */}
+            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 10 : 16, alignItems: "flex-end" }}>
+              <div style={{ flex: 1 }}>
+                <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Pie de foto (soporta <strong>negrita</strong>, <em>cursiva</em> y @handles)</p>
+                <RichTextEditor
+                  defaultValue={descriptionHtml}
+                  onChange={setDescriptionHtml}
+                  placeholder="SILHOUETTE – COVER FEATURE&#10;SELIN MAGAZINE | Issue 65..."
+                />
+              </div>
+              <div style={{ flexShrink: 0, width: isMobile ? "100%" : undefined }}>
+                <button
+                  onClick={saveInfo}
+                  disabled={savingInfo}
+                  className="font-mono text-[10px] tracking-[0.25em] uppercase px-5 py-2 transition-opacity hover:opacity-70 disabled:opacity-40"
+                  style={{ background: "var(--text)", color: "var(--bg)", border: "none", cursor: "pointer", width: isMobile ? "100%" : undefined, minHeight: 40 }}
+                >
+                  {savingInfo ? "..." : "Guardar"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
