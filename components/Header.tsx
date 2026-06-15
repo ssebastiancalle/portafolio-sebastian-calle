@@ -57,9 +57,10 @@ export default function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`font-mono text-xs tracking-widest uppercase transition-colors duration-200 relative ${
-                  active ? "text-white" : "text-[#555] hover:text-[#999]"
-                }`}
+                className="font-mono text-xs tracking-widest uppercase transition-colors duration-200 relative"
+                style={{ color: active ? "var(--text)" : "rgba(var(--header-border), 0.6)" }}
+                onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.color = "rgba(var(--header-border), 0.9)"; }}
+                onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.color = "rgba(var(--header-border), 0.6)"; }}
               >
                 {item.label}
                 {active && (
@@ -124,7 +125,7 @@ export default function Header() {
                       style={{
                         color: active
                           ? "var(--text)"
-                          : "rgba(var(--header-border), 0.18)",
+                          : "rgba(var(--header-border), 0.45)",
                       }}
                     >
                       {item.label}
