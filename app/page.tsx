@@ -19,8 +19,18 @@ export default async function Home() {
         }))
     : [];
 
+  const firstCover = albums[0]?.coverUrl;
+
   return (
     <>
+      {firstCover && (
+        <link
+          rel="preload"
+          as="image"
+          href={`/_next/image?url=${encodeURIComponent(firstCover)}&w=828&q=75`}
+          fetchPriority="high"
+        />
+      )}
       <Header />
       <HomeCarousel albums={albums.length > 0 ? albums : undefined} />
     </>
