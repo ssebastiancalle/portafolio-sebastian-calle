@@ -106,6 +106,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${spaceMono.variable} ${ibmPlexMono.variable} ${playfair.variable}`}>
       <head>
+        <link rel="preconnect" href="https://hmcrootsgfjqvlvdepnp.supabase.co" />
+        <link rel="dns-prefetch" href="https://hmcrootsgfjqvlvdepnp.supabase.co" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
