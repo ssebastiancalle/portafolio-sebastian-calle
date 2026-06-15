@@ -140,6 +140,29 @@ export default function Lightbox({ photos, index, onClose, onChange, description
         )}
       </div>
 
+      {/* Dot indicators */}
+      {photos.length > 1 && (
+        <div className="flex items-center justify-center gap-2 py-4 flex-shrink-0">
+          {photos.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => onChange(i)}
+              aria-label={`Go to photo ${i + 1}`}
+              style={{
+                width: i === index ? 20 : 6,
+                height: 6,
+                borderRadius: 3,
+                background: i === index ? "#fff" : "rgba(255,255,255,0.3)",
+                transition: "all 0.3s ease",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
     </motion.div>
   );
 }
