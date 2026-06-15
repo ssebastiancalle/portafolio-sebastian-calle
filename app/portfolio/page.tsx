@@ -6,11 +6,11 @@ import Header from "@/components/Header";
 export const metadata: Metadata = {
   title: "Photography Portfolio",
   description:
-    "Browse Sebastian Calle's photography portfolio — fashion, portrait, and editorial work from Buenos Aires to Barcelona.",
+    "Explore Sebastian Calle's fashion, portrait, and editorial photography portfolio. Commercial and artistic work spanning Buenos Aires and Barcelona.",
   openGraph: {
     title: "Photography Portfolio | Sebastian Calle",
     description:
-      "Browse Sebastian Calle's photography portfolio — fashion, portrait, and editorial work from Buenos Aires to Barcelona.",
+      "Explore Sebastian Calle's fashion, portrait, and editorial photography portfolio. Commercial and artistic work spanning Buenos Aires and Barcelona.",
     url: "https://sebastiancalle.com/portfolio",
   },
 };

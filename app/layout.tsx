@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     template: "%s | Sebastian Calle",
   },
   description:
-    "Professional photographer and retoucher based in Barcelona. Fashion, portrait, and editorial photography portfolio by Sebastian Calle.",
+    "Sebastian Calle is a fashion, portrait, and editorial photographer and retoucher based in Barcelona. Explore his photography and retouching portfolio.",
   keywords: [
     "Sebastian Calle",
     "Sebastian Calle photographer",

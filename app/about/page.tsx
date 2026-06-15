@@ -5,11 +5,11 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 export const metadata: Metadata = {
   title: "About Sebastian Calle",
   description:
-    "Fashion, portrait, and editorial photographer born in Buenos Aires, based in Barcelona. Bold contrasts, deep shadows, cinematic strength.",
+    "Sebastian Calle is a fashion and editorial photographer and retoucher born in Buenos Aires, based in Barcelona. Known for bold contrasts, deep shadows, and cinematic portraits.",
   openGraph: {
     title: "About Sebastian Calle | Photographer & Retoucher",
     description:
-      "Fashion, portrait, and editorial photographer born in Buenos Aires, based in Barcelona. Bold contrasts, deep shadows, cinematic strength.",
+      "Sebastian Calle is a fashion and editorial photographer and retoucher born in Buenos Aires, based in Barcelona. Known for bold contrasts, deep shadows, and cinematic portraits.",
     url: "https://sebastiancalle.com/about",
   },
 };
