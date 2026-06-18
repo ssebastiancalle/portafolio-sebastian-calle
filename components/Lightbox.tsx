@@ -32,7 +32,7 @@ export default function Lightbox({ photos, index, onClose, onChange, description
   const [fullHeight, setFullHeight] = useState(0);
   const descRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { setExpanded(false); }, [index]);
+  useEffect(() => { setExpanded(false); x.set(0); }, [index, x]);
 
   useEffect(() => {
     if (descRef.current) setFullHeight(descRef.current.scrollHeight);
