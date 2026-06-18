@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useState, useRef } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import type { LightboxPhoto } from "@/lib/types";
 import { BLUR_DATA_URL } from "@/lib/blur";
@@ -26,13 +26,12 @@ const COLLAPSED_H = 44;
 
 export default function Lightbox({ photos, index, onClose, onChange, description }: LightboxProps) {
   const photo = photos[index];
-  const x = useMotionValue(0);
-  const opacity = useTransform(x, [-200, 0, 200], [0.4, 1, 0.4]);
+  const swipeStartX = useRef<number>(0);
   const [expanded, setExpanded] = useState(false);
   const [fullHeight, setFullHeight] = useState(0);
   const descRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { setExpanded(false); x.set(0); }, [index, x]);
+  useEffect(() => { setExpanded(false); }, [index]);
 
   useEffect(() => {
     if (descRef.current) setFullHeight(descRef.current.scrollHeight);
@@ -87,18 +86,16 @@ export default function Lightbox({ photos, index, onClose, onChange, description
 
       {/* Photo area */}
       <div className="flex-1 relative flex items-center justify-center overflow-hidden px-4">
-        {/* Swipe detection overlay — invisible, handles drag without moving photos */}
-        <motion.div
+        {/* Swipe detection overlay — pointer events, no drag */}
+        <div
           className="absolute inset-0 z-10"
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.08}
-          dragMomentum={false}
-          onDragEnd={(_, info) => {
-            if (info.offset.x < -SWIPE_THRESHOLD) next();
-            else if (info.offset.x > SWIPE_THRESHOLD) prev();
-          }}
           style={{ touchAction: "pan-y" }}
+          onPointerDown={(e) => { swipeStartX.current = e.clientX; }}
+          onPointerUp={(e) => {
+            const diff = e.clientX - swipeStartX.current;
+            if (diff < -SWIPE_THRESHOLD) next();
+            else if (diff > SWIPE_THRESHOLD) prev();
+          }}
         />
 
         <AnimatePresence mode="wait" initial={false}>
