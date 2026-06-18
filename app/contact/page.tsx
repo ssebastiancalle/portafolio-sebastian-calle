@@ -31,7 +31,7 @@ export default function ContactPage() {
                 href={link.href}
                 target={link.href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className="group py-6 border-b w-full text-center transition-colors duration-300"
+                className="group py-3 border-b w-full text-center transition-colors duration-300"
                 style={{ borderColor: "var(--border)" }}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
