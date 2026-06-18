@@ -87,19 +87,24 @@ export default function Lightbox({ photos, index, onClose, onChange, description
 
       {/* Photo area */}
       <div className="flex-1 relative flex items-center justify-center overflow-hidden px-4">
+        {/* Swipe detection overlay — invisible, handles drag without moving photos */}
+        <motion.div
+          className="absolute inset-0 z-10"
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.08}
+          dragMomentum={false}
+          onDragEnd={(_, info) => {
+            if (info.offset.x < -SWIPE_THRESHOLD) next();
+            else if (info.offset.x > SWIPE_THRESHOLD) prev();
+          }}
+          style={{ touchAction: "pan-y" }}
+        />
+
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={index}
             className="relative w-full h-full"
-            style={{ x, opacity }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.15}
-            onDragEnd={(_, info) => {
-              if (info.offset.x < -SWIPE_THRESHOLD) next();
-              else if (info.offset.x > SWIPE_THRESHOLD) prev();
-              x.set(0);
-            }}
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.97 }}
@@ -123,7 +128,7 @@ export default function Lightbox({ photos, index, onClose, onChange, description
         {index > 0 && (
           <button
             onClick={prev}
-            className="absolute left-0 top-0 h-full w-1/4 cursor-w-resize opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center pl-6 group"
+            className="absolute left-0 top-0 h-full w-1/4 cursor-w-resize opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center pl-6 group z-20"
             aria-label="Previous"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" className="text-white/60 group-hover:text-white transition-colors"><polygon points="16,4 8,12 16,20" fill="currentColor" /></svg>
@@ -132,7 +137,7 @@ export default function Lightbox({ photos, index, onClose, onChange, description
         {index < photos.length - 1 && (
           <button
             onClick={next}
-            className="absolute right-0 top-0 h-full w-1/4 cursor-e-resize opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-end pr-6 group"
+            className="absolute right-0 top-0 h-full w-1/4 cursor-e-resize opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-end pr-6 group z-20"
             aria-label="Next"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" className="text-white/60 group-hover:text-white transition-colors"><polygon points="8,4 16,12 8,20" fill="currentColor" /></svg>
