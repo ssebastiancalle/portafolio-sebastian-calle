@@ -14,7 +14,7 @@ interface LightboxProps {
   description?: string;
 }
 
-const SWIPE_THRESHOLD = 60;
+const SWIPE_THRESHOLD = 30;
 
 function linkifyDescription(html: string): string {
   return html.replace(/@([\w.]+)/g, (_, h) =>
