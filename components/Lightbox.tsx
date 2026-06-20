@@ -85,18 +85,16 @@ export default function Lightbox({ photos, index, onClose, onChange, description
       </div>
 
       {/* Photo area */}
-      <div className="flex-1 relative flex items-center justify-center overflow-hidden px-4">
-        {/* Swipe detection overlay — pointer events, no drag */}
-        <div
-          className="absolute inset-0 z-10"
-          style={{ touchAction: "pan-y" }}
-          onPointerDown={(e) => { swipeStartX.current = e.clientX; }}
-          onPointerUp={(e) => {
-            const diff = e.clientX - swipeStartX.current;
-            if (diff < -SWIPE_THRESHOLD) next();
-            else if (diff > SWIPE_THRESHOLD) prev();
-          }}
-        />
+      <div
+        className="flex-1 relative flex items-center justify-center overflow-hidden px-4"
+        style={{ touchAction: "pan-y" }}
+        onPointerDown={(e) => { swipeStartX.current = e.clientX; }}
+        onPointerUp={(e) => {
+          const diff = e.clientX - swipeStartX.current;
+          if (diff < -SWIPE_THRESHOLD) next();
+          else if (diff > SWIPE_THRESHOLD) prev();
+        }}
+      >
 
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
