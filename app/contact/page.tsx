@@ -31,14 +31,14 @@ export default function ContactPage() {
                 href={link.href}
                 target={link.href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className="group py-5 border-b flex items-center justify-between transition-colors duration-300"
+                className="group py-5 border-b flex items-center justify-between transition-colors duration-300 hover:bg-white/5 px-2 -mx-2"
                 style={{ borderColor: "var(--border)" }}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
               >
                 <span
-                  className="font-mono text-2xl md:text-4xl tracking-tighter uppercase font-bold group-hover:tracking-widest transition-all duration-300 inline-block"
+                  className="font-mono text-2xl md:text-4xl tracking-tighter uppercase font-bold transition-colors duration-300 inline-block"
                   style={{ color: "var(--text)" }}
                 >
                   {link.label}
