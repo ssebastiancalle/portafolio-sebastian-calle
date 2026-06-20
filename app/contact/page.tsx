@@ -24,14 +24,15 @@ export default function ContactPage() {
             Contact
           </motion.p>
 
-          <div className="flex flex-row justify-center items-start gap-20">
+          <div className="flex flex-col">
             {LINKS.map((link, i) => (
               <motion.a
                 key={link.label}
                 href={link.href}
                 target={link.href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className="group flex flex-col items-center text-center transition-colors duration-300"
+                className="group py-5 border-b flex items-center justify-between transition-colors duration-300"
+                style={{ borderColor: "var(--border)" }}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
@@ -42,9 +43,9 @@ export default function ContactPage() {
                 >
                   {link.label}
                 </span>
-                <p className="font-mono text-[11px] tracking-[0.2em] mt-1" style={{ color: "var(--text-4)" }}>
+                <span className="font-mono text-[11px] tracking-[0.2em]" style={{ color: "var(--text-4)" }}>
                   {link.sub}
-                </p>
+                </span>
               </motion.a>
             ))}
           </div>
