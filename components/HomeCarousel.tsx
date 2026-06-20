@@ -9,10 +9,11 @@ import type { AlbumSlim } from "@/lib/types";
 import { BLUR_DATA_URL } from "@/lib/blur";
 
 const SWIPE_THRESHOLD = 50;
-const SLIDE_VW = 80;
-const PEEK_VW  = 8;
-const GAP_VW   = 4;
-const STEP_VW  = SLIDE_VW + GAP_VW;
+const SLIDE_VW  = 80;
+const CENTER_VW = (100 - SLIDE_VW) / 2; // 10vw — centers the main slide
+const GAP_VW    = 4;
+const STEP_VW   = SLIDE_VW + GAP_VW;
+const PEEK_VW   = 8; // desktop only
 
 interface Props {
   albums?: AlbumSlim[];
@@ -73,7 +74,7 @@ export default function HomeCarousel({ albums }: Props) {
             <motion.div
               key={prevItem.id + "-prev"}
               className="absolute top-0 h-full overflow-hidden opacity-40"
-              style={{ width: `${SLIDE_VW}vw`, left: `${PEEK_VW - STEP_VW}vw` }}
+              style={{ width: `${SLIDE_VW}vw`, left: `${CENTER_VW - STEP_VW}vw` }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.4 }}
               exit={{ opacity: 0 }}
@@ -88,7 +89,7 @@ export default function HomeCarousel({ albums }: Props) {
             <motion.div
               key={index}
               className="absolute top-0 h-full overflow-hidden"
-              style={{ width: `${SLIDE_VW}vw`, left: `${PEEK_VW}vw` }}
+              style={{ width: `${SLIDE_VW}vw`, left: `${CENTER_VW}vw` }}
               initial={{ opacity: 0, x: dir > 0 ? 40 : -40 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: dir > 0 ? -40 : 40 }}
@@ -112,7 +113,7 @@ export default function HomeCarousel({ albums }: Props) {
             <motion.div
               key={nextItem.id + "-next"}
               className="absolute top-0 h-full overflow-hidden opacity-40"
-              style={{ width: `${SLIDE_VW}vw`, left: `${PEEK_VW + STEP_VW}vw` }}
+              style={{ width: `${SLIDE_VW}vw`, left: `${CENTER_VW + STEP_VW}vw` }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.4 }}
               exit={{ opacity: 0 }}
