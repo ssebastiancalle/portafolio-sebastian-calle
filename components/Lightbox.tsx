@@ -38,11 +38,11 @@ export default function Lightbox({ photos, index, onClose, onChange, description
   }, [description]);
 
   const prev = useCallback(() => {
-    if (index > 0) onChange(index - 1);
-  }, [index, onChange]);
+    onChange(index === 0 ? photos.length - 1 : index - 1);
+  }, [index, photos.length, onChange]);
 
   const next = useCallback(() => {
-    if (index < photos.length - 1) onChange(index + 1);
+    onChange(index === photos.length - 1 ? 0 : index + 1);
   }, [index, photos.length, onChange]);
 
   useEffect(() => {
