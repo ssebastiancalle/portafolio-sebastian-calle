@@ -24,14 +24,14 @@ export default function ContactPage() {
             Contact
           </motion.p>
 
-          <div className="flex flex-col w-full">
+          <div className="flex flex-col items-center">
             {LINKS.map((link, i) => (
               <motion.a
                 key={link.label}
                 href={link.href}
                 target={link.href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className="group py-5 border-b flex items-center justify-between transition-colors duration-300 hover:bg-white/5"
+                className="group py-5 border-b flex items-center gap-[60px] transition-colors duration-300 hover:bg-white/5 px-2"
                 style={{ borderColor: "var(--border)" }}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
