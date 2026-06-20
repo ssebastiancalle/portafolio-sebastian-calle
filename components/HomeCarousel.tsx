@@ -52,6 +52,10 @@ export default function HomeCarousel({ albums }: Props) {
 
   /* ── Mobile ── */
   if (isMobile) {
+    const prevItem = items[(index - 1 + total) % total];
+    const currItem = items[index];
+    const nextItem = items[(index + 1) % total];
+
     return (
       <div className="relative w-full flex flex-col bg-black" style={{ height: "100svh", paddingTop: "64px" }}>
         <div
@@ -64,41 +68,39 @@ export default function HomeCarousel({ albums }: Props) {
             else if (diff > SWIPE_THRESHOLD) go(-1);
           }}
         >
-          <motion.div
-            className="absolute top-0 left-0 flex h-full"
-            animate={{ x: `${PEEK_VW - index * STEP_VW}vw` }}
-            transition={{ type: "spring", stiffness: 360, damping: 36, mass: 0.85 }}
-            style={{ gap: `${GAP_VW}vw` }}
-          >
-            {items.map((item, i) => {
-              const isCurrent = i === index;
-              return (
-                <motion.div
-                  key={item.id}
-                  className="relative flex-shrink-0 h-full overflow-hidden"
-                  style={{ width: `${SLIDE_VW}vw` }}
-                  animate={{ opacity: isCurrent ? 1 : 0.4, scale: isCurrent ? 1 : 0.94 }}
-                  transition={{ duration: 0.3 }}
-                  onClick={() => !isCurrent && go(i > index ? 1 : -1)}
-                >
-                  <Image src={item.coverUrl} alt={item.label} fill sizes="(max-width: 768px) 100vw, 80vw" className="object-contain" draggable={false} priority={isCurrent} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
-                  {isCurrent && (
-                    <>
-                      <Link href={`/album/${item.id}`} className="absolute inset-0 z-10" aria-label={item.label} />
-                      <div className="absolute bottom-0 left-0 right-0 p-5 z-20 pointer-events-none" style={{ background: "linear-gradient(to top, var(--bg), transparent)" }}>
-                        <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>
-                          {String(item.photoCount).padStart(2, "0")} IMAGES
-                        </p>
-                        <p className="font-mono text-base tracking-widest uppercase font-bold" style={{ color: "var(--text)" }}>
-                          {item.label}
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </motion.div>
-              );
-            })}
-          </motion.div>
+          {/* Prev peek */}
+          <div className="absolute top-0 h-full overflow-hidden opacity-40" style={{ width: `${SLIDE_VW}vw`, left: `${PEEK_VW - STEP_VW}vw` }}>
+            <Image src={prevItem.coverUrl} alt={prevItem.label} fill sizes="80vw" className="object-contain" draggable={false} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
+          </div>
+
+          {/* Current */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={index}
+              className="absolute top-0 h-full overflow-hidden"
+              style={{ width: `${SLIDE_VW}vw`, left: `${PEEK_VW}vw` }}
+              initial={{ opacity: 0, x: dir > 0 ? 40 : -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: dir > 0 ? -40 : 40 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Image src={currItem.coverUrl} alt={currItem.label} fill sizes="80vw" className="object-contain" draggable={false} priority placeholder="blur" blurDataURL={BLUR_DATA_URL} />
+              <Link href={`/album/${currItem.id}`} className="absolute inset-0 z-10" aria-label={currItem.label} />
+              <div className="absolute bottom-0 left-0 right-0 p-5 z-20 pointer-events-none" style={{ background: "linear-gradient(to top, var(--bg), transparent)" }}>
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>
+                  {String(currItem.photoCount).padStart(2, "0")} IMAGES
+                </p>
+                <p className="font-mono text-base tracking-widest uppercase font-bold" style={{ color: "var(--text)" }}>
+                  {currItem.label}
+                </p>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Next peek */}
+          <div className="absolute top-0 h-full overflow-hidden opacity-40" style={{ width: `${SLIDE_VW}vw`, left: `${PEEK_VW + STEP_VW}vw` }}>
+            <Image src={nextItem.coverUrl} alt={nextItem.label} fill sizes="80vw" className="object-contain" draggable={false} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
+          </div>
         </div>
 
         <div className="flex flex-col items-center pb-4 pt-2 gap-1" style={{ background: "var(--bg)" }}>
