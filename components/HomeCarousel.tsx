@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,6 +22,7 @@ export default function HomeCarousel({ albums }: Props) {
   const [index, setIndex]       = useState(0);
   const [dir, setDir]           = useState(1);
   const [isMobile, setIsMobile] = useState(false);
+  const swipeStartX = useRef(0);
 
   useEffect(() => {
     const update = () => setIsMobile(window.innerWidth < 768);
@@ -53,22 +54,21 @@ export default function HomeCarousel({ albums }: Props) {
   if (isMobile) {
     return (
       <div className="relative w-full flex flex-col bg-black" style={{ height: "100svh", paddingTop: "64px" }}>
-        <div className="relative flex-1 overflow-hidden">
+        <div
+          className="relative flex-1 overflow-hidden"
+          style={{ touchAction: "pan-y" }}
+          onPointerDown={(e) => { swipeStartX.current = e.clientX; }}
+          onPointerUp={(e) => {
+            const diff = e.clientX - swipeStartX.current;
+            if (diff < -SWIPE_THRESHOLD) go(1);
+            else if (diff > SWIPE_THRESHOLD) go(-1);
+          }}
+        >
           <motion.div
             className="absolute top-0 left-0 flex h-full"
             animate={{ x: `${PEEK_VW - index * STEP_VW}vw` }}
             transition={{ type: "spring", stiffness: 360, damping: 36, mass: 0.85 }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.25}
-            dragMomentum={false}
-            style={{ touchAction: "pan-y", gap: `${GAP_VW}vw` }}
-            onDragEnd={(_, info) => {
-              const swipedFar = info.offset.x < -SWIPE_THRESHOLD || info.offset.x > SWIPE_THRESHOLD;
-              const swipedFast = Math.abs(info.velocity.x) > 300;
-              if (info.offset.x < 0 && (swipedFar || swipedFast)) go(1);
-              else if (info.offset.x > 0 && (swipedFar || swipedFast)) go(-1);
-            }}
+            style={{ gap: `${GAP_VW}vw` }}
           >
             {items.map((item, i) => {
               const isCurrent = i === index;
