@@ -69,9 +69,19 @@ export default function HomeCarousel({ albums }: Props) {
           }}
         >
           {/* Prev peek */}
-          <div className="absolute top-0 h-full overflow-hidden opacity-40" style={{ width: `${SLIDE_VW}vw`, left: `${PEEK_VW - STEP_VW}vw` }}>
-            <Image src={prevItem.coverUrl} alt={prevItem.label} fill sizes="80vw" className="object-contain" draggable={false} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={prevItem.id + "-prev"}
+              className="absolute top-0 h-full overflow-hidden opacity-40"
+              style={{ width: `${SLIDE_VW}vw`, left: `${PEEK_VW - STEP_VW}vw` }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Image src={prevItem.coverUrl} alt={prevItem.label} fill sizes="80vw" className="object-contain" draggable={false} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
+            </motion.div>
+          </AnimatePresence>
 
           {/* Current */}
           <AnimatePresence mode="wait" initial={false}>
@@ -98,9 +108,19 @@ export default function HomeCarousel({ albums }: Props) {
           </AnimatePresence>
 
           {/* Next peek */}
-          <div className="absolute top-0 h-full overflow-hidden opacity-40" style={{ width: `${SLIDE_VW}vw`, left: `${PEEK_VW + STEP_VW}vw` }}>
-            <Image src={nextItem.coverUrl} alt={nextItem.label} fill sizes="80vw" className="object-contain" draggable={false} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={nextItem.id + "-next"}
+              className="absolute top-0 h-full overflow-hidden opacity-40"
+              style={{ width: `${SLIDE_VW}vw`, left: `${PEEK_VW + STEP_VW}vw` }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Image src={nextItem.coverUrl} alt={nextItem.label} fill sizes="80vw" className="object-contain" draggable={false} placeholder="blur" blurDataURL={BLUR_DATA_URL} />
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         <div className="flex flex-col items-center pb-4 pt-2 gap-1" style={{ background: "var(--bg)" }}>
