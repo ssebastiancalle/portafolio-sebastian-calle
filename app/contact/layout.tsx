@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Book a Session",
+  title: "Contact",
   description:
     "Book Sebastian Calle for fashion, portrait, or editorial photography and retouching. Available for sessions in Barcelona, Spain, and international assignments.",
   openGraph: {
