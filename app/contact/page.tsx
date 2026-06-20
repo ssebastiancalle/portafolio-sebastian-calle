@@ -43,6 +43,9 @@ export default function ContactPage() {
                 >
                   {link.label}
                 </span>
+                <p className="font-mono text-[11px] tracking-[0.2em] mt-1" style={{ color: "var(--text-4)" }}>
+                  {link.sub}
+                </p>
               </motion.a>
             ))}
           </div>
