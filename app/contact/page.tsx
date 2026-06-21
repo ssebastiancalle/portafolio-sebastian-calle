@@ -25,7 +25,7 @@ export default function ContactPage() {
             Contact
           </motion.p>
 
-<div className="flex flex-col items-center">
+<div className="flex flex-col w-full max-w-2xl mx-auto">
               {LINKS.map((link, i) => (
               <motion.a
                 key={link.label}
