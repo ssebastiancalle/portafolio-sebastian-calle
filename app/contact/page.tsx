@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 const LINKS = [
   { label: "Instagram", href: "https://www.instagram.com/ssebastiancalle/",                        sub: "@ssebastiancalle" },
   { label: "E-mail",    href: "mailto:hello@sebastiancalle.com",                                   sub: "hello@sebastiancalle.com" },
-  { label: "LinkedIn",  href: "https://www.linkedin.com/in/ssebastiancalle",                       sub: "ssebastiancalle" },
+  { label: "LinkedIn",  href: "https://www.linkedin.com/in/ssebastiancalle/",                      sub: "ssebastiancalle" },
 ];
 
 export default function ContactPage() {
@@ -32,7 +32,7 @@ export default function ContactPage() {
                 href={link.href}
                 target={link.href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className="group relative py-5 w-full flex items-center justify-between transition-colors duration-300"
+                className="group relative py-5 px-20 w-full flex items-center justify-between transition-colors duration-300"
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
