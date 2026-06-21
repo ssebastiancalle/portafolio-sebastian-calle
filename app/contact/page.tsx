@@ -43,7 +43,7 @@ export default function ContactPage() {
                   style={{ background: "linear-gradient(to right, var(--bg) 0%, transparent 20%, transparent 80%, var(--bg) 100%)" }}
                 />
                 <span
-                  className="relative font-mono text-2xl md:text-4xl tracking-tighter uppercase font-bold transition-colors duration-300 inline-block"
+                  className="relative font-mono text-2xl md:text-4xl tracking-tighter uppercase font-bold transition-all duration-300 inline-block group-hover:opacity-50"
                   style={{ color: "var(--text)" }}
                 >
                   {link.label}
