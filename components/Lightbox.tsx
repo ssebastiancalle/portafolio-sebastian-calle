@@ -71,13 +71,13 @@ export default function Lightbox({ photos, index, onClose, onChange, description
     >
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 py-5 flex-shrink-0">
-        <span className="font-mono text-[11px] tracking-[0.3em] uppercase select-none" style={{ color: "#888" }}>
+        <span className="font-mono text-[11px] tracking-[0.3em] uppercase select-none" style={{ color: "var(--text)" }}>
           {String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}
         </span>
         <button
           onClick={onClose}
-          className="font-mono text-[11px] tracking-[0.3em] uppercase hover:text-white transition-colors duration-200 cursor-pointer py-2 px-1"
-          style={{ color: "#888", minHeight: 44, minWidth: 44 }}
+          className="font-mono text-[11px] tracking-[0.3em] uppercase transition-colors duration-200 cursor-pointer py-2 px-1"
+          style={{ color: "var(--text)", minHeight: 44, minWidth: 44 }}
           aria-label="Close"
         >
           [ ESC ]

@@ -140,11 +140,11 @@ body::before {
 
 /* ── Theme-aware album bottom nav links ──────────────────── */
 .nav-link-dim {
-  color: rgba(var(--header-border), 0.32);
+  color: var(--text);
   transition: color 0.2s;
 }
 .nav-link-dim:hover {
-  color: rgba(var(--header-border), 0.85);
+  color: var(--text-3);
 }
 
 /* ── Touch / coarse-pointer devices ─────────────────────── */
