@@ -7,6 +7,9 @@ import type { AlbumSlim } from "@/lib/types";
 export default function PortfolioGrid({ albums }: { albums: AlbumSlim[] }) {
   return (
     <main className="min-h-screen pt-24 px-6 md:px-10 pb-16" style={{ background: "var(--bg)" }}>
+      <h1 className="font-mono text-[10px] tracking-[0.35em] uppercase mb-8" style={{ color: "var(--text-4)" }}>
+        Photography Portfolio
+      </h1>
       <div className="[column-count:1] sm:[column-count:2] lg:[column-count:3] [column-gap:12px]">
         {albums.map((album, i) => (
           <AlbumCard key={album.id} album={album} index={i} />

@@ -48,7 +48,6 @@ export default async function PortfolioPage() {
   return (
     <>
       <Header />
-      <h1 className="sr-only">Photography Portfolio — Sebastian Calle</h1>
       <PortfolioGrid albums={albums} />
     </>
   );
