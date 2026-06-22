@@ -74,12 +74,12 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
           <Link
             href="/portfolio"
             className="inline-flex items-center gap-2 font-mono text-xs tracking-[0.3em] uppercase mb-4 transition-opacity hover:opacity-60"
-            style={{ color: "var(--text-4)" }}
+            style={{ color: "var(--text)" }}
           >
             <svg width="10" height="10" viewBox="0 0 24 24"><polygon points="16,4 8,12 16,20" fill="currentColor" /></svg>
             PORTFOLIO
           </Link>
-          <p className="font-mono text-xs tracking-[0.35em] uppercase mb-1" style={{ color: "var(--text-3)" }}>
+          <p className="font-mono text-xs tracking-[0.35em] uppercase mb-1" style={{ color: "var(--text)" }}>
             {String(albumIndex + 1).padStart(2, "0")} / {String(totalAlbums).padStart(2, "0")}
           </p>
           <h1 className="font-mono text-3xl md:text-5xl tracking-tighter uppercase font-bold" style={{ color: "var(--text)" }}>
@@ -88,7 +88,7 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
           {description && (
             <div
               className="font-mono text-sm leading-relaxed mt-2"
-              style={{ color: "var(--text-3)", wordBreak: "break-word" }}
+              style={{ color: "var(--text)", wordBreak: "break-word" }}
               dangerouslySetInnerHTML={{
                 __html: description.replace(/\n/g, "<br>").replace(/@([\w.]+)/g, (_, h) =>
                   `<a href="https://instagram.com/${h}" target="_blank" rel="noopener noreferrer" style="color:#e1aa6e;text-decoration:underline;text-underline-offset:3px;font-weight:600;cursor:pointer">@${h}</a>`
