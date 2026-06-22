@@ -22,10 +22,10 @@ export default function ContactPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             >
-              <h1 className="font-mono text-2xl md:text-3xl tracking-tighter uppercase font-bold mb-3" style={{ color: "var(--text)" }}>
+              <h1 className="font-mono text-2xl md:text-3xl tracking-tighter uppercase font-bold mb-3 text-center" style={{ color: "var(--text)" }}>
                 Ready to book a session?
               </h1>
-              <p className="font-mono text-[11px] tracking-[0.15em]" style={{ color: "var(--text-4)" }}>
+              <p className="font-mono text-[11px] tracking-[0.15em] text-center" style={{ color: "var(--text-4)" }}>
                 Get in touch via email or social media to discuss bookings, projects, and availability.
               </p>
             </motion.div>
