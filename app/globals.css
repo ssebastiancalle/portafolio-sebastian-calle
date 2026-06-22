@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .font-mono {
+    font-family: var(--font-poppins), sans-serif !important;
+    font-weight: 300;
+  }
+}
+
 /* ── Theme variables ─────────────────────────────────────── */
 :root {
   --font-space-mono: 'Space Mono', monospace;
