@@ -35,7 +35,7 @@ export default function Header() {
               Sebastian Calle
             </span>
             <span className="font-mono uppercase tracking-[0.2em]"
-                  style={{ fontSize: "clamp(0.5rem, 1vw, 0.6rem)", color: "rgba(var(--header-border), 0.4)" }}>
+                  style={{ fontSize: "clamp(0.65rem, 1vw, 0.75rem)", color: "rgba(var(--header-border), 0.4)" }}>
               Photographer &amp; Retoucher
             </span>
           </div>
@@ -57,7 +57,7 @@ export default function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="font-mono text-xs tracking-widest uppercase transition-colors duration-200 relative"
+                className="font-mono text-sm tracking-widest uppercase transition-colors duration-200 relative"
                 style={{ color: active ? "var(--text)" : "rgba(var(--header-border), 0.6)" }}
                 onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.color = "rgba(var(--header-border), 0.9)"; }}
                 onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.color = "rgba(var(--header-border), 0.6)"; }}
