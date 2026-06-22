@@ -15,20 +15,20 @@ export default function ContactPage() {
       <Header />
       <main className="min-h-screen flex items-center px-6 md:px-16 lg:px-24" style={{ background: "var(--bg)" }}>
         <div className="w-full">
-          <h1 className="font-mono text-[10px] tracking-[0.35em] uppercase mb-2" style={{ color: "var(--text-4)" }}>
-            Ready to book a session?
-          </h1>
-          <motion.p
-            className="font-mono text-[10px] tracking-[0.35em] uppercase mb-8"
-            style={{ color: "var(--text-4)" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-          >
-            Contact
-          </motion.p>
-
-<div className="flex flex-col w-full max-w-2xl mx-auto">
+          <div className="flex flex-col w-full max-w-2xl mx-auto">
+            <motion.div
+              className="mb-10"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <h1 className="font-mono text-2xl md:text-3xl tracking-tighter uppercase font-bold mb-3" style={{ color: "var(--text)" }}>
+                Ready to book a session?
+              </h1>
+              <p className="font-mono text-[11px] tracking-[0.15em]" style={{ color: "var(--text-4)" }}>
+                Get in touch via email or social media to discuss bookings, projects, and availability.
+              </p>
+            </motion.div>
               {LINKS.map((link, i) => (
               <motion.a
                 key={link.label}
