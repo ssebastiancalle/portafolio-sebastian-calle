@@ -152,7 +152,7 @@ export default function Lightbox({ photos, index, onClose, onChange, description
                 width: i === index ? 20 : 6,
                 height: 6,
                 borderRadius: 3,
-                background: i === index ? "#fff" : "rgba(255,255,255,0.3)",
+                background: i === index ? "var(--text)" : "rgba(var(--header-border),0.3)",
                 transition: "all 0.3s ease",
                 border: "none",
                 cursor: "pointer",
