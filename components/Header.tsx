@@ -82,9 +82,9 @@ export default function Header() {
           <button
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Close menu" : "Open menu"}
-            className="font-mono text-[9px] tracking-[0.3em] uppercase transition-colors touch-manipulation"
+            className="transition-colors touch-manipulation"
             style={{
-              color: open ? "rgba(var(--header-border), 0.9)" : "rgba(var(--header-border), 0.4)",
+              color: "var(--text)",
               minWidth: 44,
               minHeight: 44,
               display: "flex",
@@ -92,7 +92,18 @@ export default function Header() {
               justifyContent: "flex-end",
             }}
           >
-            {open ? "CLOSE" : "MENU"}
+            {open ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            )}
           </button>
         </div>
       </motion.header>
