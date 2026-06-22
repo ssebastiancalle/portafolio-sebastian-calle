@@ -45,18 +45,18 @@ export default function AboutContent({ photoUrl }: { photoUrl?: string }) {
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
             <div>
-              <p
+              <h1
                 className="font-mono text-[10px] tracking-[0.35em] uppercase mb-3"
                 style={{ color: "var(--text-4)" }}
               >
-                About
-              </p>
-              <h1
+                About me
+              </h1>
+              <h2
                 className="font-mono text-2xl md:text-3xl tracking-tighter uppercase font-bold leading-tight"
                 style={{ color: "var(--text)" }}
               >
                 Sebastian Calle
-              </h1>
+              </h2>
               <p
                 className="font-mono text-[12px] tracking-[0.2em] uppercase mt-1"
                 style={{ color: "var(--text-3)" }}

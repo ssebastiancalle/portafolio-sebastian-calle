@@ -15,6 +15,7 @@ export default function ContactPage() {
       <Header />
       <main className="min-h-screen flex items-center px-6 md:px-16 lg:px-24" style={{ background: "var(--bg)" }}>
         <div className="w-full">
+          <h1 className="sr-only">Ready to book a session? Get in touch via email or social media to discuss bookings, projects, and availability.</h1>
           <motion.p
             className="font-mono text-[10px] tracking-[0.35em] uppercase mb-8"
             style={{ color: "var(--text-4)" }}
