@@ -25,7 +25,7 @@ export default function ContactPage() {
               <h1 className="font-mono text-2xl md:text-3xl tracking-tighter uppercase font-bold mb-3 text-center" style={{ color: "var(--text)" }}>
                 Ready to book a session?
               </h1>
-              <p className="font-mono text-[11px] tracking-[0.15em] text-center" style={{ color: "var(--text-4)" }}>
+              <p className="font-mono text-[11px] tracking-[0.15em] text-center" style={{ color: "var(--text)" }}>
                 Get in touch via email or social media to discuss bookings, projects, and availability.
               </p>
             </motion.div>
@@ -51,7 +51,7 @@ export default function ContactPage() {
                 >
                   {link.label}
                 </span>
-                <span className="relative font-mono text-[11px] tracking-[0.2em]" style={{ color: "var(--text-4)" }}>
+                <span className="relative font-mono text-[11px] tracking-[0.2em]" style={{ color: "var(--text)" }}>
                   {link.sub}
                 </span>
               </motion.a>
