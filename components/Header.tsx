@@ -30,8 +30,8 @@ export default function Header() {
       >
         {pathname === "/" ? (
           <div className="flex flex-col gap-1">
-            <span className="font-mono font-bold tracking-widest uppercase text-white"
-                  style={{ fontSize: "clamp(1rem, 3vw, 1.75rem)" }}>
+            <span className="font-bold tracking-widest uppercase text-white"
+                  style={{ fontSize: "clamp(1rem, 3vw, 1.75rem)", fontFamily: "var(--font-playfair), serif" }}>
               Sebastian Calle
             </span>
             <span className="font-mono uppercase tracking-[0.2em]"
@@ -42,7 +42,8 @@ export default function Header() {
         ) : (
           <Link
             href="/"
-            className="font-mono text-xs md:text-sm tracking-widest text-white uppercase hover:text-white/70 transition-colors whitespace-nowrap"
+            className="text-xs md:text-sm tracking-widest text-white uppercase hover:text-white/70 transition-colors whitespace-nowrap"
+            style={{ fontFamily: "var(--font-playfair), serif" }}
           >
             SEBASTIAN CALLE
           </Link>

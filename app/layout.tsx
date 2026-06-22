@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
-import { Space_Mono, IBM_Plex_Mono } from "next/font/google";
+import { Space_Mono, IBM_Plex_Mono, Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import { ThemeProvider } from "@/context/theme";
 import CustomCursor from "@/components/CustomCursor";
 import "./globals.css";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300"],
+  variable: "--font-poppins",
+  display: "swap",
+});
 
 const spaceMono = Space_Mono({
   subsets: ["latin"],
@@ -104,7 +111,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${spaceMono.variable} ${ibmPlexMono.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${spaceMono.variable} ${ibmPlexMono.variable} ${playfair.variable} ${poppins.variable}`}>
       <head>
         <link rel="preconnect" href="https://hmcrootsgfjqvlvdepnp.supabase.co" />
         <link rel="dns-prefetch" href="https://hmcrootsgfjqvlvdepnp.supabase.co" />
@@ -113,7 +120,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         />
       </head>
-      <body className="bg-black text-white antialiased" style={{ fontFamily: "var(--font-playfair), serif" }}>
+      <body className="bg-black text-white antialiased" style={{ fontFamily: "var(--font-poppins), sans-serif" }}>
         <ThemeProvider>
           <CustomCursor />
           {children}
