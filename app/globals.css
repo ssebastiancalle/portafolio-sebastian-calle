@@ -143,8 +143,10 @@ body::before {
   color: var(--text);
   transition: color 0.2s;
 }
-.nav-link-dim:hover {
-  color: var(--text-3);
+@media (hover: hover) {
+  .nav-link-dim:hover {
+    color: var(--text-3);
+  }
 }
 
 /* ── Touch / coarse-pointer devices ─────────────────────── */
