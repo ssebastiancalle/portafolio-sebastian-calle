@@ -85,17 +85,6 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
           <h1 className="font-mono text-3xl md:text-5xl tracking-tighter uppercase font-bold" style={{ color: "var(--text)" }}>
             {label}
           </h1>
-          {description && (
-            <div
-              className="font-mono text-sm leading-relaxed mt-2"
-              style={{ color: "var(--text)", wordBreak: "break-word" }}
-              dangerouslySetInnerHTML={{
-                __html: description.replace(/\n/g, "<br>").replace(/@([\w.]+)/g, (_, h) =>
-                  `<a href="https://instagram.com/${h}" target="_blank" rel="noopener noreferrer" style="color:#e1aa6e;text-decoration:underline;text-underline-offset:3px;font-weight:600;cursor:pointer">@${h}</a>`
-                )
-              }}
-            />
-          )}
         </motion.div>
 
         {isMobile ? (
@@ -220,6 +209,26 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
               ))}
             </motion.div>
           </div>
+        )}
+
+        {/* Description */}
+        {description && (
+          <motion.div
+            className="px-6 md:px-10 pt-10 pb-20"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <div
+              className="font-mono text-sm leading-relaxed"
+              style={{ color: "var(--text)", wordBreak: "break-word" }}
+              dangerouslySetInnerHTML={{
+                __html: description.replace(/\n/g, "<br>").replace(/@([\w.]+)/g, (_, h) =>
+                  `<a href="https://instagram.com/${h}" target="_blank" rel="noopener noreferrer" style="color:#e1aa6e;text-decoration:underline;text-underline-offset:3px;font-weight:600;cursor:pointer">@${h}</a>`
+                )
+              }}
+            />
+          </motion.div>
         )}
 
         {/* Bottom nav */}
