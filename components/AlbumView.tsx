@@ -36,6 +36,68 @@ function photoAlt(photo: LightboxPhoto, label: string, index: number): string {
   return `${label} — photograph ${index + 1} by Sebastian Calle`;
 }
 
+function CanvasPhoto({ photo, label, index, onClick }: { photo: LightboxPhoto; label: string; index: number; onClick: () => void }) {
+  const [loaded, setLoaded] = useState(false);
+  const cx = photo.canvas_x ?? 0;
+  const cy = photo.canvas_y ?? 0;
+  const cw = photo.canvas_w ?? 200;
+  const ch = photo.canvas_h ?? 150;
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={loaded ? { opacity: 1 } : { opacity: 0 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      onClick={onClick}
+      className="cursor-pointer group overflow-hidden"
+      style={{
+        position: "absolute",
+        left: `${(cx / CANVAS_W) * 100}%`,
+        top: `${(cy / CANVAS_H) * 100}%`,
+        width: `${(cw / CANVAS_W) * 100}%`,
+        height: `${(ch / CANVAS_H) * 100}%`,
+      }}
+    >
+      <Image
+        src={photo.url}
+        alt={photoAlt(photo, label, index)}
+        fill
+        sizes="(max-width: 768px) 50vw, 30vw"
+        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+        placeholder="blur"
+        blurDataURL={BLUR_DATA_URL}
+        onLoad={() => setLoaded(true)}
+      />
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+    </motion.div>
+  );
+}
+
+function MobilePhoto({ photo, label, index, onClick }: { photo: LightboxPhoto; label: string; index: number; onClick: () => void }) {
+  const [loaded, setLoaded] = useState(false);
+  const [inView, setInView] = useState(false);
+  const visible = loaded && inView;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      onViewportEnter={() => setInView(true)}
+      viewport={{ once: true, margin: "0px 0px -40px 0px" }}
+      onClick={onClick}
+      className="cursor-pointer w-full"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={photo.url}
+        alt={photoAlt(photo, label, index)}
+        className="w-full h-auto block"
+        loading={index < 3 ? "eager" : "lazy"}
+        onLoad={() => setLoaded(true)}
+      />
+    </motion.div>
+  );
+}
+
 export default function AlbumView({ label, description, albumIndex, totalAlbums, photos, prev, next }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -91,17 +153,7 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
           /* ── Mobile: vertical stack, full photos, no crop ── */
           <div className="px-4 pb-24 flex flex-col gap-3">
             {photos.map((photo, i) => (
-              <motion.div
-                key={photo.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.05 }}
-                onClick={() => setLightboxIndex(i)}
-                className="cursor-pointer w-full"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.url} alt={photoAlt(photo, label, i)} className="w-full h-auto block" loading={i < 3 ? "eager" : "lazy"} />
-              </motion.div>
+              <MobilePhoto key={photo.id} photo={photo} label={label} index={i} onClick={() => setLightboxIndex(i)} />
             ))}
           </div>
         ) : isCanvas ? (
@@ -119,40 +171,9 @@ export default function AlbumView({ label, description, albumIndex, totalAlbums,
                 paddingBottom: `${(CANVAS_H / CANVAS_W) * 100}%`,
               }}
             >
-              {photos.map((photo, i) => {
-                const cx = photo.canvas_x ?? 0;
-                const cy = photo.canvas_y ?? 0;
-                const cw = photo.canvas_w ?? 200;
-                const ch = photo.canvas_h ?? 150;
-                return (
-                  <motion.div
-                    key={photo.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.4, delay: 0.05 * i }}
-                    onClick={() => setLightboxIndex(i)}
-                    className="cursor-pointer group overflow-hidden"
-                    style={{
-                      position: "absolute",
-                      left: `${(cx / CANVAS_W) * 100}%`,
-                      top: `${(cy / CANVAS_H) * 100}%`,
-                      width: `${(cw / CANVAS_W) * 100}%`,
-                      height: `${(ch / CANVAS_H) * 100}%`,
-                    }}
-                  >
-                    <Image
-                      src={photo.url}
-                      alt={photoAlt(photo, label, i)}
-                      fill
-                      sizes="(max-width: 768px) 50vw, 30vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                      placeholder="blur"
-                      blurDataURL={BLUR_DATA_URL}
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                  </motion.div>
-                );
-              })}
+              {photos.map((photo, i) => (
+                <CanvasPhoto key={photo.id} photo={photo} label={label} index={i} onClick={() => setLightboxIndex(i)} />
+              ))}
             </div>
           </motion.div>
         ) : (
