@@ -22,8 +22,8 @@ function ConfirmModal({ title, message, confirmLabel = "Confirmar", danger = fal
       onPointerDown={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
       <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", padding: "28px 32px", maxWidth: 380, width: "90%", display: "flex", flexDirection: "column", gap: 12 }}>
-        <p className="font-mono text-[11px] tracking-[0.3em] uppercase" style={{ color: "var(--text-3)" }}>{title}</p>
-        <p className="font-mono text-[11px] leading-relaxed" style={{ color: "var(--text-2)" }}>{message}</p>
+        <p className="font-mono text-[11px] tracking-[0.3em] uppercase" style={{ color: "var(--text)" }}>{title}</p>
+        <p className="font-mono text-[11px] leading-relaxed" style={{ color: "var(--text)" }}>{message}</p>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 8 }}>
           <button
             onClick={onCancel}
@@ -77,7 +77,7 @@ function RichTextEditor({ defaultValue, onChange, placeholder }: {
           <button key={cmd}
             onPointerDown={e => { e.preventDefault(); exec(cmd); }}
             className="font-mono text-[13px] transition-opacity hover:opacity-70"
-            style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", minWidth: 40, minHeight: 40, display: "flex", alignItems: "center", justifyContent: "center", ...style }}
+            style={{ color: "var(--text)", background: "none", border: "none", cursor: "pointer", minWidth: 40, minHeight: 40, display: "flex", alignItems: "center", justifyContent: "center", ...style }}
             title={title}
           >{label}</button>
         ))}
@@ -90,7 +90,7 @@ function RichTextEditor({ defaultValue, onChange, placeholder }: {
           <button key={cmd}
             onPointerDown={e => { e.preventDefault(); exec(cmd); }}
             className="font-mono text-[15px] transition-opacity hover:opacity-70"
-            style={{ color: "var(--text-2)", background: "none", border: "none", cursor: "pointer", minWidth: 40, minHeight: 40, display: "flex", alignItems: "center", justifyContent: "center", letterSpacing: ls }}
+            style={{ color: "var(--text)", background: "none", border: "none", cursor: "pointer", minWidth: 40, minHeight: 40, display: "flex", alignItems: "center", justifyContent: "center", letterSpacing: ls }}
             title={title}
           >{label}</button>
         ))}
@@ -116,8 +116,8 @@ function RichTextEditor({ defaultValue, onChange, placeholder }: {
         data-placeholder={placeholder}
         style={{
           minHeight: 130, padding: "8px 10px",
-          fontFamily: "monospace", fontSize: 16, lineHeight: 1.6,
-          color: "var(--text-2)", outline: "none", whiteSpace: "pre-wrap", wordBreak: "break-word",
+          fontFamily: "var(--font-poppins), sans-serif", fontSize: 14, lineHeight: 1.6,
+          color: "var(--text)", outline: "none", whiteSpace: "pre-wrap", wordBreak: "break-word",
         }}
       />
     </div>
@@ -465,30 +465,23 @@ function PreviewModal({ photos, label, description, onClose }: {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "20px 32px", flexShrink: 0 }}>
         <div>
-          <p className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: "0.35em", color: "#444", marginBottom: 4 }}>Vista previa</p>
-          <h1 className="font-mono uppercase font-bold" style={{ fontSize: "clamp(20px, 3vw, 36px)", color: "white", letterSpacing: "-0.02em" }}>{label}</h1>
-          {description && (
-            <div
-              className="font-mono"
-              style={{ fontSize: 11, lineHeight: 1.7, color: "rgba(255,255,255,0.4)", marginTop: 6, maxWidth: 520, wordBreak: "break-word" }}
-              dangerouslySetInnerHTML={{ __html: description }}
-            />
-          )}
+          <p className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: "0.35em", color: "var(--text-2)", marginBottom: 4 }}>Vista previa</p>
+          <h1 className="font-mono uppercase font-bold" style={{ fontSize: "clamp(20px, 3vw, 36px)", color: "var(--text)", letterSpacing: "-0.02em" }}>{label}</h1>
         </div>
         <button
           onClick={onClose}
-          className="font-mono uppercase transition-colors hover:text-white"
-          style={{ fontSize: 11, letterSpacing: "0.3em", color: "#555", background: "none", border: "none", cursor: "pointer", minHeight: 44, flexShrink: 0, marginTop: 4 }}
+          className="font-mono uppercase transition-opacity hover:opacity-60"
+          style={{ fontSize: 11, letterSpacing: "0.3em", color: "var(--text)", background: "none", border: "none", cursor: "pointer", minHeight: 44, flexShrink: 0, marginTop: 4 }}
         >
           [ ESC ]
         </button>
       </div>
 
       {/* Canvas — same percentage layout as AlbumView */}
-      <div style={{ padding: "0 32px 40px", flex: 1 }}>
+      <div style={{ padding: "0 32px", flex: 1 }}>
         {placedPhotos.length === 0 ? (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
-            <p className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: "0.3em", color: "#333" }}>Sin fotos en el canvas</p>
+            <p className="font-mono uppercase" style={{ fontSize: 10, letterSpacing: "0.3em", color: "var(--text-2)" }}>Sin fotos en el canvas</p>
           </div>
         ) : (
           <div style={{ position: "relative", width: "100%", paddingBottom: `${(CANVAS_H / CANVAS_W) * 100}%` }}>
@@ -516,6 +509,17 @@ function PreviewModal({ photos, label, description, onClose }: {
           </div>
         )}
       </div>
+
+      {/* Description — below canvas, matching AlbumView */}
+      {description && (
+        <div style={{ padding: "32px 32px 48px" }}>
+          <div
+            className="font-mono"
+            style={{ fontSize: 13, lineHeight: 1.7, color: "var(--text)", maxWidth: 520, wordBreak: "break-word" }}
+            dangerouslySetInnerHTML={{ __html: description }}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -862,8 +866,8 @@ export default function AdminAlbumPage() {
       )}
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 md:px-10 h-14 border-b flex-shrink-0" style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}>
-        <button onClick={handleBack} className="font-mono text-[10px] tracking-[0.3em] uppercase transition-opacity hover:opacity-60" style={{ color: "var(--text-3)", background: "none", border: "none", cursor: "pointer", minHeight: 44 }}>← Admin</button>
-        <p className="font-mono text-[10px] tracking-[0.4em] uppercase truncate max-w-[200px]" style={{ color: "var(--text-3)" }}>{label}</p>
+        <button onClick={handleBack} className="font-mono text-[10px] tracking-[0.3em] uppercase transition-opacity hover:opacity-60" style={{ color: "var(--text)", background: "none", border: "none", cursor: "pointer", minHeight: 44 }}>← Admin</button>
+        <p className="font-mono text-[10px] tracking-[0.4em] uppercase truncate max-w-[200px]" style={{ color: "var(--text)" }}>{label}</p>
         <div className="w-16" />
       </div>
 
@@ -904,32 +908,32 @@ export default function AdminAlbumPage() {
             {/* Row 1: nombre, ubicación, alt */}
             <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 10 : 16 }}>
               <div style={{ flex: 1 }}>
-                <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Nombre del álbum</p>
+                <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-2)" }}>Nombre del álbum</p>
                 <input
                   value={localName}
                   onChange={e => setLocalName(e.target.value)}
                   className="font-mono w-full"
-                  style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 14 }}
+                  style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text)", outline: "none", fontSize: 14 }}
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Ubicación (ciudad, país)</p>
+                <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-2)" }}>Ubicación (ciudad, país)</p>
                 <input
                   value={localLocation}
                   onChange={e => setLocalLocation(e.target.value)}
                   placeholder="Barcelona, España"
                   className="font-mono w-full"
-                  style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 14 }}
+                  style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text)", outline: "none", fontSize: 14 }}
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-4)" }}>Alt text (SEO)</p>
+                <p className="font-mono text-[9px] tracking-[0.3em] uppercase mb-1" style={{ color: "var(--text-2)" }}>Alt text (SEO)</p>
                 <input
                   value={localAlt}
                   onChange={e => setLocalAlt(e.target.value)}
                   placeholder="Fashion shoot, Barcelona 2024"
                   className="font-mono w-full"
-                  style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text-2)", outline: "none", fontSize: 14 }}
+                  style={{ background: "var(--bg)", border: "1px solid var(--border)", padding: "8px 10px", color: "var(--text)", outline: "none", fontSize: 14 }}
                 />
               </div>
             </div>
@@ -963,7 +967,7 @@ export default function AdminAlbumPage() {
 
         {/* Canvas area */}
         <div ref={canvasAreaRef} className="flex-1 overflow-auto" style={{ padding: isMobile ? "10px" : "24px" }}>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-3" style={{ color: "var(--text-4)" }}>
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-3" style={{ color: "var(--text-2)" }}>
             {isMobile
               ? "Tapeá una foto (abajo) para agregar · arrastrá para mover"
               : "Arrastrá fotos desde la lista · mover · esquinas para redimensionar · ← quitar del canvas"}
@@ -1037,7 +1041,7 @@ export default function AdminAlbumPage() {
             onPointerMove={onSidebarDragMove}
             onPointerUp={onSidebarDragEnd}
           >
-            <p className="font-mono text-[8px] tracking-[0.3em] uppercase px-3 py-3 border-b" style={{ color: "var(--text-4)", borderColor: "var(--border)" }}>
+            <p className="font-mono text-[8px] tracking-[0.3em] uppercase px-3 py-3 border-b" style={{ color: "var(--text)", borderColor: "var(--border)" }}>
               Fotos ({photos.length})
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "8px 10px" }}>
