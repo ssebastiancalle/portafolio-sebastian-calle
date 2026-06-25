@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import type { AlbumSlim } from "@/lib/types";
 
@@ -20,20 +20,20 @@ export default function PortfolioGrid({ albums }: { albums: AlbumSlim[] }) {
   );
 }
 
-function AlbumCard({ album }: { album: AlbumSlim; index: number }) {
+function AlbumCard({ album, index }: { album: AlbumSlim; index: number }) {
   const [loaded, setLoaded] = useState(false);
-  const [inView, setInView] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -40px 0px" });
   const visible = loaded && inView;
 
   return (
     <motion.div
+      ref={ref}
       className="relative overflow-hidden group cursor-pointer"
       style={{ breakInside: "avoid", marginBottom: 12 }}
       initial={{ opacity: 0, y: 20 }}
       animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      onViewportEnter={() => setInView(true)}
-      viewport={{ once: true, margin: "0px 0px -40px 0px" }}
     >
       <Link href={`/album/${album.id}`} className="block w-full relative">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -41,7 +41,7 @@ function AlbumCard({ album }: { album: AlbumSlim; index: number }) {
           src={album.coverUrl}
           alt={album.label}
           className="w-full h-auto block transition-transform duration-700 group-hover:scale-105"
-          loading="lazy"
+          loading={index < 4 ? "eager" : "lazy"}
           onLoad={() => setLoaded(true)}
         />
       </Link>
