@@ -73,16 +73,12 @@ function CanvasPhoto({ photo, label, index, onClick }: { photo: LightboxPhoto; l
 }
 
 function MobilePhoto({ photo, label, index, onClick }: { photo: LightboxPhoto; label: string; index: number; onClick: () => void }) {
-  const [loaded, setLoaded] = useState(false);
-  const [inView, setInView] = useState(false);
-  const visible = loaded && inView;
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
-      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      onViewportEnter={() => setInView(true)}
-      viewport={{ once: true, margin: "0px 0px -40px 0px" }}
       onClick={onClick}
       className="cursor-pointer w-full"
     >
@@ -92,7 +88,6 @@ function MobilePhoto({ photo, label, index, onClick }: { photo: LightboxPhoto; l
         alt={photoAlt(photo, label, index)}
         className="w-full h-auto block"
         loading={index < 3 ? "eager" : "lazy"}
-        onLoad={() => setLoaded(true)}
       />
     </motion.div>
   );
