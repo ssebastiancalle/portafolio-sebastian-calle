@@ -73,23 +73,27 @@ function CanvasPhoto({ photo, label, index, onClick }: { photo: LightboxPhoto; l
 }
 
 function MobilePhoto({ photo, label, index, onClick }: { photo: LightboxPhoto; label: string; index: number; onClick: () => void }) {
+  const [loaded, setLoaded] = useState(false);
+  const ratio = photo.width && photo.height ? photo.width / photo.height : 1.5;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.1 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      onClick={onClick}
-      className="cursor-pointer w-full"
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={photo.url}
-        alt={photoAlt(photo, label, index)}
-        className="w-full h-auto block"
-        loading={index < 3 ? "eager" : "lazy"}
-      />
-    </motion.div>
+    <div onClick={onClick} className="cursor-pointer w-full">
+      <div style={{ position: "relative", paddingBottom: `${(1 / ratio) * 100}%` }}>
+        <div
+          className="absolute inset-0 transition-opacity duration-300"
+          style={{ background: "var(--skeleton-bg, #1c1c1c)", opacity: loaded ? 0 : 1 }}
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photo.url}
+          alt={photoAlt(photo, label, index)}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ opacity: loaded ? 1 : 0, transition: "opacity 0.6s ease" }}
+          loading={index < 3 ? "eager" : "lazy"}
+          onLoad={() => setLoaded(true)}
+        />
+      </div>
+    </div>
   );
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
 import Link from "next/link";
 import type { AlbumSlim } from "@/lib/types";
 
@@ -20,24 +20,30 @@ export default function PortfolioGrid({ albums }: { albums: AlbumSlim[] }) {
 }
 
 function AlbumCard({ album, index }: { album: AlbumSlim; index: number }) {
+  const [loaded, setLoaded] = useState(false);
+  const ratio = album.coverAspectRatio ?? 1.5;
+
   return (
-    <motion.div
-      className="relative overflow-hidden group cursor-pointer"
-      style={{ breakInside: "avoid", marginBottom: 12 }}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.1 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <Link href={`/album/${album.id}`} className="block w-full relative">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={album.coverUrl}
-          alt={album.label}
-          className="w-full h-auto block transition-transform duration-700 group-hover:scale-105"
-          loading={index < 4 ? "eager" : "lazy"}
-        />
+    <div style={{ breakInside: "avoid", marginBottom: 12 }}>
+      <Link href={`/album/${album.id}`} className="block w-full overflow-hidden group cursor-pointer">
+        <div style={{ position: "relative", paddingBottom: `${(1 / ratio) * 100}%` }}>
+          {/* Skeleton */}
+          <div
+            className="absolute inset-0 transition-opacity duration-300"
+            style={{ background: "var(--skeleton-bg, #1c1c1c)", opacity: loaded ? 0 : 1 }}
+          />
+          {/* Image */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={album.coverUrl}
+            alt={album.label}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            style={{ opacity: loaded ? 1 : 0, transition: "opacity 0.6s ease" }}
+            loading={index < 4 ? "eager" : "lazy"}
+            onLoad={() => setLoaded(true)}
+          />
+        </div>
       </Link>
-    </motion.div>
+    </div>
   );
 }
