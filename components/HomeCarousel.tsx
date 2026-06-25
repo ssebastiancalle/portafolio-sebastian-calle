@@ -63,7 +63,7 @@ export default function HomeCarousel({ albums }: Props) {
     return (
       <div
         className="relative w-full flex flex-col bg-black"
-        style={{ height: "100svh", paddingTop: "64px" }}
+        style={{ height: "100svh", paddingTop: "80px" }}
       >
         <div
           className="relative flex-1 overflow-hidden"
@@ -250,7 +250,7 @@ export default function HomeCarousel({ albums }: Props) {
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.04}
       onDragEnd={handleDesktopDragEnd}
-      style={{ touchAction: "pan-y", cursor: "default" }}
+      style={{ touchAction: "pan-y", cursor: "default", paddingTop: "80px" }}
     >
       <div
         className="grid px-12 w-full items-center gap-4"
