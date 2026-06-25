@@ -31,11 +31,11 @@ export default function Header() {
         {pathname === "/" ? (
           <div className="flex flex-col gap-1">
             <span className="font-bold tracking-widest uppercase text-white"
-                  style={{ fontSize: "clamp(1rem, 3vw, 1.75rem)", fontFamily: "var(--font-playfair), serif" }}>
+                  style={{ fontSize: "clamp(0.9rem, 1.6vw, 1.1rem)", fontFamily: "var(--font-playfair), serif" }}>
               Sebastian Calle
             </span>
             <span className="font-mono uppercase tracking-[0.2em]"
-                  style={{ fontSize: "clamp(0.65rem, 1vw, 0.75rem)", color: "var(--text)" }}>
+                  style={{ fontSize: "clamp(0.55rem, 0.7vw, 0.62rem)", color: "var(--text)" }}>
               Photographer &amp; Retoucher
             </span>
           </div>
