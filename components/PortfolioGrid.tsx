@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import type { AlbumSlim } from "@/lib/types";
 
@@ -21,7 +21,12 @@ export default function PortfolioGrid({ albums }: { albums: AlbumSlim[] }) {
 
 function AlbumCard({ album, index }: { album: AlbumSlim; index: number }) {
   const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
   const ratio = album.coverAspectRatio ?? 1.5;
+
+  useEffect(() => {
+    if (imgRef.current?.complete) setLoaded(true);
+  }, []);
 
   return (
     <div style={{ breakInside: "avoid", marginBottom: 12 }}>
@@ -32,9 +37,9 @@ function AlbumCard({ album, index }: { album: AlbumSlim; index: number }) {
             className="absolute inset-0 transition-opacity duration-300"
             style={{ background: "var(--skeleton-bg, #1c1c1c)", opacity: loaded ? 0 : 1 }}
           />
-          {/* Image */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            ref={imgRef}
             src={album.coverUrl}
             alt={album.label}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"

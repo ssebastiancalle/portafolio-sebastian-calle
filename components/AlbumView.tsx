@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -74,7 +74,12 @@ function CanvasPhoto({ photo, label, index, onClick }: { photo: LightboxPhoto; l
 
 function MobilePhoto({ photo, label, index, onClick }: { photo: LightboxPhoto; label: string; index: number; onClick: () => void }) {
   const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
   const ratio = photo.width && photo.height ? photo.width / photo.height : 1.5;
+
+  useEffect(() => {
+    if (imgRef.current?.complete) setLoaded(true);
+  }, []);
 
   return (
     <div onClick={onClick} className="cursor-pointer w-full">
@@ -85,6 +90,7 @@ function MobilePhoto({ photo, label, index, onClick }: { photo: LightboxPhoto; l
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          ref={imgRef}
           src={photo.url}
           alt={photoAlt(photo, label, index)}
           className="absolute inset-0 w-full h-full object-cover"
