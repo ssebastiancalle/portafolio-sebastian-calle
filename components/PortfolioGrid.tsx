@@ -42,7 +42,7 @@ function AlbumCard({ album, index }: { album: AlbumSlim; index: number }) {
             ref={imgRef}
             src={album.coverUrl}
             alt={album.label}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="absolute inset-0 w-full h-full object-cover"
             style={{ opacity: loaded ? 1 : 0, transition: "opacity 0.6s ease" }}
             loading={index < 4 ? "eager" : "lazy"}
             onLoad={() => setLoaded(true)}
